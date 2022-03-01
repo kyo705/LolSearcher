@@ -1,0 +1,420 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<style>
+		.no_item{
+			border: 1px solid #323232;
+			width:19px;
+			height:19px;
+			background-color:#646464;
+		}
+		.rank_border{
+			text-align: center;
+			border: 1px solid #d2d2d2;
+			width:300px;
+			height:120px;
+			display: flex;
+			padding:15px;
+			margin: 10px;
+		}
+		.itemlist{
+			display: flex;
+			width:200px;
+		}
+		.item{
+			margin: 2px;
+			width: 20px;
+			height: 20px;
+		}
+		.pa{
+		display: flex;
+		}
+		.tierinfo{
+		width:170px;
+		}
+		.matchlist{
+		width:1000px;
+		}
+		.participantlist{
+		flex:4;
+		}
+		.mostchamp-container{
+			display: flex;
+			justify-content: space-around;
+			padding: 5px;
+			margin-right: 10px;
+			margin-left: 10px;
+			border: 1px solid #d2d2d2;
+		}
+		.head{
+			display: flex;
+			justify-content: space-around;
+		}
+		.match{
+			margin: 10px;
+			text-align: center;
+		}
+		.renewbotton{
+			border: none;
+			padding: 15px 30px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			cursor: pointer;
+		}
+		.specificMatch{
+			display : none; 
+			margin-left:10px;
+			margin-right:10px;
+		}
+		.mostbutton{
+			border: none;
+			padding: 6px 12px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			cursor: pointer;
+		}
+		.matchbutton{
+			border: none;
+			padding: 6px 12px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			cursor: pointer;
+		}
+	</style>
+	<title th:text="'소환사명 : '+${summoner.name}"></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<h1 class="head">
+		<a href="/">LOL Searcher</a>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<form name="summoner" action ="/summoner" method="POST">
+			<input type="text" name="name" placeholder="소환사 이름 검색 입력">
+			<button type="submit">검색</button>
+		</form>
+	</h1>
+	<div class="pa">
+		<img style="padding: 10px 10px;" th:src="'/profileicon/'+${summoner.profileIconId}+'.png'" height="90" width="80"/>
+		<div style="padding: 6px 12px;">
+			<div style="font-size:x-large;" th:text="${summoner.name}"></div>
+			<div style="font-size:large;" th:text="'Level : '+ ${summoner.summonerLevel}"></div>
+		</div>
+	</div>
+<div class="pa">
+	<div>
+		<div class="rank_border" th:if="${rank.solorank} == null">
+			<img th:src="'/tier_icon/provisional.png'" height="110" width="100"/>
+			<div>솔로 랭크</div>
+			<div>Unranked</div>
+		</div>
+		<div class="rank_border" th:unless="${rank.solorank} == null" th:with="rank = ${rank.solorank}">
+			<img th:src="'/tier_icon/Emblem_'+${rank.tier}+'.png'" height="110" width="100"/>
+			<div class="tierinfo">
+				<div>솔로 랭크</div>
+				<div th:text="${rank.tier}+' '+${rank.rank}"></div>
+				<div th:text="${rank.leaguePoints}+'LP'"></div>
+				<div th:text="${rank.wins}+'승 '+${rank.losses}+'패'"></div>
+				<div th:text="'승률 : '+${100*rank.wins/(rank.losses+rank.wins)}+'%'"></div>
+			</div>
+		</div>
+		<div class="rank_border" th:if="${rank.teamrank} == null">
+			<img th:src="'/tier_icon/provisional.png'" height="110" width="100"/>
+			<div class="tierinfo">
+				<div>자유 랭크</div>
+				<div>Unranked</div>
+			</div>
+		</div>
+		<div class="rank_border" th:unless="${rank.teamrank} == null" th:with="rank = ${rank.teamrank}">
+			<img th:src="'/tier_icon/Emblem_'+${rank.tier}+'.png'" height="110" width="100"/>
+			<div class="tierinfo">
+				<div>자유 랭크</div>
+				<div th:text="${rank.tier}+' '+${rank.rank}"></div>
+				<div th:text="${rank.leaguePoints}+'LP'"></div>
+				<div th:text="${rank.wins}+'승 '+${rank.losses}+'패'"></div>
+				<div th:text="'승률 : '+${100*rank.wins/(rank.losses+rank.wins)}+'%'"></div>
+			</div>
+		</div>
+		<div>
+			<div class="mostchamp-container">
+				<button class = "mostbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,-1,'${params.matchgametype}')|">S2022 전체</button>
+				<button class = "mostbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,420,'${params.matchgametype}')|">솔로 랭크</button>
+				<button class = "mostbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,440,'${params.matchgametype}')|">자유 랭크</button>
+			</div>
+			<div class="mostchamp-container" th:if ="${#lists.size(mostchamps)} != 0" th:each="mostchamp : ${mostchamps}">
+				<img th:title="${mostchamp.championid}" th:src="'/champion/'+${mostchamp.championid}+'.png'" height="50" width="50"/>
+				<div>
+					<div th:text="${mostchamp.championid}"></div>
+					<div th:text="'CS ' + ${#numbers.formatDecimal(mostchamp.avgcs,1,0)}"></div>
+				</div>
+				<div>
+					<div th:if="${mostchamp.avgdeath} == 0">평점 : perfect</div>
+					<div th:unless="${mostchamp.avgdeath} == 0" th:text="'평점 : ' + ${#numbers.formatDecimal((mostchamp.avgkill+mostchamp.avgassist)/mostchamp.avgdeath,1,2)}"></div>
+					<div th:text="${#numbers.formatDecimal(mostchamp.avgkill,1,1)} + ' / ' + ${#numbers.formatDecimal(mostchamp.avgdeath,1,1)} + ' / ' + ${#numbers.formatDecimal(mostchamp.avgassist,1,1)}"></div>
+				</div>
+				<div>
+					<div th:text="${mostchamp.totalgame} + ' 게임'"></div>
+				</div>
+			</div>
+			<div class = "mostchamp-container" th:unless ="${#lists.size(mostchamps)} != 0" >
+				기록된 전적이 없습니다.
+			</div>
+		</div>
+	</div>
+	<div class="matchlist" th:with="queue_val=0">
+		<script>let timestamp,date,queue_mode;</script>
+		<button class = "renewbotton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',true,'${params.mostgametype}','${params.matchgametype}')|">전적 갱신</button>
+		<div class="mostchamp-container">
+			<button class = "matchbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,'${params.mostgametype}', -1)|">전체</button>
+			<button class = "matchbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,'${params.mostgametype}', 420)|">솔로 랭크</button>
+			<button class = "matchbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,'${params.mostgametype}', 440)|">자유 랭크</button>
+		</div>
+		<div th:each="match,i:${matches}" th:if="${i.index}<20">
+			<div class="stat" style="margin:10px; display:flex;">
+				<div class="pa" th:each="member : ${match.members}" th:if="${member.summonerid} == ${summoner.summonerid}">
+					<div class="match">
+						<div th:if="${match.queueId} == '420'">솔로 랭크</div>
+						<div th:if="${match.queueId} == '430'">일반</div>
+						<div th:if="${match.queueId} == '440'">자유 5:5 랭크</div>
+						<div th:if="${match.queueId} == '450'">무작위 총력전</div>
+						<div th:if="${match.queueId} == '1400'">궁극기 모드</div>
+						
+						<script th:inline="javascript">
+							/*<![CDATA[*/
+								timestamp = "[[${match.gameEndTimestamp}]]";
+							/*]]>*/
+							var nowtime= Date.now()-timestamp;
+							//date=new Date(nowtime/1000);
+							nowtime=nowtime/1000;
+							if(nowtime<60){
+								document.write('<div>방금 전</div>');
+							}
+							else{
+								nowtime=nowtime/60;
+								if(nowtime<60){
+									document.write('<div>'+parseInt(nowtime)+'분 전</div>');
+								}
+								else{
+									nowtime=nowtime/60;
+									if(nowtime<24){
+										document.write('<div>'+parseInt(nowtime)+'시간 전</div>');
+									}
+									else{
+										nowtime=nowtime/24;
+										document.write('<div>'+parseInt(nowtime)+'일 전</div>');
+									}
+								}
+							}
+						</script>
+						
+						<script th:inline="javascript">
+							/*<![CDATA[*/
+								gameduration = "[[${match.gameDuration}]]";
+							/*]]>*/
+							var duration_min = gameduration/60;
+							var duration_sec = gameduration%60;
+											
+							document.write('<div>'+parseInt(duration_min)+'분 '+parseInt(duration_sec)+'초'+'</div>');
+						</script>
+					</div>
+					<div class="match">
+						<img th:src="'/champion/'+${member.championid}+'.png'" width="50"/>
+						<div th:text="${member.championid}"></div>
+					</div>
+					
+					<div class="match">
+						<div th:text="${member.kills}+'/'+${member.deaths}+'/'+${member.assists}"></div>
+						<div th:if="${member.deaths}==0">
+							<div th:if="${member.kills}+${member.assists}==0">평점 0</div>
+							<div th:unless="${member.kills}+${member.assists}==0">평점 perfect</div>
+						</div>
+						<div th:unless="${member.deaths}==0" th:with="score=(${member.kills}+${member.assists})/${member.deaths}" th:text="'평점 '+${#numbers.formatDecimal(score, 1, 2)}"></div>
+						<div th:if="${match.gameDuration}/60<5">
+							다시하기
+							<script>document.querySelector(".stat").className='draw';</script>
+						</div>
+						<div th:unless="${match.gameDuration}/60<5">
+							<div th:if="${member.wins} == true">
+								승리
+								<script>document.querySelector(".stat").className='win';</script>
+							</div>
+							<div th:unless="${member.wins} == true">
+								패배
+								<script>document.querySelector(".stat").className='lose';</script>
+							</div>
+						</div>
+					</div>
+					
+					<div class="match">
+						<div th:text="'레벨' + ${member.champLevel}"></div>
+						<div th:text="${member.cs} + ' CS'"></div>
+					</div>
+					
+					<div style="flex:4; margin: 10px;">
+						<div class="itemlist">
+							<div class="item">
+								<div th:if="${member.item0}==0" class="no_item"></div>
+								<img th:unless="${member.item0}==0" th:src="'/item/'+${member.item0}+'.png'" width="20"/>
+							</div>
+							<div class="item">
+								<div th:if="${member.item1}==0" class="no_item"></div>
+								<img th:unless="${member.item1}==0" th:src="'/item/'+${member.item1}+'.png'" width="20"/>
+							</div>
+							<div class="item">
+								<div th:if="${member.item2}==0" class="no_item"></div>
+								<img th:unless="${member.item2}==0" th:src="'/item/'+${member.item2}+'.png'" width="20"/>
+							</div>
+						</div>
+						<div class="itemlist">
+							<div class="item">
+								<div th:if="${member.item3}==0" class="no_item"></div>
+								<img th:unless="${member.item3}==0" th:src="'/item/'+${member.item3}+'.png'" width="20"/>
+							</div>
+							<div class="item">
+								<div th:if="${member.item4}==0" class="no_item"></div>
+								<img th:unless="${member.item4}==0" th:src="'/item/'+${member.item4}+'.png'" width="20"/>
+							</div>
+							<div class="item">
+								<div th:if="${member.item5}==0" class="no_item"></div>
+								<img th:unless="${member.item5}==0" th:src="'/item/'+${member.item5}+'.png'" width="20"/>
+							</div>
+							<div class="item">
+								<div th:if="${member.item6}==0" class="no_item"></div>
+								<img th:unless="${member.item6}==0" th:src="'/item/'+${member.item6}+'.png'" width="20"/>
+							</div>
+						</div>
+						<div th:text="'제어 와드 ' + ${member.visionWardsBoughtInGame}"></div>
+					</div>
+				</div>
+				<div>
+					<div class="pa" th:each="member,i : ${match.members}" th:if="${i.index}<5">
+						<img th:src="'/champion/'+${member.championid}+'.png'" height="15" width="15"/>
+						<a th:attr="onclick=|javascript:summ('${member.name}')|" th:text= "${member.name}"></a>
+					</div>
+				</div>
+				<div>
+					<div class="pa" th:each="member,i : ${match.members}" th:if="${i.index}>=5">
+						<img th:src="'/champion/'+${member.championid}+'.png'" height="15" width="15"/>
+						<a th:attr="onclick=|javascript:summ('${member.name}')|" th:text= "${member.name}"></a>
+					</div>
+				</div>
+				<div>
+				    <input value="▼" type="button" th:attr="onclick=|javascript:morebutton('${i.index}')|"/>
+				</div>
+			</div>
+			<div class ="specificMatch">
+				<div style="display: flex;" th:each="member : ${match.members}">
+					
+					<img style="margin-left: 5px; margin-right: 5px;" th:title="${member.championid}" th:src="'/champion/'+${member.championid}+'.png'" height="25" width="25"/>
+					<div style="margin-left: 5px; margin-right: 5px; text-align: center; font-size: small;" th:text="${member.name}"></div>
+					<div style="margin-left: 5px; margin-right: 5px; text-align: center; font-size: small;">
+						<div th:if="${member.deaths}==0">
+							<div th:if="${member.kills}+${member.assists}==0">평점 0</div>
+							<div th:unless="${member.kills}+${member.assists}==0">평점 perfect</div>
+						</div>
+						<div th:unless="${member.deaths}==0" th:with="score=(${member.kills}+${member.assists})/${member.deaths}" th:text="${#numbers.formatDecimal(score, 1, 2)}"></div>
+						<div th:text="${member.kills} + ' / ' + ${member.deaths} + ' / ' + ${member.assists}"></div>
+					</div>
+					<div style="margin-left: 5px; margin-right: 5px;text-align: center; font-size: small;" th:title="'시야점수 / 와드 구입 : '+${member.visionscore}+ '/' +${member.visionWardsBoughtInGame} + ' 와드 설치/와드 제거 : '+${member.wardpalced+member.detectorwardplaced}+'/'+${member.wardkill}">
+						<div th:text="${member.visionscore}+'/'+${member.visionWardsBoughtInGame}"></div>
+						<div th:text="${member.wardpalced+member.detectorwardplaced}+' / '+${member.wardkill}"></div>
+					</div>
+					<div style="margin-left: 5px; margin-right: 5px;text-align: center; font-size: small;" th:text="'포지션 : ' + ${member.positions}"></div>
+				</div>
+			</div>
+		</div>
+		<div class = "mostchamp-container" th:if ="${#lists.size(matches)} == 0" >
+			기록된 전적이 없습니다.
+		</div>
+	</div>
+</div>
+<script>
+function summ(param){
+    
+    var f=document.summoner;   //폼 name
+    f.name.value = param;    //POST방식으로 넘기고 싶은 값(hidden 변수에 값을 넣음)
+    f.action="/summoner"; //이동할 페이지
+    f.target="POP";    //폼의 타겟 지정(위의 새창을 지정함)
+    f.method="post"; //POST방식
+    f.submit();
+
+
+}
+
+function sendPost(name, isrenew, mostgametype, matchgametype) {
+	var form = document.createElement("form");
+
+	form.setAttribute("charset", "UTF-8");
+	form.setAttribute("method", "Post");
+	form.setAttribute("action", "/summoner");
+	
+	var hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("name", "name");
+	hiddenField.setAttribute("value", name);
+	form.appendChild(hiddenField);
+	
+	hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("name", "renew");
+	hiddenField.setAttribute("value", isrenew);
+	form.appendChild(hiddenField);
+	
+	hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("name", "mostgametype");
+	hiddenField.setAttribute("value", mostgametype);
+	form.appendChild(hiddenField);
+	
+	hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("name", "matchgametype");
+	hiddenField.setAttribute("value", matchgametype);
+	form.appendChild(hiddenField);
+	
+	document.body.appendChild(form);
+
+	form.submit();
+}
+
+function morebutton(i) {
+	var specificmatches = document.getElementsByClassName('specificMatch');
+	if(specificmatches[i].style.display != 'block'){
+		specificmatches[i].style.display = 'block';
+		this.value = '▲';
+		}else{
+			specificmatches[i].style.display = 'none';
+			this.value = '▼';
+		}
+}
+
+var x=document.querySelectorAll(".win");
+var y=document.querySelectorAll(".lose");
+var z=document.querySelectorAll(".draw");
+var i=0,j=0,k=0;
+while(i<x.length){
+	x[i].style.backgroundColor='#50C2FF';
+	i++;
+	}
+while(j<y.length){
+	y[j].style.backgroundColor='#D7567F';
+	j++;
+	}
+while(k<z.length){
+	z[k].style.backgroundColor='#8c8c8c';
+	k++;
+	}
+</script>
+</body>
+</html>
