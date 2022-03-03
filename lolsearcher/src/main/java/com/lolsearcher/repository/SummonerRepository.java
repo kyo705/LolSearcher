@@ -1,8 +1,6 @@
 package com.lolsearcher.repository;
 
 import java.util.List;
-import java.util.Set;
-
 import javax.persistence.EntityExistsException;
 
 import com.lolsearcher.domain.Dto.MostChampDto;
@@ -20,11 +18,11 @@ public interface SummonerRepository {
 	public void updatesummoner(Summoner summoner1,Summoner summoner2);
 
 	//-----------------Rank 테이블 CRUD----------------------------------
-	public void saveLeagueEntry(Set<Rank> set) throws EntityExistsException;
+	public void saveLeagueEntry(List<Rank> set) throws EntityExistsException;
 	
-	public Set<Rank> findLeagueEntry(String summonerid);
+	public List<Rank> findLeagueEntry(String summonerid);
 	
-	public void updateLeagueEntry(Set<Rank> apileague, Set<Rank> dbleague);
+	public void updateLeagueEntry(List<Rank> apileague, List<Rank> dbleague);
 	
 	//-----------------Match,Member(1:N) 테이블 CRUD----------------------------------
 	public boolean findMatchid(String matchid);

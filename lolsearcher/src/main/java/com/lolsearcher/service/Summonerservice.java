@@ -3,13 +3,12 @@ package com.lolsearcher.service;
 import java.util.ArrayList;
 
 import java.util.List;
-import java.util.Set;
-
 import javax.persistence.EntityExistsException;
 
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.domain.Dto.MatchDto;
 import com.lolsearcher.domain.Dto.MostChampDto;
@@ -42,7 +41,7 @@ public class Summonerservice {
 	//닉네임으로 DB에 조회하게 되면 갱신되지 않은 Summoner에 의해 DB에 중복된 닉네임이 있을 경우 발생. 
 	//그러면 어떤 Summoner 객체를 가져와야할지 불분명, 버그 발생
 	//따라서 라이엇 서버에서 제공하는 api를 활용하여 닉네임으로 id를 조회한 후 id값으로 DB에 조회 => 버그 발생 제거
-	public SummonerDto findSummoner(String summonername) {
+	public SummonerDto findSummoner(String summonername) throws WebClientResponseException {
 		Summoner apisummoner = riotApi.getSummoner(summonername);
 		Summoner dbsummoner = summonerrepository.findsummonerById(apisummoner.getId());
 		
@@ -56,7 +55,7 @@ public class Summonerservice {
 		return summonerDto;
 	}
 	
-	public SummonerDto setSummoner(String summonername) throws EntityExistsException {
+	public SummonerDto setSummoner(String summonername) throws EntityExistsException,WebClientResponseException {
 		Summoner apisummoner = riotApi.getSummoner(summonername);
 		SummonerDto summonerDto = new SummonerDto(apisummoner);
 		if(apisummoner==null) {
@@ -74,11 +73,11 @@ public class Summonerservice {
 		return summonerDto;
 	}
 	
-	public TotalRanksDto setLeague(SummonerDto summonerdto) throws EntityExistsException {
+	public TotalRanksDto setLeague(SummonerDto summonerdto) throws EntityExistsException,WebClientResponseException {
 		String summonerid = summonerdto.getSummonerid();
 		
-		Set<Rank> apileague = riotApi.getLeague(summonerid);
-		Set<Rank> dbleague = summonerrepository.findLeagueEntry(summonerid);
+		List<Rank> apileague = riotApi.getLeague(summonerid);
+		List<Rank> dbleague = summonerrepository.findLeagueEntry(summonerid);
 		
 		if(dbleague.size()==0) {
 			summonerrepository.saveLeagueEntry(apileague);
@@ -107,7 +106,7 @@ public class Summonerservice {
 		
 		String summonerid = summonerdto.getSummonerid();
 		
-		Set<Rank> ranks = summonerrepository.findLeagueEntry(summonerid);
+		List<Rank> ranks = summonerrepository.findLeagueEntry(summonerid);
 		
 		TotalRanksDto rank = new TotalRanksDto();
 		
@@ -125,7 +124,7 @@ public class Summonerservice {
 		return rank;
 	}
 	//완성
-	public void setMatches(SummonerDto summonerdto) throws EntityExistsException {
+	public void setMatches(SummonerDto summonerdto) throws EntityExistsException,WebClientResponseException {
 		
 		String id = summonerdto.getSummonerid();
 		String puuid = summonerdto.getPuuid();

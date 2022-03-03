@@ -2,12 +2,9 @@ package com.lolsearcher.restapi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientResponseException;
@@ -196,10 +193,10 @@ public class RiotRestApiv1 implements RiotRestAPI{
 	}
 	
 	//¿Ï¼º
-	public Set<Rank> getLeague(String summonerid){
+	public List<Rank> getLeague(String summonerid){
 		
 		HashMap<String, Object> result = new HashMap<String, Object>();
-		Set<Rank> leagueSet = new HashSet<>();
+		List<Rank> leagueSet = new ArrayList<>();
 		
 		try{
 			String url = "https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/"+summonerid+"?";      

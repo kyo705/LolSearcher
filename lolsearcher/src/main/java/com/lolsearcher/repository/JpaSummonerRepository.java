@@ -1,11 +1,8 @@
 package com.lolsearcher.repository;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 
@@ -50,8 +47,8 @@ public class JpaSummonerRepository implements SummonerRepository {
 	//-----------------Rank Å×ÀÌºí CRUD----------------------------------
 
 	@Override
-	public void saveLeagueEntry(Set<Rank> set) throws EntityExistsException {
-		Iterator<Rank> it =  set.iterator();
+	public void saveLeagueEntry(List<Rank> list) throws EntityExistsException {
+		Iterator<Rank> it =  list.iterator();
 		while(it.hasNext()) {
 			Rank rank = it.next();
 			em.persist(rank);
@@ -60,18 +57,15 @@ public class JpaSummonerRepository implements SummonerRepository {
 	}
 	
 	@Override
-	public Set<Rank> findLeagueEntry(String id) {
+	public List<Rank> findLeagueEntry(String id) {
 		String jpql = "select r from Rank r where r.ck.summonerId = :id";
 		List<Rank> list = em.createQuery(jpql, Rank.class).setParameter("id", id).getResultList();
-		Set<Rank> set = new HashSet<>();
-		for(Rank r : list) {
-			set.add(r);
-		}
-		return set;
+		
+		return list;
 	}
 
 	@Override
-	public void updateLeagueEntry(Set<Rank> apileague, Set<Rank> dbleague) {
+	public void updateLeagueEntry(List<Rank> apileague, List<Rank> dbleague) {
 		
 		Iterator<Rank> it1 = dbleague.iterator();
 		Iterator<Rank> it2 = apileague.iterator();
@@ -155,6 +149,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 		return em.createQuery(jpql, Match.class).setParameter("matchid", matchid).getSingleResult();
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List<String> findMostchampids(String summonerid, int queue, int season) {
 		List<String> champids = new ArrayList<>();

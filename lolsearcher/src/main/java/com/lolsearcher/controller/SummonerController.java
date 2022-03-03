@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.lolsearcher.domain.Dto.MatchDto;
@@ -45,7 +46,21 @@ public class SummonerController {
 		List<MatchDto> matches;
 		List<MostChampDto> mostchamps;
 		
-		SummonerDto summonerdto = summonerservice.findSummoner(param.getName());
+		SummonerDto summonerdto = null;
+		try {
+			summonerdto = summonerservice.findSummoner(param.getName());
+		}catch(WebClientResponseException e) {
+			if(e.getStatusCode().toString().equals("404 NOT_FOUND")) {
+				mv.addObject("params", param);
+				mv.setViewName("error_name");
+				return mv;
+			}else if(e.getStatusCode().toString().equals("429 TOO_MANY_REQUESTS")) {
+				mv.setViewName("error_manyreq");
+				return mv;
+			}
+			
+		}
+		
 		
 		//DB에서 소환사 정보가 없는 경우 || 클라이언트에서 전적 갱신 버튼을 통해 갱신 요청이 들어오는 경우
 		if(summonerdto.getSummonerid()==null||param.isRenew()) {
@@ -54,10 +69,17 @@ public class SummonerController {
 				summonerdto = summonerservice.setSummoner(param.getName()); //riot 서버로부터 정보 받아옴
 			}catch(EntityExistsException e) {
 				summonerdto = summonerservice.findSummoner(param.getName());
+			}catch(WebClientResponseException e) {
+				System.out.println(e.getStatusCode());
+				if(e.getStatusCode().toString().equals("429 TOO_MANY_REQUESTS")) {
+					mv.setViewName("error_manyreq");
+					return mv;
+				}
 			}
 			
 			//소환사 정보가 없는 경우 클라이언트에게 에러 페이지 전달.
 			if(summonerdto.getSummonerid() == null) {
+				mv.addObject("params", param);
 				mv.setViewName("error_name");
 				return mv;
 			}
@@ -67,12 +89,25 @@ public class SummonerController {
 				ranks = summonerservice.setLeague(summonerdto);
 			}catch(EntityExistsException e) {
 				ranks = summonerservice.getLeague(summonerdto);
+			}catch(WebClientResponseException e) {
+				System.out.println(e.getStatusCode());
+				if(e.getStatusCode().toString().equals("429 TOO_MANY_REQUESTS")) {
+					mv.setViewName("error_manyreq");
+					return mv;
+				}
+				ranks = null;
 			}
 			//RIOT 서버에서 데이터 받아와서 DB에 저장. 멀티 스레드 환경이기 때문에 DB에 중복 저장에 대한 예외 처리
 			try {
 				summonerservice.setMatches(summonerdto);
 			}catch(EntityExistsException e) {
 				System.out.println(e.getMessage());
+			}catch(WebClientResponseException e) {
+				System.out.println(e.getStatusCode());
+				if(e.getStatusCode().toString().equals("429 TOO_MANY_REQUESTS")) {
+					mv.setViewName("error_manyreq");
+					return mv;
+				}
 			}
 			
 			

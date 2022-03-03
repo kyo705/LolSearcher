@@ -1,13 +1,11 @@
 package com.lolsearcher.restapi;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.domain.entity.Match;
 import com.lolsearcher.domain.entity.Member;
@@ -15,9 +13,6 @@ import com.lolsearcher.domain.entity.MemberCompKey;
 import com.lolsearcher.domain.entity.Rank;
 import com.lolsearcher.domain.entity.RankCompKey;
 import com.lolsearcher.domain.entity.Summoner;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class RiotRestApiv2 implements RiotRestAPI{
 
@@ -31,7 +26,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Summoner getSummoner(String summonername) {
+	public Summoner getSummoner(String summonername) throws WebClientResponseException {
 		
 		Summoner summoner = new Summoner();
 		
@@ -52,7 +47,8 @@ public class RiotRestApiv2 implements RiotRestAPI{
 	}
 	
 	@Override
-	public List<String> listofmatch(String puuid, int queue, String type, int start, int count, String lastmatchid) {
+	public List<String> listofmatch(String puuid, int queue, String type,
+			int start, int count, String lastmatchid) throws WebClientResponseException {
 		
 		List<String> matchidlist = new ArrayList<>();
 		
@@ -95,7 +91,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public Match getmatch(String matchid) {
+	public Match getmatch(String matchid) throws WebClientResponseException{
 		
 		Match match = new Match();
 		
@@ -170,9 +166,9 @@ public class RiotRestApiv2 implements RiotRestAPI{
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Set<Rank> getLeague(String summonerid) {
+	public List<Rank> getLeague(String summonerid) throws WebClientResponseException {
 		
-		Set<Rank> ranklist = new HashSet<>();
+		List<Rank> ranklist = new ArrayList<>();
 		
 		List<Map> ranks = webclient.get().uri("https://kr.api.riotgames.com"
 				+ "/lol/league/v4/entries/by-summoner/"+summonerid+"?api_key="+key)
