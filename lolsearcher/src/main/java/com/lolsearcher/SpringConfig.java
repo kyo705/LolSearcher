@@ -5,11 +5,12 @@ import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.lolsearcher.repository.JpaSummonerRepository;
 import com.lolsearcher.repository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
-import com.lolsearcher.restapi.RiotRestApiv1;
+import com.lolsearcher.restapi.RiotRestApiv2;
 import com.lolsearcher.service.Summonerservice;
 
 
@@ -17,10 +18,12 @@ import com.lolsearcher.service.Summonerservice;
 public class SpringConfig {
 
 	private EntityManager em;
+	private WebClient.Builder webclientBuilder;
 	
 	@Autowired
-	public SpringConfig(EntityManager em) {
+	public SpringConfig(EntityManager em, WebClient.Builder webclientBuilder) {
 		this.em = em;
+		this.webclientBuilder = webclientBuilder;
 	}
 	
 	@Bean
@@ -36,7 +39,11 @@ public class SpringConfig {
 	}
 	@Bean
 	public RiotRestAPI riotrestapi() {
-		return new RiotRestApiv1();
+		return new RiotRestApiv2(webclient());
+	}
+	@Bean
+	public WebClient webclient() {
+		return webclientBuilder.build();
 	}
 	
 }

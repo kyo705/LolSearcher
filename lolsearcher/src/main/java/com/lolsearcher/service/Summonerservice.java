@@ -44,7 +44,6 @@ public class Summonerservice {
 	//따라서 라이엇 서버에서 제공하는 api를 활용하여 닉네임으로 id를 조회한 후 id값으로 DB에 조회 => 버그 발생 제거
 	public SummonerDto findSummoner(String summonername) {
 		Summoner apisummoner = riotApi.getSummoner(summonername);
-		
 		Summoner dbsummoner = summonerrepository.findsummonerById(apisummoner.getId());
 		
 		SummonerDto summonerDto;
@@ -91,7 +90,6 @@ public class Summonerservice {
 		TotalRanksDto ranks = new TotalRanksDto();
 		
 		for(Rank r : apileague) {
-			
 			if(r.getCk().getQueueType().equals("RANKED_SOLO_5x5")) {
 				RankDto solorank = new RankDto(r);
 				ranks.setSolorank(solorank);

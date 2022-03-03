@@ -9,8 +9,6 @@ import java.util.Set;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.lolsearcher.domain.Dto.MostChampBuilder;
 import com.lolsearcher.domain.Dto.MostChampDto;
 import com.lolsearcher.domain.entity.Match;
@@ -21,7 +19,6 @@ public class JpaSummonerRepository implements SummonerRepository {
 
 	private final EntityManager em;
 	
-	@Autowired
 	public JpaSummonerRepository(EntityManager em) {
 		this.em = em;
 	}
