@@ -56,4 +56,9 @@ public void updatesummoner(Summoner apisummoner, Summoner dbsummoner) {
 
 6. DB에서 유저의 다양한 데이터들을 조회하여 Model에 담아 매핑된 Templete(View)에 Model을 전송. 이 때, 데이터들을 조회할 때 조회 메소드 간에 연관성이 없기 때문에 멀티스레드를 만들어 더 빠르게 데이터를 조회할 수도 있음.
 
-7. Templete Engine은 해당 템플릿을 가공하여 html을 작성한 후 데이터를 클라이언트 쪽으로 전송
+7. Templete Engine은 해당 템플릿을 가공하여 html을 작성한 후 데이터를 클라이언트 쪽으로 전송   
+
+Entity 매핑 및 DB 테이블 연관 관계
+----------------------------------------
+![image](https://user-images.githubusercontent.com/89891704/157093397-cab00a54-01cd-405f-a870-3d33c7cad1ea.png)
+
