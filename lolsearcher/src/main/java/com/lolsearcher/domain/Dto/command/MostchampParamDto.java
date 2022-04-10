@@ -1,17 +1,17 @@
 package com.lolsearcher.domain.Dto.command;
 
-public class mostchampparamDto {
+public class MostchampParamDto {
 
 	private String summonerid;
 	private int gamequeue;
 	private int season;
 	
-	public mostchampparamDto() {
+	public MostchampParamDto() {
 		//param값 초기화
 		this.season = 12;
 	}
 	
-	public mostchampparamDto(String summonerid, int gamequeue, int season) {
+	public MostchampParamDto(String summonerid, int gamequeue, int season) {
 		this.summonerid = summonerid;
 		this.gamequeue = gamequeue;
 		this.season = season;

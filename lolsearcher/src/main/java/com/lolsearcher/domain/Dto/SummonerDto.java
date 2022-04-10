@@ -9,6 +9,7 @@ public class SummonerDto {
 	private String name;
 	private int profileIconId;
 	private long summonerLevel;
+	private long lastRenewTimeStamp;
 	
 	public SummonerDto() {
 		// TODO Auto-generated constructor stub
@@ -20,6 +21,7 @@ public class SummonerDto {
 		this.name = summoner.getName();
 		this.profileIconId = summoner.getProfileIconId();
 		this.summonerLevel = summoner.getSummonerLevel();
+		this.setLastRenewTimeStamp(summoner.getLastRenewTimeStamp());
 	}
 	
 	public String getSummonerid() {
@@ -55,6 +57,14 @@ public class SummonerDto {
 
 	public void setSummonerLevel(long summonerLevel) {
 		this.summonerLevel = summonerLevel;
+	}
+
+	public long getLastRenewTimeStamp() {
+		return lastRenewTimeStamp;
+	}
+
+	public void setLastRenewTimeStamp(long lastRenewTimeStamp) {
+		this.lastRenewTimeStamp = lastRenewTimeStamp;
 	}
 	
 }

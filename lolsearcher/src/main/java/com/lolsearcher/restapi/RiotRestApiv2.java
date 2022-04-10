@@ -42,6 +42,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
         summoner.setRevisionDate((long) json.get("revisionDate"));
         summoner.setSummonerLevel((int) json.get("summonerLevel"));
         summoner.setLastmatchid("");
+        summoner.setLastRenewTimeStamp(System.currentTimeMillis());
 		
 		return summoner;
 	}

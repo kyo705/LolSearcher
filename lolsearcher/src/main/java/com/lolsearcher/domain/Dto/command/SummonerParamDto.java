@@ -1,6 +1,6 @@
 package com.lolsearcher.domain.Dto.command;
 
-public class summonerparamDto {
+public class SummonerParamDto {
 
 	private String name;
 	private String summonerid;
@@ -11,7 +11,7 @@ public class summonerparamDto {
 	private int season;
 	private boolean renew;
 	
-	public summonerparamDto() {
+	public SummonerParamDto() {
 		this.name="";
 		this.summonerid = "";
 		this.champion = "all";
@@ -22,7 +22,7 @@ public class summonerparamDto {
 		this.renew = false;
 	}
 	
-	public summonerparamDto(String name, String summonerid, String champion, int mostgametype,
+	public SummonerParamDto(String name, String summonerid, String champion, int mostgametype,
 			int matchgametype, int count, int season, boolean renew) {
 		
 		this.name = name;

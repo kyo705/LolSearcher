@@ -1,6 +1,6 @@
 package com.lolsearcher.domain.Dto.command;
 
-public class matchparamDto {
+public class MatchParamDto {
 
 	private String name;
 	private String summonerid;
@@ -8,7 +8,7 @@ public class matchparamDto {
 	private int gametype;
 	private int count;
 	
-	public matchparamDto() {
+	public MatchParamDto() {
 		name = "";
 		summonerid = "";
 		champion = "all";
@@ -16,7 +16,7 @@ public class matchparamDto {
 		count = 1;
 	}
 	
-	public matchparamDto(String name, String summonerid, String champion, int gametype, int count) {
+	public MatchParamDto(String name, String summonerid, String champion, int gametype, int count) {
 		super();
 		this.name = name;
 		this.summonerid = summonerid;

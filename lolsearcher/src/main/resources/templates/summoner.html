@@ -1,97 +1,9 @@
 <!DOCTYPE HTML>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<style>
-		.no_item{
-			border: 1px solid #323232;
-			width:19px;
-			height:19px;
-			background-color:#646464;
-		}
-		.rank_border{
-			text-align: center;
-			border: 1px solid #d2d2d2;
-			width:300px;
-			height:120px;
-			display: flex;
-			padding:15px;
-			margin: 10px;
-		}
-		.itemlist{
-			display: flex;
-			width:200px;
-		}
-		.item{
-			margin: 2px;
-			width: 20px;
-			height: 20px;
-		}
-		.pa{
-		display: flex;
-		}
-		.tierinfo{
-		width:170px;
-		}
-		.matchlist{
-		width:1000px;
-		}
-		.participantlist{
-		flex:4;
-		}
-		.mostchamp-container{
-			display: flex;
-			justify-content: space-around;
-			padding: 5px;
-			margin-right: 10px;
-			margin-left: 10px;
-			border: 1px solid #d2d2d2;
-		}
-		.head{
-			display: flex;
-			justify-content: space-around;
-		}
-		.match{
-			margin: 10px;
-			text-align: center;
-		}
-		.renewbotton{
-			border: none;
-			padding: 15px 30px;
-			text-align: center;
-			text-decoration: none;
-			display: inline-block;
-			font-size: 16px;
-			margin: 4px 2px;
-			cursor: pointer;
-		}
-		.specificMatch{
-			display : none; 
-			margin-left:10px;
-			margin-right:10px;
-		}
-		.mostbutton{
-			border: none;
-			padding: 6px 12px;
-			text-align: center;
-			text-decoration: none;
-			display: inline-block;
-			font-size: 16px;
-			margin: 4px 2px;
-			cursor: pointer;
-		}
-		.matchbutton{
-			border: none;
-			padding: 6px 12px;
-			text-align: center;
-			text-decoration: none;
-			display: inline-block;
-			font-size: 16px;
-			margin: 4px 2px;
-			cursor: pointer;
-		}
-	</style>
 	<title th:text="'소환사명 : '+${summoner.name}"></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="/css/style_summoner.css" type="text/css"> 
 </head>
 <body>
 	<h1 class="head">
@@ -173,8 +85,23 @@
 		</div>
 	</div>
 	<div class="matchlist" th:with="queue_val=0">
-		<script>let timestamp,date,queue_mode;</script>
-		<button class = "renewbotton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',true,'${params.mostgametype}','${params.matchgametype}')|">전적 갱신</button>
+		<script>let timestamp,date,queue_mode;</script>	
+		<button id = "renewbtn" class = "renewbotton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',true,'${params.mostgametype}','${params.matchgametype}')|" innerText="전적 갱신"></button>
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+				lasttimestamp = "[[${summoner.lastRenewTimeStamp}]]";
+			/*]]>*/
+			
+			var lastRenewTime= (new Date().getTime()-lasttimestamp)/(60*1000);
+			const target = document.getElementById("renewbtn");
+			if(lastRenewTime<=5) {
+				target.disabled = true;
+				target.innerText = 5 - parseInt(lastRenewTime) + "분 후 갱신해주세요";
+			}else {
+				target.disabled = false;
+				target.innerText = "전적 갱신";
+			}
+		</script>
 		<div class="mostchamp-container">
 			<button class = "matchbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,'${params.mostgametype}', -1)|">전체</button>
 			<button class = "matchbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,'${params.mostgametype}', 420)|">솔로 랭크</button>
@@ -340,6 +267,7 @@
 	</div>
 </div>
 <script>
+
 function summ(param){
     
     var f=document.summoner;   //폼 name
@@ -348,7 +276,6 @@ function summ(param){
     f.target="POP";    //폼의 타겟 지정(위의 새창을 지정함)
     f.method="post"; //POST방식
     f.submit();
-
 
 }
 

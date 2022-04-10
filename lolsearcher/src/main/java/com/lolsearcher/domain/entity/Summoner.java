@@ -15,6 +15,7 @@ public class Summoner {
 	private long revisionDate;
 	private long summonerLevel;
 	private String lastmatchid;
+	private long lastRenewTimeStamp;
 	
 	public String getId() {
 		return id;
@@ -63,5 +64,11 @@ public class Summoner {
 	}
 	public void setLastmatchid(String lastmatchid) {
 		this.lastmatchid = lastmatchid;
+	}
+	public long getLastRenewTimeStamp() {
+		return lastRenewTimeStamp;
+	}
+	public void setLastRenewTimeStamp(long lastRenewTimeStamp) {
+		this.lastRenewTimeStamp = lastRenewTimeStamp;
 	}
 }

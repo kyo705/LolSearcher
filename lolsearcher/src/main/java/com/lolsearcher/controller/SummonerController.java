@@ -2,8 +2,6 @@ package com.lolsearcher.controller;
 
 import java.util.List;
 
-import javax.persistence.EntityExistsException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,15 +13,18 @@ import com.lolsearcher.domain.Dto.MatchDto;
 import com.lolsearcher.domain.Dto.MostChampDto;
 import com.lolsearcher.domain.Dto.SummonerDto;
 import com.lolsearcher.domain.Dto.TotalRanksDto;
-import com.lolsearcher.domain.Dto.command.matchparamDto;
-import com.lolsearcher.domain.Dto.command.mostchampparamDto;
-import com.lolsearcher.domain.Dto.command.summonerparamDto;
+import com.lolsearcher.domain.Dto.command.MatchParamDto;
+import com.lolsearcher.domain.Dto.command.MostchampParamDto;
+import com.lolsearcher.domain.Dto.command.SummonerParamDto;
 import com.lolsearcher.service.Summonerservice;
 
 @Controller
 public class SummonerController {
 
 	private final Summonerservice summonerservice;
+	
+	private static final String error404 = "404 NOT_FOUND";
+	private static final String error429 = "429 TOO_MANY_REQUESTS";
 	
 	@Autowired
 	public SummonerController(Summonerservice summonerservice) {
@@ -32,9 +33,11 @@ public class SummonerController {
 	
 	//param값을 따로 받는것이 아니라 command객체를 사용해서 한번에 param값 받음(DTO)
 	@PostMapping(path = "/summoner")
-	public ModelAndView summonerdefault(summonerparamDto param) {
+	public ModelAndView summonerdefault(SummonerParamDto param) {
 		
 		ModelAndView mv = new ModelAndView();
+		
+		System.out.println(param.toString());
 		
 		//사용자 요청 필터링(xxs 방지)
 		String unfilteredname = param.getName();
@@ -50,61 +53,47 @@ public class SummonerController {
 		try {
 			summonerdto = summonerservice.findSummoner(param.getName());
 		}catch(WebClientResponseException e) {
-			if(e.getStatusCode().toString().equals("404 NOT_FOUND")) {
+			//소환사 정보가 없는 경우 클라이언트에게 에러 페이지 전달.
+			if(e.getStatusCode().toString().equals(error404)) {
 				mv.addObject("params", param);
 				mv.setViewName("error_name");
 				return mv;
-			}else if(e.getStatusCode().toString().equals("429 TOO_MANY_REQUESTS")) {
+			}else if(e.getStatusCode().toString().equals(error429)) {
 				mv.setViewName("error_manyreq");
 				return mv;
 			}
 			
 		}
 		
-		
 		//DB에서 소환사 정보가 없는 경우 || 클라이언트에서 전적 갱신 버튼을 통해 갱신 요청이 들어오는 경우
 		if(summonerdto.getSummonerid()==null||param.isRenew()) {
-			//멀티 스레드 환경이기 때문에 DB에 중복 저장에 대한 예외 처리
+			System.out.println(summonerdto.getSummonerid());
 			try {
 				summonerdto = summonerservice.setSummoner(param.getName()); //riot 서버로부터 정보 받아옴
-			}catch(EntityExistsException e) {
-				summonerdto = summonerservice.findSummoner(param.getName());
 			}catch(WebClientResponseException e) {
 				System.out.println(e.getStatusCode());
-				if(e.getStatusCode().toString().equals("429 TOO_MANY_REQUESTS")) {
+				if(e.getStatusCode().toString().equals(error429)) {
 					mv.setViewName("error_manyreq");
 					return mv;
 				}
 			}
 			
-			//소환사 정보가 없는 경우 클라이언트에게 에러 페이지 전달.
-			if(summonerdto.getSummonerid() == null) {
-				mv.addObject("params", param);
-				mv.setViewName("error_name");
-				return mv;
-			}
-			
-			//RIOT 서버에서 데이터 받아와서 DB에 저장. 멀티 스레드 환경이기 때문에 DB에 중복 저장에 대한 예외 처리
 			try {
 				ranks = summonerservice.setLeague(summonerdto);
-			}catch(EntityExistsException e) {
-				ranks = summonerservice.getLeague(summonerdto);
 			}catch(WebClientResponseException e) {
 				System.out.println(e.getStatusCode());
-				if(e.getStatusCode().toString().equals("429 TOO_MANY_REQUESTS")) {
+				if(e.getStatusCode().toString().equals(error429)) {
 					mv.setViewName("error_manyreq");
 					return mv;
 				}
 				ranks = null;
 			}
-			//RIOT 서버에서 데이터 받아와서 DB에 저장. 멀티 스레드 환경이기 때문에 DB에 중복 저장에 대한 예외 처리
+			
 			try {
 				summonerservice.setMatches(summonerdto);
-			}catch(EntityExistsException e) {
-				System.out.println(e.getMessage());
 			}catch(WebClientResponseException e) {
 				System.out.println(e.getStatusCode());
-				if(e.getStatusCode().toString().equals("429 TOO_MANY_REQUESTS")) {
+				if(e.getStatusCode().toString().equals(error429)) {
 					mv.setViewName("error_manyreq");
 					return mv;
 				}
@@ -117,10 +106,10 @@ public class SummonerController {
 		
 		param.setSummonerid(summonerdto.getSummonerid());
 		
-		matchparamDto match = new matchparamDto(param.getName(),param.getSummonerid(),
+		MatchParamDto match = new MatchParamDto(param.getName(),param.getSummonerid(),
 				param.getChampion(),param.getMatchgametype(),param.getCount());
 		
-		mostchampparamDto mostchamp = new mostchampparamDto(param.getSummonerid(),
+		MostchampParamDto mostchamp = new MostchampParamDto(param.getSummonerid(),
 				param.getMostgametype(),param.getSeason());
 		
 		//멀티스레드 생성해서 동시에 전적리스트, 계정정보 가져오는 방법도 고려
@@ -132,6 +121,7 @@ public class SummonerController {
 		mv.addObject("rank", ranks);
 		mv.addObject("matches", matches);
 		mv.addObject("mostchamps", mostchamps);
+		System.out.println(summonerdto.getLastRenewTimeStamp());
 		
 		mv.setViewName("summoner");
 		

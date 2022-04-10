@@ -3,8 +3,6 @@ package com.lolsearcher.service;
 import java.util.ArrayList;
 
 import java.util.List;
-import javax.persistence.EntityExistsException;
-
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +13,8 @@ import com.lolsearcher.domain.Dto.MostChampDto;
 import com.lolsearcher.domain.Dto.RankDto;
 import com.lolsearcher.domain.Dto.SummonerDto;
 import com.lolsearcher.domain.Dto.TotalRanksDto;
-import com.lolsearcher.domain.Dto.command.matchparamDto;
-import com.lolsearcher.domain.Dto.command.mostchampparamDto;
+import com.lolsearcher.domain.Dto.command.MatchParamDto;
+import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.entity.Match;
 import com.lolsearcher.domain.entity.Rank;
 import com.lolsearcher.domain.entity.Summoner;
@@ -32,13 +30,15 @@ public class Summonerservice {
 	private final SummonerRepository summonerrepository;
 	private final RiotRestAPI riotApi;
 	
+	private static final String soloRank = "RANKED_SOLO_5x5";
+	
 	public Summonerservice(SummonerRepository summonerrepository, RiotRestAPI riotApi) {
 		this.summonerrepository = summonerrepository;
 		this.riotApi = riotApi;
 	}
 	
 	//summonerrepository에서 findsummonerByName 메소드를 만들지 않은 이유 : 
-	//닉네임으로 DB에 조회하게 되면 갱신되지 않은 Summoner에 의해 DB에 중복된 닉네임이 있을 경우 발생. 
+	//닉네임으로 DB에 조회하게 되면 갱신되지 않은 Summoner에 의해 DB에 중복된 닉네임이 있을 경우 발생.
 	//그러면 어떤 Summoner 객체를 가져와야할지 불분명, 버그 발생
 	//따라서 라이엇 서버에서 제공하는 api를 활용하여 닉네임으로 id를 조회한 후 id값으로 DB에 조회 => 버그 발생 제거
 	public SummonerDto findSummoner(String summonername) throws WebClientResponseException {
@@ -55,7 +55,7 @@ public class Summonerservice {
 		return summonerDto;
 	}
 	
-	public SummonerDto setSummoner(String summonername) throws EntityExistsException,WebClientResponseException {
+	public SummonerDto setSummoner(String summonername) throws WebClientResponseException {
 		Summoner apisummoner = riotApi.getSummoner(summonername);
 		SummonerDto summonerDto = new SummonerDto(apisummoner);
 		if(apisummoner==null) {
@@ -65,7 +65,7 @@ public class Summonerservice {
 		
 		if(dbsummoner==null) {
 			summonerrepository.savesummoner(apisummoner);
-		}else if(dbsummoner.getRevisionDate()!=apisummoner.getRevisionDate()){
+		}else{
 			//apisummoner(최신)와 dbsummoner(이전)를 동기화
 			summonerrepository.updatesummoner(apisummoner,dbsummoner);
 		}
@@ -73,7 +73,7 @@ public class Summonerservice {
 		return summonerDto;
 	}
 	
-	public TotalRanksDto setLeague(SummonerDto summonerdto) throws EntityExistsException,WebClientResponseException {
+	public TotalRanksDto setLeague(SummonerDto summonerdto) throws WebClientResponseException {
 		String summonerid = summonerdto.getSummonerid();
 		
 		List<Rank> apileague = riotApi.getLeague(summonerid);
@@ -89,7 +89,7 @@ public class Summonerservice {
 		TotalRanksDto ranks = new TotalRanksDto();
 		
 		for(Rank r : apileague) {
-			if(r.getCk().getQueueType().equals("RANKED_SOLO_5x5")) {
+			if(r.getCk().getQueueType().equals(soloRank)) {
 				RankDto solorank = new RankDto(r);
 				ranks.setSolorank(solorank);
 			}else {
@@ -124,7 +124,7 @@ public class Summonerservice {
 		return rank;
 	}
 	//완성
-	public void setMatches(SummonerDto summonerdto) throws EntityExistsException,WebClientResponseException {
+	public void setMatches(SummonerDto summonerdto) throws WebClientResponseException {
 		
 		String id = summonerdto.getSummonerid();
 		String puuid = summonerdto.getPuuid();
@@ -151,7 +151,7 @@ public class Summonerservice {
 		}
 	}
 	
-	public List<MatchDto> getMatches(matchparamDto match){
+	public List<MatchDto> getMatches(MatchParamDto match){
 		//ArrayList의 동적 리사이징을 방지하기 위해 초기 사이즈 지정.
 		List<MatchDto> matches = new ArrayList<>(20);
 		
@@ -169,7 +169,7 @@ public class Summonerservice {
 		return matches;
 	}
 
-	public List<MostChampDto> getMostchamp(mostchampparamDto param) {
+	public List<MostChampDto> getMostchamp(MostchampParamDto param) {
 		
 		String summonerid = param.getSummonerid();
 		int queue = param.getGamequeue();
