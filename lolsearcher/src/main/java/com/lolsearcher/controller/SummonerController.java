@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityExistsException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -82,7 +83,7 @@ public class SummonerController {
 					mv.setViewName("error_manyreq");
 					return mv;
 				}
-			}catch(EntityExistsException e) {
+			}catch(DataIntegrityViolationException e) {
 				summonerdto = summonerservice.findSummoner(param.getName());
 			}
 			
@@ -98,7 +99,7 @@ public class SummonerController {
 				}
 				ranks = null;
 				
-			}catch(EntityExistsException e) {
+			}catch(DataIntegrityViolationException e) {
 				ranks = summonerservice.getLeague(summonerdto);
 			}
 			
@@ -111,7 +112,7 @@ public class SummonerController {
 					mv.setViewName("error_manyreq");
 					return mv;
 				}
-			}catch(EntityExistsException e) {
+			}catch(DataIntegrityViolationException e) {
 				System.out.println(e.getMessage());
 			}
 			

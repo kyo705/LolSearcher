@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityExistsException;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +58,7 @@ public class SummonerService {
 		return summonerDto;
 	}
 	
-	public SummonerDto setSummoner(String summonername) throws WebClientResponseException, EntityExistsException {
+	public SummonerDto setSummoner(String summonername) throws WebClientResponseException, DataIntegrityViolationException {
 		Summoner apisummoner = riotApi.getSummoner(summonername);
 		SummonerDto summonerDto = new SummonerDto(apisummoner);
 		if(apisummoner==null) {
@@ -75,7 +76,7 @@ public class SummonerService {
 		return summonerDto;
 	}
 	
-	public TotalRanksDto setLeague(SummonerDto summonerdto) throws WebClientResponseException, EntityExistsException {
+	public TotalRanksDto setLeague(SummonerDto summonerdto) throws WebClientResponseException, DataIntegrityViolationException {
 		String summonerid = summonerdto.getSummonerid();
 		
 		List<Rank> apileague = riotApi.getLeague(summonerid);
@@ -126,7 +127,7 @@ public class SummonerService {
 		return rank;
 	}
 	//¿Ï¼º
-	public void setMatches(SummonerDto summonerdto) throws WebClientResponseException, EntityExistsException {
+	public void setMatches(SummonerDto summonerdto) throws WebClientResponseException, DataIntegrityViolationException {
 		
 		String id = summonerdto.getSummonerid();
 		String puuid = summonerdto.getPuuid();

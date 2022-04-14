@@ -7,6 +7,8 @@ import java.util.List;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 
+import org.springframework.dao.DataIntegrityViolationException;
+
 import com.lolsearcher.domain.Dto.Summoner.MostChampBuilder;
 import com.lolsearcher.domain.Dto.Summoner.MostChampDto;
 import com.lolsearcher.domain.entity.Match;
@@ -23,7 +25,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	
 	//-----------------Summoner 테이블 CRUD----------------------------------
 	@Override
-	public void savesummoner(Summoner summoner) throws EntityExistsException {
+	public void savesummoner(Summoner summoner) throws DataIntegrityViolationException {
 		em.persist(summoner);
 	}
 	
@@ -49,7 +51,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	//-----------------Rank 테이블 CRUD----------------------------------
 
 	@Override
-	public void saveLeagueEntry(List<Rank> list) throws EntityExistsException {
+	public void saveLeagueEntry(List<Rank> list) throws DataIntegrityViolationException {
 		Iterator<Rank> it =  list.iterator();
 		while(it.hasNext()) {
 			Rank rank = it.next();
@@ -98,7 +100,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	}
 	
 	@Override
-	public void saveMatch(Match match) throws EntityExistsException {
+	public void saveMatch(Match match) throws DataIntegrityViolationException {
 		
 		//match 엔티티 영속성 컨텍스트에 저장. 연관된 member 엔티티들도 다 저장됨.
 		em.persist(match);
