@@ -1,7 +1,8 @@
 package com.lolsearcher.repository;
 
 import java.util.List;
-import com.lolsearcher.domain.Dto.MostChampDto;
+
+import com.lolsearcher.domain.Dto.Summoner.MostChampDto;
 import com.lolsearcher.domain.entity.Match;
 import com.lolsearcher.domain.entity.Rank;
 import com.lolsearcher.domain.entity.Summoner;

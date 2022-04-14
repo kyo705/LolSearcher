@@ -11,7 +11,8 @@ import com.lolsearcher.repository.JpaSummonerRepository;
 import com.lolsearcher.repository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 import com.lolsearcher.restapi.RiotRestApiv2;
-import com.lolsearcher.service.Summonerservice;
+import com.lolsearcher.service.InGameService;
+import com.lolsearcher.service.SummonerService;
 
 
 @Configuration
@@ -27,16 +28,20 @@ public class SpringConfig {
 	}
 	
 	@Bean
-	public Summonerservice summonerservice() {
-		
-		return new Summonerservice(summonerRepository(), riotrestapi());
+	public SummonerService summonerservice() {
+		return new SummonerService(summonerRepository(), riotrestapi());
 	}
 	
 	@Bean
 	public SummonerRepository summonerRepository() {
-		
 		return new JpaSummonerRepository(em);
 	}
+	
+	@Bean
+	public InGameService currentMatchService() {
+		return new InGameService(riotrestapi());
+	}
+	
 	@Bean
 	public RiotRestAPI riotrestapi() {
 		return new RiotRestApiv2(webclient());

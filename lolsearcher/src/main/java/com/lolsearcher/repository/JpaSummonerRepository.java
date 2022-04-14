@@ -3,10 +3,12 @@ package com.lolsearcher.repository;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 
-import com.lolsearcher.domain.Dto.MostChampBuilder;
-import com.lolsearcher.domain.Dto.MostChampDto;
+import com.lolsearcher.domain.Dto.Summoner.MostChampBuilder;
+import com.lolsearcher.domain.Dto.Summoner.MostChampDto;
 import com.lolsearcher.domain.entity.Match;
 import com.lolsearcher.domain.entity.Rank;
 import com.lolsearcher.domain.entity.Summoner;
@@ -21,7 +23,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	
 	//-----------------Summoner 테이블 CRUD----------------------------------
 	@Override
-	public void savesummoner(Summoner summoner) {
+	public void savesummoner(Summoner summoner) throws EntityExistsException {
 		em.persist(summoner);
 	}
 	
@@ -47,7 +49,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	//-----------------Rank 테이블 CRUD----------------------------------
 
 	@Override
-	public void saveLeagueEntry(List<Rank> list) {
+	public void saveLeagueEntry(List<Rank> list) throws EntityExistsException {
 		Iterator<Rank> it =  list.iterator();
 		while(it.hasNext()) {
 			Rank rank = it.next();
@@ -96,7 +98,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	}
 	
 	@Override
-	public void saveMatch(Match match) {
+	public void saveMatch(Match match) throws EntityExistsException {
 		
 		//match 엔티티 영속성 컨텍스트에 저장. 연관된 member 엔티티들도 다 저장됨.
 		em.persist(match);

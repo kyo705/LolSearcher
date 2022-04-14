@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import com.lolsearcher.domain.Dto.CurrentGame.InGameDto;
 import com.lolsearcher.domain.entity.Match;
 import com.lolsearcher.domain.entity.Member;
 import com.lolsearcher.domain.entity.MemberCompKey;
@@ -193,6 +194,21 @@ public class RiotRestApiv2 implements RiotRestAPI{
 
 		
 		return ranklist;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public InGameDto getInGameBySummonerId(String summonerid) {
+		Map currentGameJson = webclient.get().uri("https://kr.api.riotgames.com"
+				+ "/lol/spectator/v4/active-games/by-summoner/"
+				+summonerid+"?api_key="+key)
+				.retrieve().bodyToMono(Map.class).block();
+		
+		//받은 json으로 데이터 가공
+		InGameDto currentGameDto = new InGameDto();
+		
+		
+		return currentGameDto;
 	}
 
 }

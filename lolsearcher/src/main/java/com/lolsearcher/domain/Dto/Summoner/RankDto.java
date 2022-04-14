@@ -1,4 +1,4 @@
-package com.lolsearcher.domain.Dto;
+package com.lolsearcher.domain.Dto.Summoner;
 
 import com.lolsearcher.domain.entity.Rank;
 

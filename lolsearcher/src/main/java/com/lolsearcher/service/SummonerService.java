@@ -3,16 +3,19 @@ package com.lolsearcher.service;
 import java.util.ArrayList;
 
 import java.util.List;
+
+import javax.persistence.EntityExistsException;
+
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.lolsearcher.domain.Dto.MatchDto;
-import com.lolsearcher.domain.Dto.MostChampDto;
-import com.lolsearcher.domain.Dto.RankDto;
-import com.lolsearcher.domain.Dto.SummonerDto;
-import com.lolsearcher.domain.Dto.TotalRanksDto;
+import com.lolsearcher.domain.Dto.Summoner.MatchDto;
+import com.lolsearcher.domain.Dto.Summoner.MostChampDto;
+import com.lolsearcher.domain.Dto.Summoner.RankDto;
+import com.lolsearcher.domain.Dto.Summoner.SummonerDto;
+import com.lolsearcher.domain.Dto.Summoner.TotalRanksDto;
 import com.lolsearcher.domain.Dto.command.MatchParamDto;
 import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.entity.Match;
@@ -25,14 +28,13 @@ import com.lolsearcher.restapi.RiotRestAPI;
 //성능적인 측면에서 level 1(read_commited)로 설정하였다. 그래서 조회 중일 때 데이터가 저장이되면서 올바르지못한 정보를 조회하게 될 수도 있다.
 //(특히 Match정보들을 20개 조회할때) 하지만 다시 조회하면 되는 큰 문제가 아니라 판단이 되어서 isolation을 1단계로 하였다.
 @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-public class Summonerservice {
-	
+public class SummonerService {
 	private final SummonerRepository summonerrepository;
 	private final RiotRestAPI riotApi;
 	
 	private static final String soloRank = "RANKED_SOLO_5x5";
 	
-	public Summonerservice(SummonerRepository summonerrepository, RiotRestAPI riotApi) {
+	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi) {
 		this.summonerrepository = summonerrepository;
 		this.riotApi = riotApi;
 	}
@@ -55,7 +57,7 @@ public class Summonerservice {
 		return summonerDto;
 	}
 	
-	public SummonerDto setSummoner(String summonername) throws WebClientResponseException {
+	public SummonerDto setSummoner(String summonername) throws WebClientResponseException, EntityExistsException {
 		Summoner apisummoner = riotApi.getSummoner(summonername);
 		SummonerDto summonerDto = new SummonerDto(apisummoner);
 		if(apisummoner==null) {
@@ -73,7 +75,7 @@ public class Summonerservice {
 		return summonerDto;
 	}
 	
-	public TotalRanksDto setLeague(SummonerDto summonerdto) throws WebClientResponseException {
+	public TotalRanksDto setLeague(SummonerDto summonerdto) throws WebClientResponseException, EntityExistsException {
 		String summonerid = summonerdto.getSummonerid();
 		
 		List<Rank> apileague = riotApi.getLeague(summonerid);
@@ -124,7 +126,7 @@ public class Summonerservice {
 		return rank;
 	}
 	//완성
-	public void setMatches(SummonerDto summonerdto) throws WebClientResponseException {
+	public void setMatches(SummonerDto summonerdto) throws WebClientResponseException, EntityExistsException {
 		
 		String id = summonerdto.getSummonerid();
 		String puuid = summonerdto.getPuuid();

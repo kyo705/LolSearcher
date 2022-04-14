@@ -9,6 +9,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientResponseException;
 
+import com.lolsearcher.domain.Dto.CurrentGame.InGameDto;
 import com.lolsearcher.domain.entity.Match;
 import com.lolsearcher.domain.entity.Member;
 import com.lolsearcher.domain.entity.MemberCompKey;
@@ -228,6 +229,12 @@ public class RiotRestApiv1 implements RiotRestAPI{
 		}
 		
 		return leagueSet;
+	}
+
+	@Override
+	public InGameDto getInGameBySummonerId(String summonerid) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
 
