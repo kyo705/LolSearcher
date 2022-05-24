@@ -48,7 +48,7 @@ param.setName(filteredname);
  [DB에 해당 닉네임 유저가 존재하지 않는 경우 OR 해당 닉네임 유저의 업데이트 요청이 들어오는 경우](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L72)  => 게임 회사의 데이터 제공 사이트와의 **REST API** 통신을 통해 Entity 객체에 데이터를 받아 DB에 저장 or 갱신함   
 
 *cf) Entity 객체를 통해 DB에 데이터를 저장,조회,삭제,갱신할 때 JPA를 이용한다. JPA의 핵심기능은 EntityManager을 이용해서 영속성 컨텍스트에 entity를 다루는 것이다. 
-영속성 컨텍스트에는 1차 캐시, 같은 key값에 대한 동일성 보장, 쓰기 지연, 변경감지 등의 다양한 기능들을 제공해준다. 이러한 특징을 이용하여 DB의 값을 갱신할 땐 JPQL의 UPDATE 쿼리를 직접 만들지 않고 DB값(이전)을 영속성 컨텍스트의 1차 캐시에 저장 후  API 값(최신)을 이용하여 Entity값을 변경해주면 Commit시 UPDATE 쿼리를 자동으로 생성해줌* 
+영속성 컨텍스트에는 1차 캐시, 같은 key값에 대한 동일성 보장, 쓰기 지연, 변경감지 등의 다양한 기능들을 제공해준다. 이러한 특징 덕분에 DB와의 I/O 비용도 줄일 수 있고, DB에서의 트랜잭션의 ISOLATION 단계를 기본값(READ_COMMITTED)으로 설정해도 REPEATABLE READ가 가능해 병렬 처리에 대한 성능도 향상시킬 수 있게 된다.* 
 
 6. DB에서 유저의 다양한 데이터들을 조회하여 Model에 담아 매핑된 Templete(View)에 Model을 전송
 
