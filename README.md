@@ -50,19 +50,7 @@ param.setName(filteredname);
 *cf) Entity 객체를 통해 DB에 데이터를 저장,조회,삭제,갱신할 때 JPA를 이용한다. JPA의 핵심기능은 EntityManager을 이용해서 영속성 컨텍스트에 entity를 다루는 것이다. 
 영속성 컨텍스트에는 1차 캐시, 같은 key값에 대한 동일성 보장, 쓰기 지연, 변경감지 등의 다양한 기능들을 제공해준다. 이러한 특징을 이용하여 DB의 값을 갱신할 땐 JPQL의 UPDATE 쿼리를 직접 만들지 않고 DB값(이전)을 영속성 컨텍스트의 1차 캐시에 저장 후  API 값(최신)을 이용하여 Entity값을 변경해주면 Commit시 UPDATE 쿼리를 자동으로 생성해줌* 
 
-**아래는 트랜잭션 내에서 API로 받은 Entity 객체(apisummoner)를 이용해 기존 DB에 존재하는 Entity 객체(dbsummoner)를 업데이트 하는 코드이다.**
-```java
-public void updatesummoner(Summoner apisummoner, Summoner dbsummoner) {
-		dbsummoner.setAccountId(apisummoner.getAccountId());
-		dbsummoner.setName(apisummoner.getName());
-		dbsummoner.setProfileIconId(apisummoner.getProfileIconId());
-		dbsummoner.setPuuid(apisummoner.getPuuid());
-		dbsummoner.setRevisionDate(apisummoner.getRevisionDate());
-		dbsummoner.setSummonerLevel(apisummoner.getSummonerLevel());
-	}
-```
-
-6. DB에서 유저의 다양한 데이터들을 조회하여 Model에 담아 매핑된 Templete(View)에 Model을 전송. 이 때, 데이터들을 조회할 때 조회 메소드 간에 연관성이 없기 때문에 멀티스레드를 만들어 더 빠르게 데이터를 조회할 수도 있음.
+6. DB에서 유저의 다양한 데이터들을 조회하여 Model에 담아 매핑된 Templete(View)에 Model을 전송
 
 7. Templete Engine은 해당 템플릿을 가공하여 html을 작성한 후 데이터를 클라이언트 쪽으로 전송   
 
