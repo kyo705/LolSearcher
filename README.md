@@ -1,5 +1,5 @@
 # Lolsearcher
-롤 전적 검색 사이트 프로잭트
+롤 전적 검색 사이트 프로젝트
 =============
 -----------------------------------------
 롤 전적 검색 사이트란??
@@ -7,7 +7,7 @@
 
 롤(League Of Legend) 게임 회사 서버에서 *REST API*를 통해 제공되는 유저의 게임 데이터들(랭킹 점수, 게임 횟수, 상세 게임 정보 등)을 가공 및 활용하여 유저들에게 제공하는 사이트입니다.
 
-프로잭트 내 적용 기술
+프로젝트 내 적용 기술
 -----------------------------------------
 > - 백 앤드
 >
@@ -16,15 +16,17 @@
 >   -  빌드 관리 툴 : Gradle
 >   - RESAPI통신 : WebClient
 >   - ORM : JPA(Hibernate)
->   -  DBMS : MariaDB
+>   -  DBMS :
+>      - 실제 서버 환경 : MariaDB
+>      - 테스트 환경 : h2
 > - 프론트 앤드
 >   - 템플릿 엔진 : Thymeleaf
 
-프로잭트 서버 구조
+프로젝트 서버 구조
 -----------------------------------------
 ![ServerStructure](https://user-images.githubusercontent.com/89891704/157023264-e4c10e2a-0a37-4e50-b181-962c45dcca82.png)
 
-프로잭트 작동 과정 및 원리
+프로젝트 작동 과정 및 원리
 -----------------------------------------
 1. **index.html** 에서 게임 유저 닉네임을 검색 => 닉네임 및 다양한 파라미터들을 POST 방식으로 서버에 전송
 
@@ -38,9 +40,12 @@ String regex = "[^\\uAC00-\\uD7A30-9a-zA-Z]"; //문자,숫자 빼고 다 필터�
 String filteredname = unfilteredname.replaceAll(regex, "");
 param.setName(filteredname);
 ```
-4. 필터된 닉네임으로 **SummonerService** 클래스의 **findSummoner(String name)** 메소드를 통해 해당 닉네임에 대한 유저가 존재하는지를 판단 => 유저가 없다면(WebClientResponseException = 404 error) **error_name.html**을 클라이언트에게 전송
+4. 필터된 닉네임을 [**summonerService.findDbSummoner(String name)**](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L62) 메소드의 파라미터 값으로 전달해 해당 닉네임에 대한 유저가 DB에 존재하는지 판단 => 유저가 1명인 경우 정상적으로 해당 유저 객체(Summoner.class) 반환, 유저가 없는 경우 NULL을 반환, 유저가 2명 이상인 경우 해당 유저들에 대한 정보를 [**갱신**](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/service/SummonerService.java#L73)함   
 
-5. REST API 통신을 통해 사용자 닉네임이 존재 한다면 DB에 해당 유저에 대한 정보들을 조회 => 이 때, DB에 데이터들이 존재하지 않는다면 혹은 클라이언트의 전적 갱신 요청이 들어온 경우 **REST API** 통신을 통해 Entity 객체에 데이터를 받고 해당 Entity들을 통해 DB에 저장 or 갱신함   
+*cf) DB에 2명 이상의 중복된 닉네임이 존재하게 될 수 있는 상황 설명 : 게임 내에서 닉네임은 중복될 수 없다. 하지만 닉네임은 변경이 가능하기 때문에 DB에 저장된 유저1이 게임 내에서 닉네임1을 닉네임2로 변경하고 변경된 내용이 DB에 갱신이 안된 상태에서 유저2가 닉네임1을 소유한 뒤 DB에 유저2의 정보를 저장하면 DB에 똑같은 닉네임을 가진 유저가 2명이상 될 수 있다. 그래서 해당 중복된 닉네임을 가진 데이터들을 업데이트하는 로직을 수행하면 실제 닉네임 소유 유저는 1명 또는 0명이 되게 된다.*
+
+5. [DB에 해당 닉네임 유저가 존재하고 업데이트 요청이 들어오지 않은 경우](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L121) => DB에 해당 유저에 대한 정보들(랭킹, 최근 전적 등)을 조회   
+ [DB에 해당 닉네임 유저가 존재하지 않는 경우 OR 해당 닉네임 유저의 업데이트 요청이 들어오는 경우](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L72)  => 게임 회사의 데이터 제공 사이트와의 **REST API** 통신을 통해 Entity 객체에 데이터를 받아 DB에 저장 or 갱신함   
 
 *cf) Entity 객체를 통해 DB에 데이터를 저장,조회,삭제,갱신할 때 JPA를 이용한다. JPA의 핵심기능은 EntityManager을 이용해서 영속성 컨텍스트에 entity를 다루는 것이다. 
 영속성 컨텍스트에는 1차 캐시, 같은 key값에 대한 동일성 보장, 쓰기 지연, 변경감지 등의 다양한 기능들을 제공해준다. 이러한 특징을 이용하여 DB의 값을 갱신할 땐 JPQL의 UPDATE 쿼리를 직접 만들지 않고 DB값(이전)을 영속성 컨텍스트의 1차 캐시에 저장 후  API 값(최신)을 이용하여 Entity값을 변경해주면 Commit시 UPDATE 쿼리를 자동으로 생성해줌* 
