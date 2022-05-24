@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<title>챔피언 분석 - LolSearcher</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</head>
+	<body>
+		<div>
+			<button type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,-1,'${params.matchgametype}')|">탑</button>
+			<button type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,420,'${params.matchgametype}')|">정글</button>
+			<button type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,440,'${params.matchgametype}')|">미드</button>
+			<button type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,440,'${params.matchgametype}')|">바텀</button>
+			<button type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,440,'${params.matchgametype}')|">서포터</button>
+		</div>
+		<div>
+			<div th:each="champion : ${champions}">
+				<div th:text="${champion.championId}"></div>
+				<div th:text="${champion.wins}"></div>
+				<div th:text="${champion.losses}"></div>
+			</div>
+		</div>
+	</body>
+</html>

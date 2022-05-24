@@ -1,37 +1,49 @@
-package com.lolsearcher.domain.Dto.Summoner;
+package com.lolsearcher.domain.Dto.summoner;
 
-import com.lolsearcher.domain.entity.Rank;
+import com.lolsearcher.domain.entity.rank.Rank;
 
 public class RankDto {
 
-	private String queuetype;
+	private String summonerId;
+	private String queueType;
 	private String leagueId;
 	private String tier;
 	private String rank;
 	private int leaguePoints;
 	private int wins;
 	private int losses;
+	private int seasonId;
 	
 	public RankDto() {
 		
 	}
 	
 	public RankDto(Rank r) {
-		this.queuetype = r.getCk().getQueueType();
+		this.summonerId = r.getCk().getSummonerId();
+		this.queueType = r.getCk().getQueueType();
 		this.leagueId = r.getLeagueId();
 		this.tier = r.getTier();
 		this.rank = r.getRank();
 		this.leaguePoints = r.getLeaguePoints();
 		this.wins = r.getWins();
 		this.losses = r.getLosses();
+		this.seasonId = r.getCk().getSeasonId();
+	}
+	
+	public String getSummonerId() {
+		return summonerId;
 	}
 
-	public String getQueuetype() {
-		return queuetype;
+	public void setSummonerId(String summonerId) {
+		this.summonerId = summonerId;
+	}
+	
+	public String getQueueType() {
+		return queueType;
 	}
 
-	public void setQueuetype(String queuetype) {
-		this.queuetype = queuetype;
+	public void setQueueType(String queueType) {
+		this.queueType = queueType;
 	}
 
 	public String getLeagueId() {
@@ -81,5 +93,14 @@ public class RankDto {
 	public void setLosses(int losses) {
 		this.losses = losses;
 	}
+
+	public int getSeasonId() {
+		return seasonId;
+	}
+
+	public void setSeasonId(int seasonId) {
+		this.seasonId = seasonId;
+	}
+
 
 }

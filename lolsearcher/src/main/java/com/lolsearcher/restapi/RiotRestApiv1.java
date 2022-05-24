@@ -9,18 +9,18 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientResponseException;
 
-import com.lolsearcher.domain.Dto.CurrentGame.InGameDto;
-import com.lolsearcher.domain.entity.Match;
-import com.lolsearcher.domain.entity.Member;
-import com.lolsearcher.domain.entity.MemberCompKey;
-import com.lolsearcher.domain.entity.Rank;
-import com.lolsearcher.domain.entity.RankCompKey;
+import com.lolsearcher.domain.Dto.currentgame.InGameDto;
 import com.lolsearcher.domain.entity.Summoner;
+import com.lolsearcher.domain.entity.match.Match;
+import com.lolsearcher.domain.entity.match.Member;
+import com.lolsearcher.domain.entity.match.MemberCompKey;
+import com.lolsearcher.domain.entity.rank.Rank;
+import com.lolsearcher.domain.entity.rank.RankCompKey;
 
 //riot 서버에서 접근해서 데이터 가져와서 개체에 담는 역할
-public class RiotRestApiv1 implements RiotRestAPI{
+public class RiotRestApiv1{
 	
-	@Override
+
 	public Summoner getSummoner(String summonername) {
 		
 		HashMap<String, Object> result = new HashMap<String, Object>();
@@ -125,12 +125,14 @@ public class RiotRestApiv1 implements RiotRestAPI{
 	        
       	//Member 개체 받기
       	List<Map> participants = (ArrayList)info.get("participants");
+      	int i=0;
 	        for(Map participant : participants) {
 	        	Member member = new Member();
 	        	
 	        	member.setMatch(match); //양방향 매핑 되어있어서 match 객체에 member객체 매핑할 필요 없음
 	        	
-	        	member.setCk(new MemberCompKey((String)participant.get("summonerId"),(String)metadata.get("matchId")));
+	        	member.setCk(new MemberCompKey((String)metadata.get("matchId"),i++));
+	        	member.setSummonerid((String)participant.get("summonerId"));
 	        	member.setName((String)participant.get("summonerName"));
 	        	member.setChampionid((String)participant.get("championName"));
 	        	member.setPositions((String)participant.get("teamPosition"));
@@ -210,7 +212,7 @@ public class RiotRestApiv1 implements RiotRestAPI{
 	        	
 	        	Rank rank = new Rank();
 	        	
-	        	rank.setCk(new RankCompKey((String)mapjson.get("summonerId"), (String)mapjson.get("queueType")));
+	        	//rank.setCk(new RankCompKey((String)mapjson.get("summonerId"), (String)mapjson.get("queueType")));
 	        	rank.setLeagueId((String)mapjson.get("leagueId"));
 	        	rank.setTier((String)mapjson.get("tier"));
 	        	rank.setRank((String)mapjson.get("rank"));
@@ -230,8 +232,7 @@ public class RiotRestApiv1 implements RiotRestAPI{
 		
 		return leagueSet;
 	}
-
-	@Override
+	
 	public InGameDto getInGameBySummonerId(String summonerid) {
 		// TODO Auto-generated method stub
 		return null;

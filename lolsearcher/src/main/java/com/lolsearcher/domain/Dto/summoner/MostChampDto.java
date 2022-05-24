@@ -1,4 +1,4 @@
-package com.lolsearcher.domain.Dto.Summoner;
+package com.lolsearcher.domain.Dto.summoner;
 
 public class MostChampDto {
 

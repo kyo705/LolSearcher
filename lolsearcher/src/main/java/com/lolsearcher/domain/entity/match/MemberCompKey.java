@@ -1,4 +1,4 @@
-package com.lolsearcher.domain.entity;
+package com.lolsearcher.domain.entity.match;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -9,26 +9,21 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class MemberCompKey implements Serializable {
 
-	@Column(name = "SUMMONER_ID")
-	private String summonerid;
+	private static final long serialVersionUID = 3555370525672043186L;
+	
 	@Column(name = "MATCH_ID")
 	private String matchid;
+	
+	private int num;
 	
 	public MemberCompKey() {
 		
 	}
 
-	public MemberCompKey(String summonerid, String matchid) {
-		this.summonerid = summonerid;
+	public MemberCompKey(String matchid, int num) {
+		super();
 		this.matchid = matchid;
-	}
-
-	public String getSummonerid() {
-		return summonerid;
-	}
-
-	public void setSummonerid(String summonerid) {
-		this.summonerid = summonerid;
+		this.num = num;
 	}
 
 	public String getMatchid() {
@@ -39,9 +34,17 @@ public class MemberCompKey implements Serializable {
 		this.matchid = matchid;
 	}
 
+	public int getNum() {
+		return num;
+	}
+
+	public void setNum(int num) {
+		this.num = num;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(matchid, summonerid);
+		return Objects.hash(matchid, num);
 	}
 
 	@Override
@@ -53,7 +56,6 @@ public class MemberCompKey implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		MemberCompKey other = (MemberCompKey) obj;
-		return Objects.equals(matchid, other.matchid) && Objects.equals(summonerid, other.summonerid);
+		return Objects.equals(matchid, other.matchid) && num == other.num;
 	}
-	
 }

@@ -1,8 +1,10 @@
-package com.lolsearcher.domain.entity;
+package com.lolsearcher.domain.entity.rank;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
+import com.lolsearcher.domain.Dto.summoner.RankDto;
 
 
 @Entity
@@ -17,6 +19,26 @@ public class Rank {
 	private int leaguePoints;
 	private int wins;
 	private int losses;
+	
+	public Rank() {
+		
+	}
+	
+	public Rank(RankDto rankDto) {
+		
+		this.ck = new RankCompKey(
+				rankDto.getSummonerId(),
+				rankDto.getQueueType(),
+				rankDto.getSeasonId()
+				);
+		
+		this.leagueId = rankDto.getLeagueId();
+		this.tier = rankDto.getTier();
+		this.rank = rankDto.getRank();
+		this.leaguePoints = rankDto.getLeaguePoints();
+		this.wins = rankDto.getWins();
+		this.losses = rankDto.getLosses();
+	}
 	
 	public RankCompKey getCk() {
 		return ck;
@@ -60,5 +82,6 @@ public class Rank {
 	public void setLosses(int losses) {
 		this.losses = losses;
 	}
+	
 }
 

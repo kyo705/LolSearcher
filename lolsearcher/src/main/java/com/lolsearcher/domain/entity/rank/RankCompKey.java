@@ -1,4 +1,4 @@
-package com.lolsearcher.domain.entity;
+package com.lolsearcher.domain.entity.rank;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -7,16 +7,21 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 public class RankCompKey implements Serializable {
+
+	private static final long serialVersionUID = -8000650119610519628L;
+	
 	private String summonerId;
 	private String queueType;
+	private int seasonId;
 	
 	public RankCompKey(){
 		
 	}
 
-	public RankCompKey(String summonerId, String queueType) {
+	public RankCompKey(String summonerId, String queueType, int seasonId) {
 		this.summonerId = summonerId;
 		this.queueType = queueType;
+		this.seasonId = seasonId;
 	}
 
 	public String getSummonerId() {
@@ -35,9 +40,17 @@ public class RankCompKey implements Serializable {
 		this.queueType = queueType;
 	}
 
+	public int getSeasonId() {
+		return seasonId;
+	}
+
+	public void setSeasonId(int seasonId) {
+		this.seasonId = seasonId;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(queueType, summonerId);
+		return Objects.hash(queueType, seasonId, summonerId);
 	}
 
 	@Override
@@ -49,7 +62,8 @@ public class RankCompKey implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		RankCompKey other = (RankCompKey) obj;
-		return Objects.equals(queueType, other.queueType) && Objects.equals(summonerId, other.summonerId);
+		return Objects.equals(queueType, other.queueType) && seasonId == other.seasonId
+				&& Objects.equals(summonerId, other.summonerId);
 	}
 	
 }

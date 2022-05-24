@@ -2,8 +2,6 @@ package com.lolsearcher.controller;
 
 import java.util.List;
 
-import javax.persistence.EntityExistsException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
@@ -12,29 +10,30 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.lolsearcher.domain.Dto.CurrentGame.InGameDto;
-import com.lolsearcher.domain.Dto.Summoner.MatchDto;
-import com.lolsearcher.domain.Dto.Summoner.MostChampDto;
-import com.lolsearcher.domain.Dto.Summoner.SummonerDto;
-import com.lolsearcher.domain.Dto.Summoner.TotalRanksDto;
 import com.lolsearcher.domain.Dto.command.MatchParamDto;
 import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.Dto.command.SummonerParamDto;
+import com.lolsearcher.domain.Dto.currentgame.InGameDto;
+import com.lolsearcher.domain.Dto.summoner.MatchDto;
+import com.lolsearcher.domain.Dto.summoner.MostChampDto;
+import com.lolsearcher.domain.Dto.summoner.SummonerDto;
+import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
 import com.lolsearcher.service.InGameService;
 import com.lolsearcher.service.SummonerService;
 
 @Controller
 public class SummonerController {
-
-	private final SummonerService summonerservice;
-	private final InGameService inGameService;
 	
 	private static final String error404 = "404 NOT_FOUND";
 	private static final String error429 = "429 TOO_MANY_REQUESTS";
 	
+	private final SummonerService summonerService;
+	
+	private final InGameService inGameService;
+	
 	@Autowired
-	public SummonerController(SummonerService summonerservice, InGameService inGameService) {
-		this.summonerservice = summonerservice;
+	public SummonerController(SummonerService summonerService, InGameService inGameService) {
+		this.summonerService = summonerService;
 		this.inGameService = inGameService;
 	}
 	
@@ -50,33 +49,50 @@ public class SummonerController {
 		String filteredname = unfilteredname.replaceAll(regex, "");
 		param.setName(filteredname);
 		
-		TotalRanksDto ranks;
-		List<MatchDto> matches;
-		List<MostChampDto> mostchamps;
-		
 		SummonerDto summonerdto = null;
 		
+		TotalRanksDto ranks = null;
+		
+		List<MatchDto> matches;
+		
+		List<MostChampDto> mostchamps;
+		
+		
 		try {
-			summonerdto = summonerservice.findSummoner(param.getName());
+			summonerdto = summonerService.findDbSummoner(param.getName());
 		}catch(WebClientResponseException e) {
-			//소환사 정보가 없는 경우 클라이언트에게 에러 페이지 전달.
-			if(e.getStatusCode().toString().equals(error404)) {
-				mv.addObject("params", param);
-				mv.setViewName("error_name");
-				return mv;
-			}else if(e.getStatusCode().toString().equals(error429)) {
+			if(e.getStatusCode().toString().equals(error429)) { //요청 제한 횟수를 초과한 경우 대기 메세지 전달
 				mv.setViewName("error_manyreq");
 				return mv;
 			}
-			
 		}
 		
+		
 		//DB에서 소환사 정보가 없는 경우 || 클라이언트에서 전적 갱신 버튼을 통해 갱신 요청이 들어오는 경우
-		if(summonerdto.getSummonerid()==null||param.isRenew()) {
+		if(summonerdto==null||
+				(param.isRenew()&&System.currentTimeMillis()-summonerdto.getLastRenewTimeStamp()>=5*60*1000)) {
+			
+			try {
+				summonerdto = summonerService.setSummoner(param.getName());
+			}catch(WebClientResponseException e) {
+				if(e.getStatusCode().toString().equals(error404)) {
+					//존재하지 않는 닉네임일 때
+					mv.addObject("params", param);
+					mv.setViewName("error_name");
+					return mv;
+				} else if(e.getStatusCode().toString().equals(error429)) {
+					//요청 제한 횟수를 초과한 경우
+					mv.setViewName("error_manyreq");
+					return mv;
+				}
+			}catch(DataIntegrityViolationException e) {
+				//멀티 스레드 환경이기 때문에 DB에 중복 저장에 대한 예외 처리
+				summonerdto = summonerService.findDbSummoner(param.getName());
+			}
+			
 			//RIOT 서버에서 데이터 받아와서 DB에 저장. 멀티 스레드 환경이기 때문에 DB에 중복 저장에 대한 예외 처리
 			try {
-				summonerdto = summonerservice.setSummoner(param.getName()); //riot 서버로부터 정보 받아옴
-				
+				ranks = summonerService.setLeague(summonerdto);
 			}catch(WebClientResponseException e) {
 				System.out.println(e.getStatusCode());
 				if(e.getStatusCode().toString().equals(error429)) {
@@ -84,28 +100,12 @@ public class SummonerController {
 					return mv;
 				}
 			}catch(DataIntegrityViolationException e) {
-				summonerdto = summonerservice.findSummoner(param.getName());
+				ranks = summonerService.getLeague(summonerdto);
 			}
 			
 			//RIOT 서버에서 데이터 받아와서 DB에 저장. 멀티 스레드 환경이기 때문에 DB에 중복 저장에 대한 예외 처리
 			try {
-				ranks = summonerservice.setLeague(summonerdto);
-				
-			}catch(WebClientResponseException e) {
-				System.out.println(e.getStatusCode());
-				if(e.getStatusCode().toString().equals(error429)) {
-					mv.setViewName("error_manyreq");
-					return mv;
-				}
-				ranks = null;
-				
-			}catch(DataIntegrityViolationException e) {
-				ranks = summonerservice.getLeague(summonerdto);
-			}
-			
-			//RIOT 서버에서 데이터 받아와서 DB에 저장. 멀티 스레드 환경이기 때문에 DB에 중복 저장에 대한 예외 처리
-			try {
-				summonerservice.setMatches(summonerdto);
+				summonerService.setMatches(summonerdto);
 			}catch(WebClientResponseException e) {
 				System.out.println(e.getStatusCode());
 				if(e.getStatusCode().toString().equals(error429)) {
@@ -114,24 +114,26 @@ public class SummonerController {
 				}
 			}catch(DataIntegrityViolationException e) {
 				System.out.println(e.getMessage());
+				//만약 한번 중복 저장이 발생하는 것이 아니라 여러번 발생한다면? => exception 터짐
+				//=> how to solve this problem???
+				summonerService.setMatches(summonerdto);
 			}
-			
-			
 		}else {
-			ranks = summonerservice.getLeague(summonerdto);
+			ranks = summonerService.getLeague(summonerdto);
 		}
 		
 		param.setSummonerid(summonerdto.getSummonerid());
 		
-		MatchParamDto match = new MatchParamDto(param.getName(),param.getSummonerid(),
+		MatchParamDto matchParamDto = new MatchParamDto(param.getName(),param.getSummonerid(),
 				param.getChampion(),param.getMatchgametype(),param.getCount());
 		
-		MostchampParamDto mostchamp = new MostchampParamDto(param.getSummonerid(),
+		MostchampParamDto mostchampParamDto = new MostchampParamDto(param.getSummonerid(),
 				param.getMostgametype(),param.getSeason());
 		
 		//멀티스레드 생성해서 동시에 전적리스트, 계정정보 가져오는 방법도 고려
-		matches = summonerservice.getMatches(match);
-		mostchamps = summonerservice.getMostchamp(mostchamp);
+		matches = summonerService.getMatches(matchParamDto);
+		
+		mostchamps = summonerService.getMostchamp(mostchampParamDto);
 		
 		mv.addObject("params", param);
 		mv.addObject("summoner", summonerdto);
@@ -145,13 +147,6 @@ public class SummonerController {
 		
 	}
 	
-	@GetMapping(path = "/champions")
-	public ModelAndView championsStatics() {
-		
-		//DB에서 챔피언 승률,픽률 등의 데이터 조회
-		return null;
-	}
-	
 	@GetMapping(path = "/ingame")
 	public ModelAndView inGame(String SummonerId,String name) {
 		ModelAndView mv = new ModelAndView();
@@ -159,14 +154,11 @@ public class SummonerController {
 		
 		try {	
 			inGameDto = inGameService.getInGame(SummonerId);
-			
 		}catch(WebClientResponseException e) {
-			
 			if(e.getStatusCode().toString().equals(error404)) {
 				mv.addObject(name);
 				mv.setViewName("error_ingame");
 				return mv;
-				
 			}else if(e.getStatusCode().toString().equals(error429)) {
 				mv.setViewName("error_manyreq");
 				return mv;
@@ -174,6 +166,8 @@ public class SummonerController {
 		}
 		
 		mv.addObject(inGameDto);
+		mv.setViewName("inGame");
+		
 		return mv;
-		}
+	}
 }

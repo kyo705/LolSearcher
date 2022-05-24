@@ -1,48 +1,49 @@
 package com.lolsearcher.restapi;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-
-import com.lolsearcher.domain.Dto.CurrentGame.InGameDto;
-import com.lolsearcher.domain.entity.Match;
-import com.lolsearcher.domain.entity.Member;
-import com.lolsearcher.domain.entity.MemberCompKey;
-import com.lolsearcher.domain.entity.Rank;
-import com.lolsearcher.domain.entity.RankCompKey;
+import com.lolsearcher.domain.Dto.currentgame.BannedChampionDto;
+import com.lolsearcher.domain.Dto.currentgame.CurrentGameParticipantDto;
+import com.lolsearcher.domain.Dto.currentgame.InGameDto;
+import com.lolsearcher.domain.Dto.summoner.RankDto;
 import com.lolsearcher.domain.entity.Summoner;
+import com.lolsearcher.domain.entity.match.Match;
+import com.lolsearcher.domain.entity.match.Member;
+import com.lolsearcher.domain.entity.match.MemberCompKey;
 
 public class RiotRestApiv2 implements RiotRestAPI{
 
 	private WebClient webclient;
 	private static final String key = "RGAPI-2a0ac3ef-7f65-4854-97d4-54e2c7b3dbab";
 	
-	//생성자에서 webclient의 baseUrl을 설정하지 않은 이유는 메소드마다 baseUrl이 다르기 때문
 	public RiotRestApiv2(WebClient webclient) {
 		this.webclient = webclient;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public Summoner getSummoner(String summonername) throws WebClientResponseException {
+	public Summoner getSummonerById(String id) throws WebClientResponseException {
 		
-		Summoner summoner = new Summoner();
+		Summoner summoner = webclient.get().uri("https://kr.api.riotgames.com"
+				+ "/lol/summoner/v4/summoners/"+id+"?api_key="+key)
+				.retrieve().bodyToMono(Summoner.class).block();
 		
-		Map json = webclient.get().uri("https://kr.api.riotgames.com"
+		summoner.setLastmatchid("");
+        summoner.setLastRenewTimeStamp(System.currentTimeMillis());
+		
+		return summoner;
+	}
+
+	@Override
+	public Summoner getSummonerByName(String summonername) throws WebClientResponseException {
+		
+		Summoner summoner = webclient.get().uri("https://kr.api.riotgames.com"
 				+ "/lol/summoner/v4/summoners/by-name/"+summonername+"?api_key="+key)
-				.retrieve().bodyToMono(Map.class).block();
+				.retrieve().bodyToMono(Summoner.class).block();
 		
-		summoner.setId((String) json.get("id"));
-        summoner.setPuuid((String) json.get("puuid"));
-        summoner.setName((String) json.get("name"));
-        summoner.setAccountId((String) json.get("accountId"));
-        summoner.setProfileIconId((int) json.get("profileIconId"));
-        summoner.setRevisionDate((long) json.get("revisionDate"));
-        summoner.setSummonerLevel((int) json.get("summonerLevel"));
-        summoner.setLastmatchid("");
+		summoner.setLastmatchid("");
         summoner.setLastRenewTimeStamp(System.currentTimeMillis());
 		
 		return summoner;
@@ -55,25 +56,37 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		List<String> matchidlist = new ArrayList<>();
 		
 		boolean plag = true;
-		
+		long lastmatchidlong;
+		String uri;
 		int starts = 0;
 		int counts = 100;
-		long lastmatchidlong;
+		
+		if(queue==0) {
+			uri = "https://asia.api.riotgames.com"
+					+ "/lol/match/v5/matches/by-puuid/"+puuid+"/ids?";
+		}else {
+			uri = "https://asia.api.riotgames.com"
+					+ "/lol/match/v5/matches/by-puuid/"+puuid+"/ids?queue="+queue+"&";
+		}
 		if(!lastmatchid.equals("")) {
 			lastmatchidlong = Long.parseLong(lastmatchid.substring(3));
 		}else {
 			lastmatchidlong = 0;
 		}
-		System.out.println();
 		
 		while(plag) {
-			String[] matchids = webclient.get().uri("https://asia.api.riotgames.com"
-					+ "/lol/match/v5/matches/by-puuid/"+puuid+"/ids?"
-					+"start="+starts+"&count="+counts+"&api_key="+key)
-					.retrieve().bodyToMono(String[].class).block();
+			String[] matchids = webclient.get()
+					.uri(uri + "start="+starts+"&count="+counts+"&api_key="+key)
+					.retrieve()
+					.bodyToMono(String[].class)
+					.block();
+			
+			if(matchids.length==0) {
+				plag = false;
+				break;
+			}
 			
 			for(String matchid : matchids) {
-				System.out.println(matchid);
 				if(lastmatchidlong==Long.parseLong(matchid.substring(3))) {
 					plag = false;
 					break;
@@ -81,9 +94,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
 					matchidlist.add(matchid);
 				}
 			}
-			if(matchids.length==0) {
-				plag = false;
-			}
+			
 			starts += counts;
 		}
 			
@@ -103,10 +114,9 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		
 			
 		Map info = (Map) json.get("info");
-		Map metadata = (Map)json.get("metadata");
-			
+		
 		match.setGameDuration((int) info.get("gameDuration"));
-        match.setMatchId((String)metadata.get("matchId"));
+        match.setMatchId(matchid);
         match.setGameEndTimestamp((long) info.get("gameEndTimestamp"));
         match.setQueueId((int) info.get("queueId"));
         
@@ -116,12 +126,14 @@ public class RiotRestApiv2 implements RiotRestAPI{
         match.setSeason(season);
         
         List<Map> participants = (ArrayList)info.get("participants");
+        int i = 0;
         for(Map participant : participants) {
         	Member member = new Member();
         	
         	member.setMatch(match); //양방향 매핑 되어있어서 match 객체에 member객체 매핑할 필요 없음
         	
-        	member.setCk(new MemberCompKey((String)participant.get("summonerId"),(String)metadata.get("matchId")));
+        	member.setCk(new MemberCompKey(matchid,i++));
+        	member.setSummonerid((String)participant.get("summonerId"));
         	member.setName((String)participant.get("summonerName"));
         	member.setChampionid((String)participant.get("championName"));
         	member.setPositions((String)participant.get("teamPosition"));
@@ -166,39 +178,19 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		return match;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public List<Rank> getLeague(String summonerid) throws WebClientResponseException {
+	public List<RankDto> getLeague(String summonerid) throws WebClientResponseException {
 		
-		List<Rank> ranklist = new ArrayList<>();
-		
-		List<Map> ranks = webclient.get().uri("https://kr.api.riotgames.com"
+		List<RankDto> ranks = webclient.get().uri("https://kr.api.riotgames.com"
 				+ "/lol/league/v4/entries/by-summoner/"+summonerid+"?api_key="+key)
-		.retrieve().bodyToFlux(Map.class).collectList().block();
+		.retrieve().bodyToFlux(RankDto.class).collectList().block();
 		
-		Iterator<Map> iter = ranks.iterator();
-		while(iter.hasNext()) {
-			Map rankmap = iter.next();
-			Rank rank = new Rank();
-			
-			rank.setCk(new RankCompKey((String)rankmap.get("summonerId"), (String)rankmap.get("queueType")));
-			rank.setLeagueId((String) rankmap.get("leagueId"));
-			rank.setLeaguePoints((int) rankmap.get("leaguePoints"));
-			rank.setWins((int) rankmap.get("wins"));
-			rank.setLosses((int) rankmap.get("losses"));
-			rank.setRank((String) rankmap.get("rank"));
-			rank.setTier((String) rankmap.get("tier"));
-			
-			ranklist.add(rank);
-		}
-
-		
-		return ranklist;
+		return ranks;
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public InGameDto getInGameBySummonerId(String summonerid) {
+	public InGameDto getInGameBySummonerId(String summonerid) throws WebClientResponseException {
 		Map currentGameJson = webclient.get().uri("https://kr.api.riotgames.com"
 				+ "/lol/spectator/v4/active-games/by-summoner/"
 				+summonerid+"?api_key="+key)
@@ -207,6 +199,47 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		//받은 json으로 데이터 가공
 		InGameDto currentGameDto = new InGameDto();
 		
+		currentGameDto.setGameId((long)currentGameJson.get("gameId"));
+		currentGameDto.setGameType((String)currentGameJson.get("gameType"));
+		currentGameDto.setGameStartTime((long)currentGameJson.get("gameStartTime"));
+		currentGameDto.setMapId((long)currentGameJson.get("mapId"));
+		currentGameDto.setGameLength((long)currentGameJson.get("gameLength"));
+		currentGameDto.setPlatformId((String)currentGameJson.get("platformId"));
+		currentGameDto.setGameMode((String)currentGameJson.get("gameMode"));
+		currentGameDto.setGameQueueConfigId((long)currentGameJson.get("gameQueueConfigId"));
+		
+		List<CurrentGameParticipantDto> currentGameParticipants = new ArrayList<>();
+		ArrayList<Map> participantsList = (ArrayList<Map>) currentGameJson.get("participants");
+		
+		for(Map participant : participantsList) {
+			CurrentGameParticipantDto currentGameParticipantDto = new CurrentGameParticipantDto();
+			
+			participant.get("championId");
+			participant.get("championId");
+			participant.get("championId");
+			participant.get("championId");
+			participant.get("championId");
+			participant.get("championId");
+			
+			currentGameParticipants.add(currentGameParticipantDto);
+		}
+		
+		currentGameDto.setParticipants(currentGameParticipants);
+		
+		List<BannedChampionDto> bannedChampions = new ArrayList<>();
+		ArrayList<Map> bannedChampionsList = (ArrayList<Map>) currentGameJson.get("bannedChampions");
+		
+		for(Map bannedChampion : bannedChampionsList) {
+			BannedChampionDto bannedChampionDto = new BannedChampionDto();
+			
+			bannedChampionDto.setPickTurn((int)bannedChampion.get("pickTurn"));
+			bannedChampionDto.setChampionId((long)bannedChampion.get("championId"));
+			bannedChampionDto.setTeamId((long)bannedChampion.get("teamId"));
+			
+			bannedChampions.add(bannedChampionDto);
+		}
+		
+		currentGameDto.setBannedChampions(bannedChampions);
 		
 		return currentGameDto;
 	}

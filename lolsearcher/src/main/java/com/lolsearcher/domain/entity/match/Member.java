@@ -1,5 +1,6 @@
-package com.lolsearcher.domain.entity;
+package com.lolsearcher.domain.entity.match;
 
+import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,9 +15,10 @@ public class Member {
 	
 	@EmbeddedId
 	private MemberCompKey ck;
-	private String puuid;
 	private String name;
 	private String championid;
+	@Column(name = "SUMMONER_ID")
+	private String summonerid;
 	private String positions;
 	private boolean wins;
 	
@@ -54,8 +56,8 @@ public class Member {
 	private int item5;
 	private int item6;
 	
-	@MapsId("matchid") //MemberCompKey.matchid 필드 매핑
-	@ManyToOne(fetch = FetchType.LAZY) //lazy 패치로 두는 이유는 mostchamp에서 Member 테이블만 사용하기 때문
+	@MapsId("matchid")
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "MATCH_ID")
 	private Match match;
 	
@@ -65,14 +67,6 @@ public class Member {
 
 	public void setCk(MemberCompKey ck) {
 		this.ck = ck;
-	}
-
-	public String getPuuid() {
-		return puuid;
-	}
-
-	public void setPuuid(String puuid) {
-		this.puuid = puuid;
 	}
 
 	public String getName() {
@@ -344,10 +338,11 @@ public class Member {
 		this.team = team;
 	}
 
-	
-	/*
-	 * public void newMatch(Match match) { if(this.match!=null) {
-	 * this.match.removeMember(this); } this.match = match;
-	 * this.match.newMember(this); }
-	 */
+	public String getSummonerid() {
+		return summonerid;
+	}
+
+	public void setSummonerid(String summonerid) {
+		this.summonerid = summonerid;
+	}
 }

@@ -1,11 +1,12 @@
-package com.lolsearcher.domain.Dto.Summoner;
+package com.lolsearcher.domain.Dto.summoner;
 
-import com.lolsearcher.domain.entity.Member;
+import com.lolsearcher.domain.entity.match.Member;
 
 public class MemberDto {
 
-	private String summonerid;
 	private String matchid;
+	private int num;
+	private String summonerid;
 	private String puuid;
 	private String name;
 	private String championid;
@@ -53,8 +54,8 @@ public class MemberDto {
 	public MemberDto(Member member) {
 		
 		this.matchid = member.getCk().getMatchid();
-		this.summonerid = member.getCk().getSummonerid();
-		this.puuid = member.getPuuid();
+		this.num = member.getCk().getNum();
+		this.summonerid = member.getSummonerid();
 		this.name = member.getName();
 		this.championid = member.getChampionid();
 		this.positions = member.getPositions();
@@ -88,7 +89,7 @@ public class MemberDto {
 		this.quadrakills = member.getQuadrakills();
 		this.pentakills = member.getPentakills();
 		
-		this.setVisionWardsBoughtInGame(member.getVisionWardsBoughtInGame());
+		this.visionWardsBoughtInGame = member.getVisionWardsBoughtInGame();
 		this.visionscore = member.getVisionscore();
 		this.detectorwardplaced = member.getDetectorwardplaced();
 		this.wardkill = member.getWardkill();
@@ -373,6 +374,14 @@ public class MemberDto {
 
 	public void setTeam(int team) {
 		this.team = team;
+	}
+
+	public int getNum() {
+		return num;
+	}
+
+	public void setNum(int num) {
+		this.num = num;
 	}
 
 }

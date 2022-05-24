@@ -1,77 +1,102 @@
 package com.lolsearcher.service;
 
 import java.util.ArrayList;
-
+import java.util.Iterator;
 import java.util.List;
 
-import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.lolsearcher.domain.Dto.Summoner.MatchDto;
-import com.lolsearcher.domain.Dto.Summoner.MostChampDto;
-import com.lolsearcher.domain.Dto.Summoner.RankDto;
-import com.lolsearcher.domain.Dto.Summoner.SummonerDto;
-import com.lolsearcher.domain.Dto.Summoner.TotalRanksDto;
+import com.lolsearcher.controller.SummonerController;
 import com.lolsearcher.domain.Dto.command.MatchParamDto;
 import com.lolsearcher.domain.Dto.command.MostchampParamDto;
-import com.lolsearcher.domain.entity.Match;
-import com.lolsearcher.domain.entity.Rank;
+import com.lolsearcher.domain.Dto.summoner.MatchDto;
+import com.lolsearcher.domain.Dto.summoner.MostChampDto;
+import com.lolsearcher.domain.Dto.summoner.RankDto;
+import com.lolsearcher.domain.Dto.summoner.SummonerDto;
+import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
 import com.lolsearcher.domain.entity.Summoner;
-import com.lolsearcher.repository.SummonerRepository;
+import com.lolsearcher.domain.entity.match.Match;
+import com.lolsearcher.domain.entity.rank.Rank;
+import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 
 //트랜잭션의 isolation을 read_commited로 설정한 이유는 조회한 데이터가 중요한 데이터가 아니고 빠르게 정보를 전달하는것이 목적이기 때문에
 //성능적인 측면에서 level 1(read_commited)로 설정하였다. 그래서 조회 중일 때 데이터가 저장이되면서 올바르지못한 정보를 조회하게 될 수도 있다.
 //(특히 Match정보들을 20개 조회할때) 하지만 다시 조회하면 되는 큰 문제가 아니라 판단이 되어서 isolation을 1단계로 하였다.
 @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+@Service
 public class SummonerService {
+	
+	private final static int seasonId = 22;
+	private static final String soloRank = "RANKED_SOLO_5x5";
+	
 	private final SummonerRepository summonerrepository;
 	private final RiotRestAPI riotApi;
 	
-	private static final String soloRank = "RANKED_SOLO_5x5";
+	private final ApplicationContext applicationContext;
 	
-	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi) {
+	@Autowired
+	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi,ApplicationContext applicationContext) {
 		this.summonerrepository = summonerrepository;
 		this.riotApi = riotApi;
+		this.applicationContext = applicationContext;
 	}
 	
-	//summonerrepository에서 findsummonerByName 메소드를 만들지 않은 이유 : 
-	//닉네임으로 DB에 조회하게 되면 갱신되지 않은 Summoner에 의해 DB에 중복된 닉네임이 있을 경우 발생.
-	//그러면 어떤 Summoner 객체를 가져와야할지 불분명, 버그 발생
-	//따라서 라이엇 서버에서 제공하는 api를 활용하여 닉네임으로 id를 조회한 후 id값으로 DB에 조회 => 버그 발생 제거
-	public SummonerDto findSummoner(String summonername) throws WebClientResponseException {
-		Summoner apisummoner = riotApi.getSummoner(summonername);
-		Summoner dbsummoner = summonerrepository.findsummonerById(apisummoner.getId());
+	@Transactional(noRollbackFor = WebClientResponseException.class)
+	public SummonerDto findDbSummoner(String summonername) throws WebClientResponseException {
+		SummonerDto summonerDto = null;
 		
-		SummonerDto summonerDto;
-		if(dbsummoner==null) {
-			summonerDto = new SummonerDto();
+		List<Summoner> dbSummoner = summonerrepository.findSummonerByName(summonername);
+		
+		if(dbSummoner.size()==1) {
+			
+			summonerDto =  new SummonerDto(dbSummoner.get(0));
+			
 		}else {
-			summonerDto = new SummonerDto(dbsummoner);
+			
+			Iterator<Summoner> summonerIter = dbSummoner.iterator();
+			
+			while(summonerIter.hasNext()) {
+				Summoner candi_summoner = summonerIter.next();
+				
+				try {
+					Summoner renew_Summoner = riotApi.getSummonerById(candi_summoner.getId());
+					summonerrepository.saveSummoner(renew_Summoner);
+					
+					if(renew_Summoner.getName().equals(summonername)) {
+						summonerDto = new SummonerDto(renew_Summoner);
+					}
+				}catch (WebClientResponseException e) {
+					
+					if(e.getStatusCode().value() == 404) //아이디가 삭제되었을 경우
+						summonerrepository.deleteSummoner(candi_summoner);
+					else if(e.getStatusCode().value() == 429) //요청 제한 횟수를 초과한 경우
+						throw e; 							//controller에게 예외 처리 넘겨줌
+				}
+				
+			}
+			
 		}
 		
 		return summonerDto;
 	}
 	
 	public SummonerDto setSummoner(String summonername) throws WebClientResponseException, DataIntegrityViolationException {
-		Summoner apisummoner = riotApi.getSummoner(summonername);
-		SummonerDto summonerDto = new SummonerDto(apisummoner);
-		if(apisummoner==null) {
-			return summonerDto;
-		}
-		Summoner dbsummoner = summonerrepository.findsummonerById(apisummoner.getId());
+		Summoner apisummoner = riotApi.getSummonerByName(summonername);
 		
-		if(dbsummoner==null) {
-			summonerrepository.savesummoner(apisummoner);
-		}else{
-			//apisummoner(최신)와 dbsummoner(이전)를 동기화
-			summonerrepository.updatesummoner(apisummoner,dbsummoner);
-		}
+		summonerrepository.saveSummoner(apisummoner);
+		
+		SummonerDto summonerDto = new SummonerDto(apisummoner);
 		
 		return summonerDto;
 	}
@@ -79,97 +104,133 @@ public class SummonerService {
 	public TotalRanksDto setLeague(SummonerDto summonerdto) throws WebClientResponseException, DataIntegrityViolationException {
 		String summonerid = summonerdto.getSummonerid();
 		
-		List<Rank> apileague = riotApi.getLeague(summonerid);
-		List<Rank> dbleague = summonerrepository.findLeagueEntry(summonerid);
+		List<RankDto> apiRanks = riotApi.getLeague(summonerid);
 		
-		if(dbleague.size()==0) {
-			summonerrepository.saveLeagueEntry(apileague);
-		}else {
-			summonerrepository.updateLeagueEntry(apileague, dbleague);
-		}
+		List<Rank> dbRanks = new ArrayList<>();
+		TotalRanksDto totalRanks = new TotalRanksDto();
 		
-		//entity 객체를 dto로 바꿔주는 로직
-		TotalRanksDto ranks = new TotalRanksDto();
-		
-		for(Rank r : apileague) {
-			if(r.getCk().getQueueType().equals(soloRank)) {
-				RankDto solorank = new RankDto(r);
-				ranks.setSolorank(solorank);
+		for(RankDto r : apiRanks) {
+			r.setSeasonId(seasonId);
+			
+			if(r.getQueueType().equals(soloRank)) {
+				totalRanks.setSolorank(r);
 			}else {
-				RankDto teamrank = new RankDto(r);
-				ranks.setSolorank(teamrank);
+				totalRanks.setTeamrank(r);
 			}
+			
+			dbRanks.add(new Rank(r));
 		}
+		
+		summonerrepository.saveLeagueEntry(dbRanks);
 			
-			
-		return ranks;
+		return totalRanks;
 	}
 	
 	public TotalRanksDto getLeague(SummonerDto summonerdto){
 		
 		String summonerid = summonerdto.getSummonerid();
 		
-		List<Rank> ranks = summonerrepository.findLeagueEntry(summonerid);
+		List<Rank> ranks = summonerrepository.findLeagueEntry(summonerid, seasonId);
 		
-		TotalRanksDto rank = new TotalRanksDto();
+		TotalRanksDto ranksDto = new TotalRanksDto();
 		
 		for(Rank r : ranks) {
-			
 			if(r.getCk().getQueueType().equals("RANKED_SOLO_5x5")) {
 				RankDto solorank = new RankDto(r);
-				rank.setSolorank(solorank);
+				ranksDto.setSolorank(solorank);
 			}else {
 				RankDto teamrank = new RankDto(r);
-				rank.setTeamrank(teamrank);
+				ranksDto.setTeamrank(teamrank);
 			}
 		}
 		
-		return rank;
+		return ranksDto;
 	}
-	//완성
+	
 	public void setMatches(SummonerDto summonerdto) throws WebClientResponseException, DataIntegrityViolationException {
 		
 		String id = summonerdto.getSummonerid();
 		String puuid = summonerdto.getPuuid();
-		Summoner summoner = summonerrepository.findsummonerById(id);
+		
+		Summoner summoner = summonerrepository.findSummonerById(id);
 		String lastmathid = summoner.getLastmatchid();
 		
+		//해당 로직에서 REST 통신 에러(429) 발생 시 Controller에게 예외 처리를 위임함
 		List<String> matchlist = riotApi.listofmatch(puuid, 0, "all", 0, 20, lastmathid);
-		if(matchlist.size()!=0) {
-			
-			//영속성 컨텍스트의 기능으로 인해 summoner 개체의 값을 수정하면 자동으로 update쿼리문 나감
-			summoner.setLastmatchid(matchlist.get(0)); 
 		
-			int i=0;
+		//RENEW 방식 : 
+		// 최근 경기부터 REST 통신으로 데이터 가져와 DB에 저장 -> 가져오는 중 429에러 발생 시
+		// 스레드를 생성해서 해당 매치부터 마지막 매치까지 2분 후 요청해서 DB에 넣는 방식으로 반복
+		
+		if(matchlist.size()!=0) {
+			summoner.setLastmatchid(matchlist.get(0));
+			System.out.println(matchlist.size());
 			for(String matchid : matchlist) {
-				if(i>=20)
-					break;
-				
 				if(!summonerrepository.findMatchid(matchid)) {
-					Match match = riotApi.getmatch(matchid);
-					summonerrepository.saveMatch(match);
+					
+					try {
+						Match match = riotApi.getmatch(matchid);
+						summonerrepository.saveMatch(match);
+					}catch(WebClientResponseException e) {
+						System.out.println(e.getStatusCode());
+						//요청 제한 횟수를 초과한 경우
+						if(e.getStatusCode().value()==429) {
+							//2분 sleep 후 매치 리스트로 db 저장하는 방식
+							Thread thread = new Thread(
+									()-> {
+									System.out.println("스레드 시작");
+									List<String> matchIds = matchlist;
+									int start = 0;
+									for(String matchId : matchIds) {
+										if(!matchId.equals(matchid)) {
+											start++;
+											continue;
+										}else
+											break;
+									}
+									
+									try {
+										System.out.println("스레드 2분 정지");
+										Thread.sleep(1000*60*2 + 2000);
+										System.out.println("스레드 다시 시작");
+									} catch (InterruptedException e2) {
+										// TODO Auto-generated catch block
+										System.out.println("인터럽트 에러 발생");
+									}
+									
+									saveRemainingMatch(start, matchIds);
+									System.out.println("매치 정보들 저장 완료");
+									System.out.println("스레드 종료");
+								}
+							);
+							
+							thread.start();
+							
+						}
+						
+						break;
+					}
 				}
-				i++;
+				
 			}
+			
 		}
 	}
 	
-	public List<MatchDto> getMatches(MatchParamDto match){
-		//ArrayList의 동적 리사이징을 방지하기 위해 초기 사이즈 지정.
-		List<MatchDto> matches = new ArrayList<>(20);
+
+	public List<MatchDto> getMatches(MatchParamDto matchdto){
+		String champion = matchdto.getChampion();
+		int gametype = matchdto.getGametype();
+		String summonerid = matchdto.getSummonerid();
+		int count = matchdto.getCount();
 		
-		String champion = match.getChampion();
-		int gametype = match.getGametype();
-		String summonerid = match.getSummonerid();
-		int count = match.getCount();
+		List<Match> matchlist = summonerrepository.findMatchList(summonerid, gametype, champion, count);
 		
-		List<String> matchlist = summonerrepository.findMatchList(summonerid, gametype, champion, count);
-		
-		for(String matchid : matchlist) {
-			matches.add(new MatchDto(summonerrepository.findMatch(matchid)));
+		List<MatchDto> matchlistDto = new ArrayList<>();
+		for(Match match : matchlist) {
+			matchlistDto.add(new MatchDto(match));
 		}
-		
-		return matches;
+		return matchlistDto;
 	}
 
 	public List<MostChampDto> getMostchamp(MostchampParamDto param) {
@@ -178,7 +239,6 @@ public class SummonerService {
 		int queue = param.getGamequeue();
 		int season = param.getSeason();
 		
-		//모스트챔피언 5개만 받을 것이기 때문에 ArrayList 사이즈 default값인 10으로 둠
 		List<MostChampDto> mostchamps = new ArrayList<>();
 		
 		List<String> champids = summonerrepository.findMostchampids(summonerid, queue, season);
@@ -187,6 +247,41 @@ public class SummonerService {
 			MostChampDto champ = summonerrepository.findChamp(summonerid, champid, queue, season);
 			mostchamps.add(champ);
 		}
+		
 		return mostchamps;
 	}
+	
+	
+	@Transactional
+	public void saveRemainingMatch(int start, List<String> matchIds){
+		
+		EntityManagerFactory emf =  applicationContext.getBean(EntityManagerFactory.class);
+		EntityManager em = emf.createEntityManager();
+		
+		em.getTransaction().begin();
+		
+		for(int i=start; i<matchIds.size(); i++) {
+			
+			if(em.find(Match.class, matchIds.get(i))==null) {
+				try {
+					Match match2 = riotApi.getmatch(matchIds.get(i));
+					em.persist(match2);
+					//summonerrepository.saveMatch(match2);
+				}catch(WebClientResponseException e1) {
+					em.flush();
+					try {
+						Thread.sleep(1000*60*2+2000);
+					} catch (InterruptedException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+				}
+			}
+			
+		}
+		
+		em.flush();
+		em.close();
+	}
+	
 }

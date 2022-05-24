@@ -3,18 +3,29 @@ package com.lolsearcher.domain.entity;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import com.google.gson.annotations.SerializedName;
+
 @Entity
 public class Summoner {
 
 	@Id
+	@SerializedName(value = "id")
 	private String id;
+	@SerializedName(value = "accountId")
 	private String accountId;
+	@SerializedName(value = "puuid")
 	private String puuid;
+	@SerializedName(value = "name")
 	private String name;
+	@SerializedName(value = "profileIconId")
 	private int profileIconId;
+	@SerializedName(value = "revisionDate")
 	private long revisionDate;
+	@SerializedName(value = "summonerLevel")
 	private long summonerLevel;
+	
 	private String lastmatchid;
+	
 	private long lastRenewTimeStamp;
 	
 	public String getId() {
