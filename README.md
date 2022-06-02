@@ -42,7 +42,9 @@ param.setName(filteredname);
 ```
 4. 필터된 닉네임을 [**summonerService.findDbSummoner(String name)**](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L62) 메소드의 파라미터 값으로 전달해 해당 닉네임에 대한 유저가 DB에 존재하는지 판단 => 유저가 1명인 경우 정상적으로 해당 유저 객체(Summoner.class) 반환, 유저가 없는 경우 NULL을 반환, 유저가 2명 이상인 경우 해당 유저들에 대한 정보를 [**갱신**](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/service/SummonerService.java#L73)함   
 
-*cf) DB에 2명 이상의 중복된 닉네임이 존재하게 될 수 있는 상황 설명 : 게임 내에서 닉네임은 중복될 수 없다. 하지만 닉네임은 변경이 가능하기 때문에 DB에 저장된 유저1이 게임 내에서 닉네임1을 닉네임2로 변경하고 변경된 내용이 DB에 갱신이 안된 상태에서 유저2가 닉네임1을 소유한 뒤 DB에 유저2의 정보를 저장하면 DB에 똑같은 닉네임을 가진 유저가 2명이상 될 수 있다. 그래서 해당 중복된 닉네임을 가진 데이터들을 업데이트하는 로직을 수행하면 실제 닉네임 소유 유저는 1명 또는 0명이 되게 된다.*
+*cf) DB에 2명 이상의 중복된 닉네임이 존재하게 될 수 있는 상황 설명 : 게임 내에서 닉네임은 중복될 수 없다. 하지만 닉네임은 변경이 가능하기 때문에 DB에 저장된 유저1이 게임 내에서 닉네임1을 닉네임2로 변경하고 변경된 내용이 DB에 갱신이 안된 상태에서 유저2가 닉네임1을 소유한 뒤 DB에 유저2의 정보를 저장하면 DB에 똑같은 닉네임을 가진 유저가 2명이상 될 수 있다. 그래서 해당 중복된 닉네임을 가진 데이터들을 업데이트하는 로직을 수행하면 실제 닉네임 소유 유저는 1명 또는 0명이 되게 된다.*   
+
+***자세한 내용은 [테스트 케이스](https://github.com/kyo705/LolSearcher/blob/f117f2ff76a8a488b051130264b16fdcbf3e82e3/lolsearcher/src/test/java/com/lolsearcher/Service/SummonerServiceUnitTest.java#L56)들을 보면 쉽게 알 수 있다***
 
 5. [DB에 해당 닉네임 유저가 존재하고 업데이트 요청이 들어오지 않은 경우](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L121) => DB에 해당 유저에 대한 정보들(랭킹, 최근 전적 등)을 조회   
  [DB에 해당 닉네임 유저가 존재하지 않는 경우 OR 해당 닉네임 유저의 업데이트 요청이 들어오는 경우](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L72)  => 게임 회사의 데이터 제공 사이트와의 **REST API** 통신을 통해 Entity 객체에 데이터를 받아 DB에 저장 or 갱신함   
