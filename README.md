@@ -14,7 +14,7 @@
 >   - 언어 : Java
 >   - 프레임 워크 : SpringBoot, Spring Core, Spring MVC
 >   -  빌드 관리 툴 : Gradle
->   - RESAPI통신 : WebClient
+>   - REST API통신 : WebClient
 >   - ORM : JPA(Hibernate)
 >   -  DBMS :
 >      - 실제 서버 환경 : MariaDB
@@ -33,16 +33,25 @@
 2. 웹 통신을 통해 전달되는 데이터들을 Filter Interface를 구현한 **LolsearcherFilter** 클래스를 통해 character encoding 방식 *UTF-8*로 설정한 후 **SummonerController**로 데이터 전송
 
 3. **SummonerController**에서 요청 파라미터들을 Command 객체로 받고 해당 Command 객체의 값의 특수문자들을 제거 <= XXS 공격을 막기 위해   
-*cf) 스프링에서는 클라이언트로부터 요청된 파라미터들을 한번에 받을 수 있도록 Command 객체 제공해준다. 만약 클라이언트로부터 전달된 값이 없을 땐 Command 객체를 생성자를 통해 값을 초기화 할 수 있다.* 
+
 ```java
 String unfilteredname = param.getName();
 String regex = "[^\\uAC00-\\uD7A30-9a-zA-Z]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
 String filteredname = unfilteredname.replaceAll(regex, "");
 param.setName(filteredname);
 ```
+
+*cf) 스프링에서는 클라이언트로부터 요청된 파라미터들을 한번에 받을 수 있도록 Command 객체 제공해준다. 스프링은 커맨드 객체에 클라이언트로부터 전달되는 파라미터와 이름이 같은 setter 값이 있어야지만 파라미터 값을 커맨드 객체에 넘겨줄 수 있다. 만약 클라이언트로부터 전달된 값이 없을 땐 Command 객체를 생성자를 통해 값을 초기화 할 수 있다.*    
+https://github.com/kyo705/LolSearcher/blob/ef036088e2a18935768485ae479e0e81fc39429b/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L42
+
+https://github.com/kyo705/LolSearcher/blob/ef036088e2a18935768485ae479e0e81fc39429b/lolsearcher/src/main/java/com/lolsearcher/domain/Dto/command/SummonerParamDto.java#L3
+
+
+
+
 4. 필터된 닉네임을 [**summonerService.findDbSummoner(String name)**](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L62) 메소드의 파라미터 값으로 전달해 해당 닉네임에 대한 유저가 DB에 존재하는지 판단 => 유저가 1명인 경우 정상적으로 해당 유저 객체(Summoner.class) 반환, 유저가 없는 경우 NULL을 반환, 유저가 2명 이상인 경우 해당 유저들에 대한 정보를 [**갱신**](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/service/SummonerService.java#L73)함   
 
-*cf) DB에 2명 이상의 중복된 닉네임이 존재하게 될 수 있는 상황 설명 : 게임 내에서 닉네임은 중복될 수 없다. 하지만 닉네임은 변경이 가능하기 때문에 DB에 저장된 유저1이 게임 내에서 닉네임1을 닉네임2로 변경하고 변경된 내용이 DB에 갱신이 안된 상태에서 유저2가 닉네임1을 소유한 뒤 DB에 유저2의 정보를 저장하면 DB에 똑같은 닉네임을 가진 유저가 2명이상 될 수 있다. 그래서 해당 중복된 닉네임을 가진 데이터들을 업데이트하는 로직을 수행하면 실제 닉네임 소유 유저는 1명 또는 0명이 되게 된다.*   
+*cf) DB에 2명 이상의 중복된 닉네임이 존재하게 될 수 있는 상황 설명 : 게임 내에서 닉네임은 중복될 수 없다. 하지만 닉네임은 변경이 가능하기 때문에 DB에 저장된 유저1이 게임 내에서 닉네임1을 닉네임2로 변경하고 변경된 내용이 DB에 갱신이 안된 상황에서 유저2가 닉네임1을 소유한 뒤 DB에 유저2의 정보를 저장하면 DB에 똑같은 닉네임을 가진 유저가 2명이상 될 수 있다. 그래서 해당 중복된 닉네임을 가진 데이터들을 업데이트하는 로직을 수행하면 실제 닉네임 소유 유저는 1명 또는 0명이 되게 된다.*   
 
 ***자세한 내용은 [테스트 케이스](https://github.com/kyo705/LolSearcher/blob/f117f2ff76a8a488b051130264b16fdcbf3e82e3/lolsearcher/src/test/java/com/lolsearcher/Service/SummonerServiceUnitTest.java#L56)들을 보면 쉽게 알 수 있다***
 
