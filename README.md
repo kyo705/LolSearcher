@@ -12,7 +12,7 @@
 > - 백 앤드
 >
 >   - 언어 : Java
->   - 프레임 워크 : SpringBoot, Spring Core, Spring MVC
+>   - 프레임 워크 : SpringBoot, Spring MVC
 >   -  빌드 관리 툴 : Gradle
 >   - REST API통신 : WebClient
 >   - ORM : JPA(Hibernate)
@@ -25,6 +25,25 @@
 프로젝트 서버 구조
 -----------------------------------------
 ![ServerStructure](https://user-images.githubusercontent.com/89891704/157023264-e4c10e2a-0a37-4e50-b181-962c45dcca82.png)
+
+
+프로젝트 제공 서비스
+-----------------------------------------
+**1. 유저의 랭크 점수, 최근 게임 전적 정보 제공**
+
+![image](https://user-images.githubusercontent.com/89891704/173005260-b4223420-9d2b-4ed1-a8ca-277cc1c72d95.png)
+
+
+
+**2. 유저의 인게임 정보 제공(현재 게임 중일 경우 해당 매치 데이터 제공)**
+
+**3. 게임 캐릭터(챔피언) 관련 통계 정보 제공**
+
+**4. REST API 서비스 제공(REST DOCS 파일 제공)**
+![image](https://user-images.githubusercontent.com/89891704/173006203-397f4b9d-9e86-48b9-b0ae-3e70ce6deb15.png)
+
+![image](https://user-images.githubusercontent.com/89891704/173006734-d3de6ed3-f822-41ba-baf7-03ba1517f2c6.png)
+
 
 프로젝트 작동 과정 및 원리
 -----------------------------------------
@@ -65,9 +84,9 @@ https://github.com/kyo705/LolSearcher/blob/ef036088e2a18935768485ae479e0e81fc394
 
 7. Templete Engine은 해당 템플릿을 가공하여 html을 작성한 후 데이터를 클라이언트 쪽으로 전송   
 
-Entity 매핑 및 DB 테이블 연관 관계
+DB 테이블 연관 관계
 ----------------------------------------
-![image](https://user-images.githubusercontent.com/89891704/157093397-cab00a54-01cd-405f-a870-3d33c7cad1ea.png)
+![image](https://user-images.githubusercontent.com/89891704/173000894-97aa1f85-40b8-4ae3-a4c4-fac2d137cc17.png)
 
 
 업데이트 설명
