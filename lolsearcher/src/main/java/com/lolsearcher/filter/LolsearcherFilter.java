@@ -9,19 +9,18 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 
-@WebFilter(urlPatterns = "/summoner")
+@WebFilter(urlPatterns = "/")
 public class LolsearcherFilter implements Filter{
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		//½ÇÇà Àü ÇÊÅÍ ¼öÇà 
+		//ì‹¤í–‰ ì „ í•„í„° ìˆ˜í–‰ 
 		request.setCharacterEncoding("UTF-8");
 		
 		chain.doFilter(request, response);
 		
-		//½ÇÇà ÈÄ ÇÊÅÍ ¼öÇà
-		
+		//ì‹¤í–‰ í›„ í•„í„° ìˆ˜í–‰
 	}
 
 }

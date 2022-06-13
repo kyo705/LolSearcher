@@ -1,6 +1,6 @@
 package com.lolsearcher.domain.Dto.summoner;
 
-import com.lolsearcher.domain.entity.Summoner;
+import com.lolsearcher.domain.entity.summoner.Summoner;
 
 public class SummonerDto {
 
@@ -11,9 +11,7 @@ public class SummonerDto {
 	private long summonerLevel;
 	private long lastRenewTimeStamp;
 	
-	public SummonerDto() {
-		// TODO Auto-generated constructor stub
-	}
+	public SummonerDto() {}
 	
 	public SummonerDto(Summoner summoner) {
 		this.summonerid = summoner.getId();

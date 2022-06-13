@@ -3,19 +3,18 @@ package com.lolsearcher.domain.Dto.summoner;
 public class MostChampDto {
 
 	private String championid;
-	private String championname;
 	private double avgcs;
 	private double avgkill;
 	private double avgdeath;
 	private double avgassist;
 	private long totalgame;
-	private int totalwin;
+	private long totalwin;
 	
 	public MostChampDto() {
 		
 	}
 	public MostChampDto(String championid, double avgcs, double avgkill, double avgdeath, double avgassist, long totalgame,
-			int totalwin) {
+			long totalwin) {
 		super();
 		this.championid = championid;
 		this.avgcs = avgcs;
@@ -62,10 +61,10 @@ public class MostChampDto {
 	public void setTotalgame(long totalgame) {
 		this.totalgame = totalgame;
 	}
-	public int getTotalwin() {
+	public long getTotalwin() {
 		return totalwin;
 	}
-	public void setTotalwin(int totalwin) {
+	public void setTotalwin(long totalwin) {
 		this.totalwin = totalwin;
 	}
 }

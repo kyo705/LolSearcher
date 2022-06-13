@@ -1,11 +1,9 @@
 package com.lolsearcher.domain.Dto.summoner;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
-import com.lolsearcher.domain.entity.match.Match;
-import com.lolsearcher.domain.entity.match.Member;
+import com.lolsearcher.domain.entity.summoner.match.Match;
+import com.lolsearcher.domain.entity.summoner.match.Member;
 
 
 public class MatchDto {
@@ -15,7 +13,7 @@ public class MatchDto {
 	private long gameEndTimestamp;
 	private int queueId;
 	private int season;
-	private List<MemberDto> members;
+	private MemberDto[] members;
 	
 	public MatchDto() {
 		
@@ -28,11 +26,12 @@ public class MatchDto {
 		this.queueId = match.getQueueId();
 		this.season = match.getSeason();
 		
-		members = new ArrayList<>();
+		members = new MemberDto[10];
 		Iterator<Member> iter = match.getMembers().iterator();
+		
 		while(iter.hasNext()) {
 			Member member = iter.next();
-			members.add(new MemberDto(member));
+			members[member.getCk().getNum()] = new MemberDto(member);
 		}
 	}
 
@@ -76,7 +75,7 @@ public class MatchDto {
 		this.season = season;
 	}
 
-	public List<MemberDto> getMembers() {
+	public MemberDto[] getMembers() {
 		return members;
 	}
 

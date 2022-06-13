@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -16,7 +17,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.lolsearcher.controller.SummonerController;
 import com.lolsearcher.domain.Dto.command.MatchParamDto;
 import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
@@ -24,15 +24,13 @@ import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.Dto.summoner.RankDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
 import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
-import com.lolsearcher.domain.entity.Summoner;
-import com.lolsearcher.domain.entity.match.Match;
-import com.lolsearcher.domain.entity.rank.Rank;
+import com.lolsearcher.domain.entity.summoner.Summoner;
+import com.lolsearcher.domain.entity.summoner.match.Match;
+import com.lolsearcher.domain.entity.summoner.rank.Rank;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 
-//Æ®·£Àè¼ÇÀÇ isolationÀ» read_commited·Î ¼³Á¤ÇÑ ÀÌÀ¯´Â Á¶È¸ÇÑ µ¥ÀÌÅÍ°¡ Áß¿äÇÑ µ¥ÀÌÅÍ°¡ ¾Æ´Ï°í ºü¸£°Ô Á¤º¸¸¦ Àü´ŞÇÏ´Â°ÍÀÌ ¸ñÀûÀÌ±â ¶§¹®¿¡
-//¼º´ÉÀûÀÎ Ãø¸é¿¡¼­ level 1(read_commited)·Î ¼³Á¤ÇÏ¿´´Ù. ±×·¡¼­ Á¶È¸ ÁßÀÏ ¶§ µ¥ÀÌÅÍ°¡ ÀúÀåÀÌµÇ¸é¼­ ¿Ã¹Ù¸£Áö¸øÇÑ Á¤º¸¸¦ Á¶È¸ÇÏ°Ô µÉ ¼öµµ ÀÖ´Ù.
-//(Æ¯È÷ MatchÁ¤º¸µéÀ» 20°³ Á¶È¸ÇÒ¶§) ÇÏÁö¸¸ ´Ù½Ã Á¶È¸ÇÏ¸é µÇ´Â Å« ¹®Á¦°¡ ¾Æ´Ï¶ó ÆÇ´ÜÀÌ µÇ¾î¼­ isolationÀ» 1´Ü°è·Î ÇÏ¿´´Ù.
+
 @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
 @Service
 public class SummonerService {
@@ -78,10 +76,10 @@ public class SummonerService {
 					}
 				}catch (WebClientResponseException e) {
 					
-					if(e.getStatusCode().value() == 404) //¾ÆÀÌµğ°¡ »èÁ¦µÇ¾úÀ» °æ¿ì
+					if(e.getStatusCode().value() == 404) //ì•„ì´ë””ê°€ ì‚­ì œë˜ì—ˆì„ ê²½ìš°
 						summonerrepository.deleteSummoner(candi_summoner);
-					else if(e.getStatusCode().value() == 429) //¿äÃ» Á¦ÇÑ È½¼ö¸¦ ÃÊ°úÇÑ °æ¿ì
-						throw e; 							//controller¿¡°Ô ¿¹¿Ü Ã³¸® ³Ñ°ÜÁÜ
+					else if(e.getStatusCode().value() == 429) //ìš”ì²­ ì œí•œ íšŸìˆ˜ë¥¼ ì´ˆê³¼í•œ ê²½ìš° controllerì—ê²Œ ì˜ˆì™¸ ì²˜ë¦¬ ë„˜ê²¨ì¤Œ
+						throw e;
 				}
 				
 			}
@@ -150,21 +148,20 @@ public class SummonerService {
 	public void setMatches(SummonerDto summonerdto) throws WebClientResponseException, DataIntegrityViolationException {
 		
 		String id = summonerdto.getSummonerid();
-		String puuid = summonerdto.getPuuid();
 		
 		Summoner summoner = summonerrepository.findSummonerById(id);
 		String lastmathid = summoner.getLastmatchid();
+		String puuid = summoner.getPuuid();
 		
-		//ÇØ´ç ·ÎÁ÷¿¡¼­ REST Åë½Å ¿¡·¯(429) ¹ß»ı ½Ã Controller¿¡°Ô ¿¹¿Ü Ã³¸®¸¦ À§ÀÓÇÔ
+		//ì•„ë˜ ì½”ë“œì—ì„œ REST í†µì‹  ì—ëŸ¬(429) ë°œìƒ ê°€ëŠ¥ =>ë°œìƒ ì‹œ Controllerì—ê²Œ ì˜ˆì™¸ ì²˜ë¦¬ë¥¼ ìœ„ì„í•¨
 		List<String> matchlist = riotApi.listofmatch(puuid, 0, "all", 0, 20, lastmathid);
 		
-		//RENEW ¹æ½Ä : 
-		// ÃÖ±Ù °æ±âºÎÅÍ REST Åë½ÅÀ¸·Î µ¥ÀÌÅÍ °¡Á®¿Í DB¿¡ ÀúÀå -> °¡Á®¿À´Â Áß 429¿¡·¯ ¹ß»ı ½Ã
-		// ½º·¹µå¸¦ »ı¼ºÇØ¼­ ÇØ´ç ¸ÅÄ¡ºÎÅÍ ¸¶Áö¸· ¸ÅÄ¡±îÁö 2ºĞ ÈÄ ¿äÃ»ÇØ¼­ DB¿¡ ³Ö´Â ¹æ½ÄÀ¸·Î ¹İº¹
 		
+		// ìµœê·¼ ê²½ê¸°ë¶€í„° REST í†µì‹ ìœ¼ë¡œ ë°ì´í„° ê°€ì ¸ì™€ DBì— ì €ì¥ -> í•´ë‹¹ ë¡œì§ ì‹¤í–‰ ì¤‘ 429ì—ëŸ¬(TOO MANY REQUEST) ë°œìƒ ì‹œ
+		// ìŠ¤ë ˆë“œë¥¼ ìƒì„±í•´ì„œ í•´ë‹¹ ë§¤ì¹˜ë¶€í„° ë§ˆì§€ë§‰ ë§¤ì¹˜ê¹Œì§€ 2ë¶„ í›„ ìš”ì²­í•´ì„œ DBì— ë„£ëŠ” ë°©ì‹ìœ¼ë¡œ ë°˜ë³µ
 		if(matchlist.size()!=0) {
 			summoner.setLastmatchid(matchlist.get(0));
-			System.out.println(matchlist.size());
+			
 			for(String matchid : matchlist) {
 				if(!summonerrepository.findMatchid(matchid)) {
 					
@@ -173,42 +170,14 @@ public class SummonerService {
 						summonerrepository.saveMatch(match);
 					}catch(WebClientResponseException e) {
 						System.out.println(e.getStatusCode());
-						//¿äÃ» Á¦ÇÑ È½¼ö¸¦ ÃÊ°úÇÑ °æ¿ì
+						//ìš”ì²­ ì œí•œ íšŸìˆ˜ë¥¼ ì´ˆê³¼í•œ ê²½ìš°
 						if(e.getStatusCode().value()==429) {
-							//2ºĞ sleep ÈÄ ¸ÅÄ¡ ¸®½ºÆ®·Î db ÀúÀåÇÏ´Â ¹æ½Ä
-							Thread thread = new Thread(
-									()-> {
-									System.out.println("½º·¹µå ½ÃÀÛ");
-									List<String> matchIds = matchlist;
-									int start = 0;
-									for(String matchId : matchIds) {
-										if(!matchId.equals(matchid)) {
-											start++;
-											continue;
-										}else
-											break;
-									}
-									
-									try {
-										System.out.println("½º·¹µå 2ºĞ Á¤Áö");
-										Thread.sleep(1000*60*2 + 2000);
-										System.out.println("½º·¹µå ´Ù½Ã ½ÃÀÛ");
-									} catch (InterruptedException e2) {
-										// TODO Auto-generated catch block
-										System.out.println("ÀÎÅÍ·´Æ® ¿¡·¯ ¹ß»ı");
-									}
-									
-									saveRemainingMatch(start, matchIds);
-									System.out.println("¸ÅÄ¡ Á¤º¸µé ÀúÀå ¿Ï·á");
-									System.out.println("½º·¹µå Á¾·á");
-								}
-							);
-							
+							//ë‚¨ì€ ë§¤ì¹˜ ì •ë³´ ì €ì¥í•˜ëŠ” ìŠ¤ë ˆë“œ ìƒì„±
+							Thread thread = makingMatchSaveThread(matchlist, matchid);
 							thread.start();
-							
 						}
 						
-						break;
+						break; //forë¬¸ ë¹ ì ¸ë‚˜ì˜´
 					}
 				}
 				
@@ -233,7 +202,7 @@ public class SummonerService {
 		return matchlistDto;
 	}
 
-	public List<MostChampDto> getMostchamp(MostchampParamDto param) {
+	public List<MostChampDto> getMostChamp(MostchampParamDto param) {
 		
 		String summonerid = param.getSummonerid();
 		int queue = param.getGamequeue();
@@ -252,13 +221,47 @@ public class SummonerService {
 	}
 	
 	
-	@Transactional
-	public void saveRemainingMatch(int start, List<String> matchIds){
+//--------------------------------- ë§¤ì¹˜ ì •ë³´ ì €ì¥ ìŠ¤ë ˆë“œ ê´€ë ¨ ë©”ì†Œë“œ -------------------------------------	
+	private Thread makingMatchSaveThread(List<String> matchlist, String stoppedMatchId) {
+		
+		Thread thread = new Thread(
+				()-> {
+				System.out.println("ìŠ¤ë ˆë“œ ì‹œì‘");
+				
+				int start = 0;
+				for(String matchId : matchlist) {
+					if(!matchId.equals(stoppedMatchId)) {
+						start++;
+						continue;
+					}else
+						break;
+				}
+				
+				try {
+					System.out.println("ìŠ¤ë ˆë“œ 2ë¶„ ì •ì§€");
+					Thread.sleep(1000*60*2 + 2000);
+					System.out.println("ìŠ¤ë ˆë“œ ë‹¤ì‹œ ì‹œì‘");
+				} catch (InterruptedException e2) {
+					System.out.println("ì¸í„°ëŸ½íŠ¸ ì—ëŸ¬ ë°œìƒ");
+				}
+				
+				saveRemainingMatch(start, matchlist);
+				System.out.println("ë§¤ì¹˜ ì •ë³´ë“¤ ì €ì¥ ì™„ë£Œ");
+				System.out.println("ìŠ¤ë ˆë“œ ì¢…ë£Œ");
+			}
+		);
+		
+		return thread;
+		
+	}
+	
+	private void saveRemainingMatch(int start, List<String> matchIds){
 		
 		EntityManagerFactory emf =  applicationContext.getBean(EntityManagerFactory.class);
 		EntityManager em = emf.createEntityManager();
 		
-		em.getTransaction().begin();
+		EntityTransaction et = em.getTransaction();
+		et.begin();
 		
 		for(int i=start; i<matchIds.size(); i++) {
 			
@@ -266,13 +269,13 @@ public class SummonerService {
 				try {
 					Match match2 = riotApi.getmatch(matchIds.get(i));
 					em.persist(match2);
-					//summonerrepository.saveMatch(match2);
 				}catch(WebClientResponseException e1) {
 					em.flush();
 					try {
+						System.out.println("ìŠ¤ë ˆë“œ 2ë¶„ ì •ì§€");
 						Thread.sleep(1000*60*2+2000);
+						System.out.println("ìŠ¤ë ˆë“œ ë‹¤ì‹œ ì‹œì‘");
 					} catch (InterruptedException e2) {
-						// TODO Auto-generated catch block
 						e2.printStackTrace();
 					}
 				}
@@ -280,7 +283,8 @@ public class SummonerService {
 			
 		}
 		
-		em.flush();
+		et.commit();
+		
 		em.close();
 	}
 	

@@ -9,15 +9,15 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientResponseException;
 
-import com.lolsearcher.domain.Dto.currentgame.InGameDto;
-import com.lolsearcher.domain.entity.Summoner;
-import com.lolsearcher.domain.entity.match.Match;
-import com.lolsearcher.domain.entity.match.Member;
-import com.lolsearcher.domain.entity.match.MemberCompKey;
-import com.lolsearcher.domain.entity.rank.Rank;
-import com.lolsearcher.domain.entity.rank.RankCompKey;
+import com.lolsearcher.domain.Dto.ingame.InGameDto;
+import com.lolsearcher.domain.entity.summoner.Summoner;
+import com.lolsearcher.domain.entity.summoner.match.Match;
+import com.lolsearcher.domain.entity.summoner.match.Member;
+import com.lolsearcher.domain.entity.summoner.match.MemberCompKey;
+import com.lolsearcher.domain.entity.summoner.rank.Rank;
+import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
 
-//riot ¼­¹ö¿¡¼­ Á¢±ÙÇØ¼­ µ¥ÀÌÅÍ °¡Á®¿Í¼­ °³Ã¼¿¡ ´ã´Â ¿ªÇÒ
+//riot ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 public class RiotRestApiv1{
 	
 
@@ -45,7 +45,7 @@ public class RiotRestApiv1{
           result.put("body"  , ((RestClientResponseException) e).getStatusText());
 		}catch(Exception e) {
 			result.put("statusCode", "999");
-          result.put("body"  , "excpetion¿À·ù");
+          result.put("body"  , "excpetionï¿½ï¿½ï¿½ï¿½");
 		}
       
 		
@@ -93,7 +93,7 @@ public class RiotRestApiv1{
           result.put("body"  , ((RestClientResponseException) e).getStatusText());
 		}catch(Exception e) {
 			result.put("statusCode", "999");
-          result.put("body"  , "excpetion¿À·ù");
+          result.put("body"  , "excpetionï¿½ï¿½ï¿½ï¿½");
 		}
 		
 		return list;
@@ -112,7 +112,7 @@ public class RiotRestApiv1{
 	        Map info = (Map)jsondata.get("info");
 	        Map metadata = (Map)jsondata.get("metadata");
 	        
-	        //match Á¤º¸ ÀúÀå
+	        //match ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	        match.setGameDuration((int)info.get("gameDuration"));
 	        match.setMatchId((String)metadata.get("matchId"));
 	        match.setGameEndTimestamp((long)info.get("gameEndTimestamp"));
@@ -123,13 +123,13 @@ public class RiotRestApiv1{
 	        int season = Integer.parseInt(s);
 	        match.setSeason(season);
 	        
-      	//Member °³Ã¼ ¹Þ±â
+      	//Member ï¿½ï¿½Ã¼ ï¿½Þ±ï¿½
       	List<Map> participants = (ArrayList)info.get("participants");
       	int i=0;
 	        for(Map participant : participants) {
 	        	Member member = new Member();
 	        	
-	        	member.setMatch(match); //¾ç¹æÇâ ¸ÅÇÎ µÇ¾îÀÖ¾î¼­ match °´Ã¼¿¡ member°´Ã¼ ¸ÅÇÎÇÒ ÇÊ¿ä ¾øÀ½
+	        	member.setMatch(match); //ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ç¾ï¿½ï¿½Ö¾î¼­ match ï¿½ï¿½Ã¼ï¿½ï¿½ memberï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ ï¿½ï¿½ï¿½ï¿½
 	        	
 	        	member.setCk(new MemberCompKey((String)metadata.get("matchId"),i++));
 	        	member.setSummonerid((String)participant.get("summonerId"));
@@ -142,17 +142,17 @@ public class RiotRestApiv1{
 	        	member.setChampLevel((int)participant.get("champLevel"));
 	        	member.setCs((int)participant.get("totalMinionsKilled")+(int)participant.get("neutralMinionsKilled"));
 	        	member.setGold((int)participant.get("goldEarned"));
-	        	member.setBountylevel((int)participant.get("bountyLevel")); //Çö»ó±Ý ·¹º§
+	        	member.setBountylevel((int)participant.get("bountyLevel")); //ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	        	
 	        	member.setKills((int)participant.get("kills"));
 	        	member.setDeaths((int)participant.get("deaths"));
 	        	member.setAssists((int)participant.get("assists"));
 	        	
 	        	member.setVisionWardsBoughtInGame((int)participant.get("visionWardsBoughtInGame"));
-	        	member.setVisionscore((int)participant.get("visionScore")); //½Ã¾ßÁ¡¼ö
+	        	member.setVisionscore((int)participant.get("visionScore")); //ï¿½Ã¾ï¿½ï¿½ï¿½ï¿½ï¿½
 	        	member.setWardpalced((int)participant.get("wardsPlaced"));
 	        	member.setWardkill((int)participant.get("wardsKilled"));
-	        	member.setDetectorwardplaced((int)participant.get("detectorWardsPlaced")); //Á¦¾î¿Íµå ¼³Ä¡ È½¼ö
+	        	member.setDetectorwardplaced((int)participant.get("detectorWardsPlaced")); //ï¿½ï¿½ï¿½ï¿½Íµï¿½ ï¿½ï¿½Ä¡ È½ï¿½ï¿½
 	        	
 	        	member.setBaronkills((int)participant.get("baronKills"));
 	        	member.setDragonkills((int)participant.get("dragonKills"));
@@ -188,14 +188,14 @@ public class RiotRestApiv1{
           
 		}catch(Exception e) {
 			result.put("statusCode", "999");
-          result.put("body"  , "excpetion¿À·ù");
+          result.put("body"  , "excpetionï¿½ï¿½ï¿½ï¿½");
 		}
 		
 		return match;
 		
 	}
 	
-	//¿Ï¼º
+	//ï¿½Ï¼ï¿½
 	public List<Rank> getLeague(String summonerid){
 		
 		HashMap<String, Object> result = new HashMap<String, Object>();
@@ -227,7 +227,7 @@ public class RiotRestApiv1{
           result.put("body"  , ((RestClientResponseException) e).getStatusText());
 		}catch(Exception e) {
 			result.put("statusCode", "999");
-          result.put("body"  , "excpetion¿À·ù");
+          result.put("body"  , "excpetionï¿½ï¿½ï¿½ï¿½");
 		}
 		
 		return leagueSet;

@@ -13,7 +13,7 @@ public class MatchParamDto {
 		summonerid = "";
 		champion = "all";
 		gametype = -1;
-		count = 1;
+		count = 100;
 	}
 	
 	public MatchParamDto(String name, String summonerid, String champion, int gametype, int count) {

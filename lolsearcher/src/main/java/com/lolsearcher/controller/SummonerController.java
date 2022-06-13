@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.lolsearcher.domain.Dto.command.MatchParamDto;
 import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.Dto.command.SummonerParamDto;
-import com.lolsearcher.domain.Dto.currentgame.InGameDto;
+import com.lolsearcher.domain.Dto.ingame.InGameDto;
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
@@ -37,15 +38,15 @@ public class SummonerController {
 		this.inGameService = inGameService;
 	}
 	
-	//param°ªÀ» µû·Î ¹Ş´Â°ÍÀÌ ¾Æ´Ï¶ó command°´Ã¼¸¦ »ç¿ëÇØ¼­ ÇÑ¹ø¿¡ param°ª ¹ŞÀ½(DTO)
+	//paramê°’ì„ ë”°ë¡œ ë°›ëŠ”ê²ƒì´ ì•„ë‹ˆë¼ commandê°ì²´ë¥¼ ì‚¬ìš©í•´ì„œ í•œë²ˆì— paramê°’ ë°›ìŒ(DTO)
 	@PostMapping(path = "/summoner")
 	public ModelAndView summonerdefault(SummonerParamDto param) {
 		
 		ModelAndView mv = new ModelAndView();
 		
-		//»ç¿ëÀÚ ¿äÃ» ÇÊÅÍ¸µ(xxs ¹æÁö)
+		//ì‚¬ìš©ì ìš”ì²­ í•„í„°ë§(xxs ë°©ì§€)
 		String unfilteredname = param.getName();
-		String regex = "[^\\uAC00-\\uD7A30-9a-zA-Z]"; //¹®ÀÚ,¼ıÀÚ »©°í ´Ù ÇÊÅÍ¸µ(¶ç¾î¾²±â Æ÷ÇÔ)
+		String regex = "[^\\uAC00-\\uD7A30-9a-zA-Z]"; //ë¬¸ì,ìˆ«ì ë¹¼ê³  ë‹¤ í•„í„°ë§(ë„ì–´ì“°ê¸° í¬í•¨)
 		String filteredname = unfilteredname.replaceAll(regex, "");
 		param.setName(filteredname);
 		
@@ -61,14 +62,14 @@ public class SummonerController {
 		try {
 			summonerdto = summonerService.findDbSummoner(param.getName());
 		}catch(WebClientResponseException e) {
-			if(e.getStatusCode().toString().equals(error429)) { //¿äÃ» Á¦ÇÑ È½¼ö¸¦ ÃÊ°úÇÑ °æ¿ì ´ë±â ¸Ş¼¼Áö Àü´Ş
+			if(e.getStatusCode().toString().equals(error429)) { //ìš”ì²­ ì œí•œ íšŸìˆ˜ë¥¼ ì´ˆê³¼í•œ ê²½ìš° ëŒ€ê¸° ë©”ì„¸ì§€ ì „ë‹¬
 				mv.setViewName("error_manyreq");
 				return mv;
 			}
 		}
 		
 		
-		//DB¿¡¼­ ¼ÒÈ¯»ç Á¤º¸°¡ ¾ø´Â °æ¿ì || Å¬¶óÀÌ¾ğÆ®¿¡¼­ ÀüÀû °»½Å ¹öÆ°À» ÅëÇØ °»½Å ¿äÃ»ÀÌ µé¾î¿À´Â °æ¿ì
+		//DBì—ì„œ ì†Œí™˜ì‚¬ ì •ë³´ê°€ ì—†ëŠ” ê²½ìš° || í´ë¼ì´ì–¸íŠ¸ì—ì„œ ì „ì  ê°±ì‹  ë²„íŠ¼ì„ í†µí•´ ê°±ì‹  ìš”ì²­ì´ ë“¤ì–´ì˜¤ëŠ” ê²½ìš°
 		if(summonerdto==null||
 				(param.isRenew()&&System.currentTimeMillis()-summonerdto.getLastRenewTimeStamp()>=5*60*1000)) {
 			
@@ -76,21 +77,21 @@ public class SummonerController {
 				summonerdto = summonerService.setSummoner(param.getName());
 			}catch(WebClientResponseException e) {
 				if(e.getStatusCode().toString().equals(error404)) {
-					//Á¸ÀçÇÏÁö ¾Ê´Â ´Ğ³×ÀÓÀÏ ¶§
+					//ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ë‹‰ë„¤ì„ì¼ ë•Œ
 					mv.addObject("params", param);
 					mv.setViewName("error_name");
 					return mv;
 				} else if(e.getStatusCode().toString().equals(error429)) {
-					//¿äÃ» Á¦ÇÑ È½¼ö¸¦ ÃÊ°úÇÑ °æ¿ì
+					//ìš”ì²­ ì œí•œ íšŸìˆ˜ë¥¼ ì´ˆê³¼í•œ ê²½ìš°
 					mv.setViewName("error_manyreq");
 					return mv;
 				}
 			}catch(DataIntegrityViolationException e) {
-				//¸ÖÆ¼ ½º·¹µå È¯°æÀÌ±â ¶§¹®¿¡ DB¿¡ Áßº¹ ÀúÀå¿¡ ´ëÇÑ ¿¹¿Ü Ã³¸®
+				//ë©€í‹° ìŠ¤ë ˆë“œ í™˜ê²½ì´ê¸° ë•Œë¬¸ì— DBì— ì¤‘ë³µ ì €ì¥ì— ëŒ€í•œ ì˜ˆì™¸ ì²˜ë¦¬
 				summonerdto = summonerService.findDbSummoner(param.getName());
 			}
 			
-			//RIOT ¼­¹ö¿¡¼­ µ¥ÀÌÅÍ ¹Ş¾Æ¿Í¼­ DB¿¡ ÀúÀå. ¸ÖÆ¼ ½º·¹µå È¯°æÀÌ±â ¶§¹®¿¡ DB¿¡ Áßº¹ ÀúÀå¿¡ ´ëÇÑ ¿¹¿Ü Ã³¸®
+			// RANK ê´€ë ¨ ë°ì´í„° RIOT ì„œë²„ì—ì„œ ë°ì´í„° ë°›ì•„ì™€ì„œ DBì— ì €ì¥
 			try {
 				ranks = summonerService.setLeague(summonerdto);
 			}catch(WebClientResponseException e) {
@@ -103,7 +104,7 @@ public class SummonerController {
 				ranks = summonerService.getLeague(summonerdto);
 			}
 			
-			//RIOT ¼­¹ö¿¡¼­ µ¥ÀÌÅÍ ¹Ş¾Æ¿Í¼­ DB¿¡ ÀúÀå. ¸ÖÆ¼ ½º·¹µå È¯°æÀÌ±â ¶§¹®¿¡ DB¿¡ Áßº¹ ÀúÀå¿¡ ´ëÇÑ ¿¹¿Ü Ã³¸®
+			// MATCH ê´€ë ¨ ë°ì´í„° RIOT ì„œë²„ì—ì„œ ë°ì´í„° ë°›ì•„ì™€ì„œ DBì— ì €ì¥
 			try {
 				summonerService.setMatches(summonerdto);
 			}catch(WebClientResponseException e) {
@@ -114,7 +115,7 @@ public class SummonerController {
 				}
 			}catch(DataIntegrityViolationException e) {
 				System.out.println(e.getMessage());
-				//¸¸¾à ÇÑ¹ø Áßº¹ ÀúÀåÀÌ ¹ß»ıÇÏ´Â °ÍÀÌ ¾Æ´Ï¶ó ¿©·¯¹ø ¹ß»ıÇÑ´Ù¸é? => exception ÅÍÁü
+				//ë§Œì•½ í•œë²ˆ ì¤‘ë³µ ì €ì¥ì´ ë°œìƒí•˜ëŠ” ê²ƒì´ ì•„ë‹ˆë¼ ì—¬ëŸ¬ë²ˆ ë°œìƒí•œë‹¤ë©´? => exception í„°ì§
 				//=> how to solve this problem???
 				summonerService.setMatches(summonerdto);
 			}
@@ -130,10 +131,10 @@ public class SummonerController {
 		MostchampParamDto mostchampParamDto = new MostchampParamDto(param.getSummonerid(),
 				param.getMostgametype(),param.getSeason());
 		
-		//¸ÖÆ¼½º·¹µå »ı¼ºÇØ¼­ µ¿½Ã¿¡ ÀüÀû¸®½ºÆ®, °èÁ¤Á¤º¸ °¡Á®¿À´Â ¹æ¹ıµµ °í·Á
+		
 		matches = summonerService.getMatches(matchParamDto);
 		
-		mostchamps = summonerService.getMostchamp(mostchampParamDto);
+		mostchamps = summonerService.getMostChamp(mostchampParamDto);
 		
 		mv.addObject("params", param);
 		mv.addObject("summoner", summonerdto);
@@ -148,24 +149,47 @@ public class SummonerController {
 	}
 	
 	@GetMapping(path = "/ingame")
-	public ModelAndView inGame(String SummonerId,String name) {
+	public ModelAndView inGame(String name) {
 		ModelAndView mv = new ModelAndView();
+		
 		InGameDto inGameDto = null;
 		
-		try {	
-			inGameDto = inGameService.getInGame(SummonerId);
+		SummonerDto summonerDto = null;
+		
+		try {
+			summonerDto = summonerService.findDbSummoner(name);
+		}catch(WebClientResponseException e) {
+			if(e.getStatusCode().toString().equals(error429)) {
+				mv.setViewName("error_manyreq");
+				return mv;
+			}
+		}
+		
+		try {
+			inGameDto = inGameService.getInGame(summonerDto);
+			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), inGameDto.getGameId());
 		}catch(WebClientResponseException e) {
 			if(e.getStatusCode().toString().equals(error404)) {
-				mv.addObject(name);
+				inGameService.removeDirtyInGame(summonerDto.getSummonerid());
+				mv.addObject("summoner", summonerDto);
 				mv.setViewName("error_ingame");
 				return mv;
 			}else if(e.getStatusCode().toString().equals(error429)) {
 				mv.setViewName("error_manyreq");
 				return mv;
 			}
+		}catch(Exception e) { //ë©€í‹° ìŠ¤ë ˆë“œì—ì„œ ë™ì‹œì— entityë¥¼ ì œê±°í•  ë•Œ ë°œìƒí•˜ëŠ” ì˜ˆì™¸ => ë‹¤ì‹œ í•œë²ˆ ë¹„ì§€ë‹ˆìŠ¤ ë¡œì§ ì‹¤í–‰í•˜ì—¬ ì˜ˆì™¸ ì²˜ë¦¬
+			inGameDto = inGameService.getInGame(summonerDto);
 		}
 		
-		mv.addObject(inGameDto);
+		if(inGameDto == null) {
+			inGameService.removeDirtyInGame(summonerDto.getSummonerid());
+			mv.addObject("summoner", summonerDto);
+			mv.setViewName("error_ingame");
+		}
+		
+		mv.addObject("summoner", summonerDto);
+		mv.addObject("ingame", inGameDto);
 		mv.setViewName("inGame");
 		
 		return mv;

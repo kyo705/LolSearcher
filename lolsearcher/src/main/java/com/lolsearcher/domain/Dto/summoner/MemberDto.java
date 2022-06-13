@@ -1,6 +1,6 @@
 package com.lolsearcher.domain.Dto.summoner;
 
-import com.lolsearcher.domain.entity.match.Member;
+import com.lolsearcher.domain.entity.summoner.match.Member;
 
 public class MemberDto {
 
@@ -31,8 +31,8 @@ public class MemberDto {
 	
 	private int baronkills;
 	private int dragonkills;
-	private int inhibitorkills; //¾ïÁ¦±â Á¦°Å È½¼ö
-	private int nexuskills;     //³Ø¼­½º Á¦°Å È½¼ö
+	private int inhibitorkills; //ì–µì œê¸° ì œê±° íšŸìˆ˜
+	private int nexuskills;     
 	
 	private int doublekills;
 	private int triplekills;

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.lolsearcher.domain.Dto.championstatic.ChampionDto;
@@ -23,7 +24,7 @@ public class ChampionController {
 
 
 	@PostMapping(path = "/champions")
-	public ModelAndView champions(String position) {
+	public ModelAndView champions(@RequestParam(defaultValue = "TOP", name = "position")String position) {
 		
 		ModelAndView mv = new ModelAndView();
 		

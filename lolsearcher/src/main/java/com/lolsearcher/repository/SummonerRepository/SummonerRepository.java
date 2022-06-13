@@ -4,13 +4,13 @@ import java.util.List;
 
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.MostChampDto;
-import com.lolsearcher.domain.entity.Summoner;
-import com.lolsearcher.domain.entity.match.Match;
-import com.lolsearcher.domain.entity.rank.Rank;
+import com.lolsearcher.domain.entity.summoner.Summoner;
+import com.lolsearcher.domain.entity.summoner.match.Match;
+import com.lolsearcher.domain.entity.summoner.rank.Rank;
 
 public interface SummonerRepository {
 	
-	//-----------------Summoner Å×ÀÌºí CRUD----------------------------------
+	//-----------------Summoner í…Œì´ë¸” CRUD----------------------------------
 	public void saveSummoner(Summoner summoner);
 	
 	public Summoner findSummonerById(String summonerid);
@@ -19,12 +19,12 @@ public interface SummonerRepository {
 	
 	public void deleteSummoner(Summoner summoner);
 
-	//-----------------Rank Å×ÀÌºí CRUD----------------------------------
+	//-----------------Rank í…Œì´ë¸” CRUD----------------------------------
 	public void saveLeagueEntry(List<Rank> set);
 	
 	public List<Rank> findLeagueEntry(String summonerid, int seasonid);
 	
-	//-----------------Match,Member(1:N) Å×ÀÌºí CRUD----------------------------------
+	//-----------------Match,Member(1:N) í…Œì´ë¸” CRUD----------------------------------
 	public boolean findMatchid(String matchid);
 	
 	public void saveMatch(Match match);

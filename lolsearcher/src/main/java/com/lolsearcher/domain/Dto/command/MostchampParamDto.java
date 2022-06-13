@@ -7,7 +7,6 @@ public class MostchampParamDto {
 	private int season;
 	
 	public MostchampParamDto() {
-		//param값 초기화
 		this.season = 12;
 	}
 	

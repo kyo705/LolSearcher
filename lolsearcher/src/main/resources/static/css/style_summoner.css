@@ -23,7 +23,7 @@
 	width: 20px;
 	height: 20px;
 }
-.pa{
+.same_row{
 display: flex;
 }
 .tierinfo{
@@ -85,4 +85,29 @@ flex:4;
 	font-size: 16px;
 	margin: 4px 2px;
 	cursor: pointer;
+}
+.stat{
+	margin:10px;
+	display:flex;
+}
+.specificButton{
+	
+}
+
+.win{
+	margin:10px;
+	display:flex;
+	background-color: #50C2FF;
+}
+
+.loss{
+	margin:10px;
+	display:flex;
+	background-color: #D7567F;
+}
+
+.draw{
+	margin:10px;
+	display:flex;
+	background-color: #8c8c8c;
 }

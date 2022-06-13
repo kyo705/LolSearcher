@@ -5,14 +5,13 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import com.lolsearcher.domain.Dto.currentgame.BannedChampionDto;
-import com.lolsearcher.domain.Dto.currentgame.CurrentGameParticipantDto;
-import com.lolsearcher.domain.Dto.currentgame.InGameDto;
+
+import com.lolsearcher.domain.Dto.ingame.InGameDto;
 import com.lolsearcher.domain.Dto.summoner.RankDto;
-import com.lolsearcher.domain.entity.Summoner;
-import com.lolsearcher.domain.entity.match.Match;
-import com.lolsearcher.domain.entity.match.Member;
-import com.lolsearcher.domain.entity.match.MemberCompKey;
+import com.lolsearcher.domain.entity.summoner.Summoner;
+import com.lolsearcher.domain.entity.summoner.match.Match;
+import com.lolsearcher.domain.entity.summoner.match.Member;
+import com.lolsearcher.domain.entity.summoner.match.MemberCompKey;
 
 public class RiotRestApiv2 implements RiotRestAPI{
 
@@ -32,6 +31,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		
 		summoner.setLastmatchid("");
         summoner.setLastRenewTimeStamp(System.currentTimeMillis());
+        summoner.setLastInGameSearchTimeStamp(0);
 		
 		return summoner;
 	}
@@ -130,7 +130,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
         for(Map participant : participants) {
         	Member member = new Member();
         	
-        	member.setMatch(match); //æÁπÊ«‚ ∏≈«Œ µ«æÓ¿÷æÓº≠ match ∞¥√ºø° member∞¥√º ∏≈«Œ«“ « ø‰ æ¯¿Ω
+        	member.setMatch(match); //ÏñëÎ∞©Ìñ• Îß§Ìïë ÎêòÏñ¥ÏûàÏñ¥ÏÑú match Í∞ùÏ≤¥Ïóê memberÍ∞ùÏ≤¥ Îß§ÌïëÌï† ÌïÑÏöî ÏóÜÏùå
         	
         	member.setCk(new MemberCompKey(matchid,i++));
         	member.setSummonerid((String)participant.get("summonerId"));
@@ -143,17 +143,17 @@ public class RiotRestApiv2 implements RiotRestAPI{
         	member.setChampLevel((int)participant.get("champLevel"));
         	member.setCs((int)participant.get("totalMinionsKilled")+(int)participant.get("neutralMinionsKilled"));
         	member.setGold((int)participant.get("goldEarned"));
-        	member.setBountylevel((int)participant.get("bountyLevel")); //«ˆªÛ±› ∑π∫ß
+        	member.setBountylevel((int)participant.get("bountyLevel")); //ÌòÑÏÉÅÍ∏à Î†àÎ≤®
         	
         	member.setKills((int)participant.get("kills"));
         	member.setDeaths((int)participant.get("deaths"));
         	member.setAssists((int)participant.get("assists"));
         	
         	member.setVisionWardsBoughtInGame((int)participant.get("visionWardsBoughtInGame"));
-        	member.setVisionscore((int)participant.get("visionScore")); //Ω√æﬂ¡°ºˆ
+        	member.setVisionscore((int)participant.get("visionScore"));
         	member.setWardpalced((int)participant.get("wardsPlaced"));
         	member.setWardkill((int)participant.get("wardsKilled"));
-        	member.setDetectorwardplaced((int)participant.get("detectorWardsPlaced")); //¡¶æÓøÕµÂ º≥ƒ° »Ωºˆ
+        	member.setDetectorwardplaced((int)participant.get("detectorWardsPlaced"));
         	
         	member.setBaronkills((int)participant.get("baronKills"));
         	member.setDragonkills((int)participant.get("dragonKills"));
@@ -188,60 +188,16 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		return ranks;
 	}
 
-	@SuppressWarnings("rawtypes")
+	
 	@Override
 	public InGameDto getInGameBySummonerId(String summonerid) throws WebClientResponseException {
-		Map currentGameJson = webclient.get().uri("https://kr.api.riotgames.com"
+		
+		InGameDto currentGame = webclient.get().uri("https://kr.api.riotgames.com"
 				+ "/lol/spectator/v4/active-games/by-summoner/"
 				+summonerid+"?api_key="+key)
-				.retrieve().bodyToMono(Map.class).block();
+				.retrieve().bodyToMono(InGameDto.class).block();
 		
-		//πﬁ¿∫ json¿∏∑Œ µ•¿Ã≈Õ ∞°∞¯
-		InGameDto currentGameDto = new InGameDto();
-		
-		currentGameDto.setGameId((long)currentGameJson.get("gameId"));
-		currentGameDto.setGameType((String)currentGameJson.get("gameType"));
-		currentGameDto.setGameStartTime((long)currentGameJson.get("gameStartTime"));
-		currentGameDto.setMapId((long)currentGameJson.get("mapId"));
-		currentGameDto.setGameLength((long)currentGameJson.get("gameLength"));
-		currentGameDto.setPlatformId((String)currentGameJson.get("platformId"));
-		currentGameDto.setGameMode((String)currentGameJson.get("gameMode"));
-		currentGameDto.setGameQueueConfigId((long)currentGameJson.get("gameQueueConfigId"));
-		
-		List<CurrentGameParticipantDto> currentGameParticipants = new ArrayList<>();
-		ArrayList<Map> participantsList = (ArrayList<Map>) currentGameJson.get("participants");
-		
-		for(Map participant : participantsList) {
-			CurrentGameParticipantDto currentGameParticipantDto = new CurrentGameParticipantDto();
-			
-			participant.get("championId");
-			participant.get("championId");
-			participant.get("championId");
-			participant.get("championId");
-			participant.get("championId");
-			participant.get("championId");
-			
-			currentGameParticipants.add(currentGameParticipantDto);
-		}
-		
-		currentGameDto.setParticipants(currentGameParticipants);
-		
-		List<BannedChampionDto> bannedChampions = new ArrayList<>();
-		ArrayList<Map> bannedChampionsList = (ArrayList<Map>) currentGameJson.get("bannedChampions");
-		
-		for(Map bannedChampion : bannedChampionsList) {
-			BannedChampionDto bannedChampionDto = new BannedChampionDto();
-			
-			bannedChampionDto.setPickTurn((int)bannedChampion.get("pickTurn"));
-			bannedChampionDto.setChampionId((long)bannedChampion.get("championId"));
-			bannedChampionDto.setTeamId((long)bannedChampion.get("teamId"));
-			
-			bannedChampions.add(bannedChampionDto);
-		}
-		
-		currentGameDto.setBannedChampions(bannedChampions);
-		
-		return currentGameDto;
+		return currentGame;
 	}
 
 }

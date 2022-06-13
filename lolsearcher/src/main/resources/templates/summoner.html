@@ -9,7 +9,7 @@
 	<h1 class="head">
 		<a href="/">LOL Searcher</a>
 	</h1>
-	<div class="pa">
+	<div class="same_row">
 		<div>
 			<form name="champions" action ="/champions"  method="POST">
 				<button type="submit">챔피언 분석</button>
@@ -22,14 +22,14 @@
 			</form>
 		</div>
 	</div>
-	<div class="pa">
+	<div class="same_row">
 		<img style="padding: 10px 10px;" th:src="'/profileicon/'+${summoner.profileIconId}+'.png'" height="90" width="80"/>
 		<div style="padding: 6px 12px;">
 			<div style="font-size:x-large;" th:text="${summoner.name}"></div>
 			<div style="font-size:large;" th:text="'Level : '+ ${summoner.summonerLevel}"></div>
 		</div>
 	</div>
-<div class="pa">
+<div class="same_row">
 	<div>
 		<div class="rank_border" th:if="${rank.solorank} == null">
 			<img th:src="'/tier_icon/provisional.png'" height="110" width="100"/>
@@ -82,6 +82,7 @@
 				</div>
 				<div>
 					<div th:text="${mostchamp.totalgame} + ' 게임'"></div>
+					<div th:text="${mostchamp.totalwin} + ' 승  ' + ${mostchamp.totalgame - mostchamp.totalwin} + ' 패'"></div>
 				</div>
 			</div>
 			<div class = "mostchamp-container" th:unless ="${#lists.size(mostchamps)} != 0" >
@@ -90,31 +91,41 @@
 		</div>
 	</div>
 	<div class="matchlist" th:with="queue_val=0">
-		<script>let timestamp,date,queue_mode;</script>	
-		<button id = "renewbtn" class = "renewbotton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',true,'${params.mostgametype}','${params.matchgametype}')|" innerText="전적 갱신"></button>
-		<script th:inline="javascript">
-			/*<![CDATA[*/
-				lasttimestamp = "[[${summoner.lastRenewTimeStamp}]]";
-			/*]]>*/
-			
-			var lastRenewTime= (new Date().getTime()-lasttimestamp)/(60*1000);
-			const target = document.getElementById("renewbtn");
-			if(lastRenewTime<=5) {
-				target.disabled = true;
-				target.innerText = 5 - parseInt(lastRenewTime) + "분 후 갱신해주세요";
-			}else {
-				target.disabled = false;
-				target.innerText = "전적 갱신";
-			}
-		</script>
+		<div class = "same_row">
+			<div>
+				<script>let timestamp,date,queue_mode;</script>	
+				<button id = "renewbtn" class = "renewbotton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',true,'${params.mostgametype}','${params.matchgametype}')|" innerText="전적 갱신"></button>
+				<script th:inline="javascript">
+					/*<![CDATA[*/
+						lasttimestamp = "[[${summoner.lastRenewTimeStamp}]]";
+					/*]]>*/
+					
+					var lastRenewTime= (new Date().getTime()-lasttimestamp)/(60*1000);
+					const target = document.getElementById("renewbtn");
+					if(lastRenewTime<=5) {
+						target.disabled = true;
+						target.innerText = 5 - parseInt(lastRenewTime) + "분 후 갱신해주세요";
+					}else {
+						target.disabled = false;
+						target.innerText = "전적 갱신";
+					}
+				</script>
+			</div>
+			<div>
+				<form name="SummonerId" action ="/ingame"  method="GET">
+					<input type="hidden" name="name" th:value="${summoner.name}">
+					<button class = "renewbotton" type="submit">인게임 정보</button>
+				</form>
+			</div>
+		</div>
 		<div class="mostchamp-container">
 			<button class = "matchbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,'${params.mostgametype}', -1)|">전체</button>
 			<button class = "matchbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,'${params.mostgametype}', 420)|">솔로 랭크</button>
 			<button class = "matchbutton" type="submit" th:attr="onclick=|javascript:sendPost('${params.name}',false,'${params.mostgametype}', 440)|">자유 랭크</button>
 		</div>
 		<div th:each="match,i:${matches}" th:if="${i.index}<20">
-			<div class="stat" style="margin:10px; display:flex;">
-				<div class="pa" th:each="member : ${match.members}" th:if="${member.summonerid} == ${summoner.summonerid}">
+			<div class="stat">
+				<div class="same_row" th:each="member : ${match.members}" th:if="${member.summonerid} == ${summoner.summonerid}">
 					<div class="match">
 						<div th:if="${match.queueId} == '420'">솔로 랭크</div>
 						<div th:if="${match.queueId} == '430'">일반</div>
@@ -183,7 +194,7 @@
 							</div>
 							<div th:unless="${member.wins} == true">
 								패배
-								<script>document.querySelector(".stat").className='lose';</script>
+								<script>document.querySelector(".stat").className='loss';</script>
 							</div>
 						</div>
 					</div>
@@ -230,19 +241,19 @@
 					</div>
 				</div>
 				<div>
-					<div class="pa" th:each="member,i : ${match.members}" th:if="${i.index}<5">
+					<div class="same_row" th:each="member,i : ${match.members}" th:if="${i.index}<5">
 						<img th:src="'/champion/'+${member.championid}+'.png'" height="15" width="15"/>
 						<a th:attr="onclick=|javascript:summ('${member.name}')|" th:text= "${member.name}"></a>
 					</div>
 				</div>
 				<div>
-					<div class="pa" th:each="member,i : ${match.members}" th:if="${i.index}>=5">
+					<div class="same_row" th:each="member,i : ${match.members}" th:if="${i.index}>=5">
 						<img th:src="'/champion/'+${member.championid}+'.png'" height="15" width="15"/>
 						<a th:attr="onclick=|javascript:summ('${member.name}')|" th:text= "${member.name}"></a>
 					</div>
 				</div>
 				<div>
-				    <input value="▼" type="button" th:attr="onclick=|javascript:morebutton('${i.index}')|"/>
+				    <input class="specificButton" value="▼" type="button" th:attr="onclick=|javascript:morebutton('${i.index}')|"/>
 				</div>
 			</div>
 			<div class ="specificMatch">
@@ -322,31 +333,15 @@ function sendPost(name, isrenew, mostgametype, matchgametype) {
 
 function morebutton(i) {
 	var specificmatches = document.getElementsByClassName('specificMatch');
+	var states = document.getElementsByClassName('specificButton');
 	if(specificmatches[i].style.display != 'block'){
 		specificmatches[i].style.display = 'block';
-		this.value = '▲';
-		}else{
-			specificmatches[i].style.display = 'none';
-			this.value = '▼';
-		}
+		states[i].value = "▲";
+	}else{
+		specificmatches[i].style.display = 'none';
+		states[i].value = "▼";
+	}
 }
-
-var x=document.querySelectorAll(".win");
-var y=document.querySelectorAll(".lose");
-var z=document.querySelectorAll(".draw");
-var i=0,j=0,k=0;
-while(i<x.length){
-	x[i].style.backgroundColor='#50C2FF';
-	i++;
-	}
-while(j<y.length){
-	y[j].style.backgroundColor='#D7567F';
-	j++;
-	}
-while(k<z.length){
-	z[k].style.backgroundColor='#8c8c8c';
-	k++;
-	}
 </script>
 </body>
 </html>

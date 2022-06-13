@@ -1,6 +1,6 @@
 package com.lolsearcher.domain.Dto.summoner;
 
-import com.lolsearcher.domain.entity.rank.Rank;
+import com.lolsearcher.domain.entity.summoner.rank.Rank;
 
 public class RankDto {
 

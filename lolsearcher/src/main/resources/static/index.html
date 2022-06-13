@@ -3,9 +3,19 @@
 <head>
 	<title>LOL Searcher</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="/css/style_summoner.css" type="text/css">
 </head>
 <body>
-	<h1><a href="/">LOL Searcher</a></h1>
+	<h1 class="head">
+		<a href="/">LOL Searcher</a>
+	</h1>
+	<div class = "same_row">
+		<form name="champions" action ="/champions"  method="POST">
+			<button type="submit">챔피언 분석</button>
+		</form>
+		<a href="/docs/manual.html">REST API 설명서</a>
+		<a href="/multisearch/index.html">멀티 서치</a>
+	</div>
 	<form action ="/summoner" method="POST">
 		<input type="text" name="name" placeholder="소환사 이름 검색 입력">
 		<button type="submit">검색</button>

@@ -2,10 +2,10 @@ package com.lolsearcher.restapi;
 
 import java.util.List;
 
-import com.lolsearcher.domain.Dto.currentgame.InGameDto;
+import com.lolsearcher.domain.Dto.ingame.InGameDto;
 import com.lolsearcher.domain.Dto.summoner.RankDto;
-import com.lolsearcher.domain.entity.Summoner;
-import com.lolsearcher.domain.entity.match.Match;
+import com.lolsearcher.domain.entity.summoner.Summoner;
+import com.lolsearcher.domain.entity.summoner.match.Match;
 
 public interface RiotRestAPI {
 	

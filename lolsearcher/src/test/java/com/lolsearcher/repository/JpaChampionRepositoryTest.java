@@ -31,26 +31,26 @@ class JpaChampionRepositoryTest {
 	public void findChampionStatic() {
 		//given
 		Champion champion1 = new Champion();
-		champion1.setCk(new ChampionCompKey("Å»·Ğ", 22, "JUNGLE"));
+		champion1.setCk(new ChampionCompKey("íƒˆë¡ ", 22, "JUNGLE"));
 		champion1.setWins(50);
 		champion1.setLosses(40);
 		
 		Champion champion2 = new Champion();
-		champion2.setCk(new ChampionCompKey("Ä«Å¸¸®³ª", 22, "MIDDLE"));
+		champion2.setCk(new ChampionCompKey("ì¹´íƒ€ë¦¬ë‚˜", 22, "MIDDLE"));
 		champion2.setWins(60);
 		champion2.setLosses(40);
 		
 		Champion champion3 = new Champion();
-		champion3.setCk(new ChampionCompKey("Ä«Å¸¸®³ª", 21, "MIDDLE"));
+		champion3.setCk(new ChampionCompKey("ì¹´íƒ€ë¦¬ë‚˜", 21, "MIDDLE"));
 		champion3.setWins(48);
 		champion3.setLosses(53);
 		
 		Champion champion4 = new Champion();
-		champion4.setCk(new ChampionCompKey("¿¤¸®½º", 22, "JUNGLE"));
+		champion4.setCk(new ChampionCompKey("ì—˜ë¦¬ìŠ¤", 22, "JUNGLE"));
 		champion4.setWins(70);
 		champion4.setLosses(70);
 		
-		//DB¿¡ ÀúÀåµÇ¾îÀÖ´Ù°í °¡Á¤(ÇöÀç´Â DB¿¡ ÀúÀåµÈ °ÍÀÌ ¾Æ´Ï¶ó ¿µ¼Ó¼º ÄÁÅÃ½ºÆ®¿¡ ÀúÀåµÇ¾îÀÖÀ½)
+		//DBì— ì €ì¥ë˜ì–´ìˆë‹¤ê³  ê°€ì •(í˜„ì¬ëŠ” DBì— ì €ì¥ëœ ê²ƒì´ ì•„ë‹ˆë¼ ì˜ì†ì„± ì»¨íƒìŠ¤íŠ¸ì— ì €ì¥ë˜ì–´ìˆìŒ)
 		em.persist(champion1);
 		em.persist(champion2);
 		em.persist(champion3);
@@ -61,13 +61,13 @@ class JpaChampionRepositoryTest {
 		List<Champion> jungleChampions = jpaChampionRepository.findChamps("JUNGLE");
 		
 		//then
-		//jpaChampionRepositoryÀÇ seasonId ÇÊµå °ªÀÌ 22·Î µÇ¾îÀÖ±â ¶§¹®¿¡ 22½ÃÁğ Ä«Å¸¸®³ª °ª(1°³)¸¸ Á¶È¸µÈ´Ù.
+		//jpaChampionRepositoryì˜ seasonId í•„ë“œ ê°’ì´ 22ë¡œ ë˜ì–´ìˆê¸° ë•Œë¬¸ì— 22ì‹œì¦Œ ì¹´íƒ€ë¦¬ë‚˜ ê°’(1ê°œ)ë§Œ ì¡°íšŒëœë‹¤.
 		assertThat(middleChampions.size()).isEqualTo(1);
-		assertThat(middleChampions.get(0).getCk().getChampionId()).isEqualTo("Ä«Å¸¸®³ª");
+		assertThat(middleChampions.get(0).getCk().getChampionId()).isEqualTo("Ä«Å¸ï¿½ï¿½ï¿½ï¿½");
 		
-		//wins+losses ·Î Á¤·ÄÇØ¼­ ¹Ş±â ¶§¹®¿¡ ¿¤¸®½º,Å»·Ğ ¼øÀ¸·Î listÃ¤¿öÁü(¿¤¸®½º °ÔÀÓ¼ö(140ÆÇ), Å»·Ğ °ÔÀÓ¼ö(90ÆÇ))
+		//wins+losses ë¡œ ì •ë ¬í•´ì„œ ë°›ê¸° ë•Œë¬¸ì— ì—˜ë¦¬ìŠ¤,íƒˆë¡  ìˆœìœ¼ë¡œ listì±„ì›Œì§(ì—˜ë¦¬ìŠ¤ ê²Œì„ìˆ˜(140íŒ), íƒˆë¡  ê²Œì„ìˆ˜(90íŒ))
 		assertThat(jungleChampions.size()).isEqualTo(2);
-		assertThat(jungleChampions.get(0).getCk().getChampionId()).isEqualTo("¿¤¸®½º"); 
-		assertThat(jungleChampions.get(1).getCk().getChampionId()).isEqualTo("Å»·Ğ");
+		assertThat(jungleChampions.get(0).getCk().getChampionId()).isEqualTo("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"); 
+		assertThat(jungleChampions.get(1).getCk().getChampionId()).isEqualTo("Å»ï¿½ï¿½");
 	}
 }
