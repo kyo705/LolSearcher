@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -170,7 +169,7 @@ public class SummonerController {
 			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), inGameDto.getGameId());
 		}catch(WebClientResponseException e) {
 			if(e.getStatusCode().toString().equals(error404)) {
-				inGameService.removeDirtyInGame(summonerDto.getSummonerid());
+				inGameService.removeDirtyInGame(summonerDto.getSummonerid(), -1);
 				mv.addObject("summoner", summonerDto);
 				mv.setViewName("error_ingame");
 				return mv;
@@ -178,20 +177,20 @@ public class SummonerController {
 				mv.setViewName("error_manyreq");
 				return mv;
 			}
-		}catch(Exception e) { //멀티 스레드에서 동시에 entity를 제거할 때 발생하는 예외 => 다시 한번 비지니스 로직 실행하여 예외 처리
-			inGameDto = inGameService.getInGame(summonerDto);
 		}
 		
 		if(inGameDto == null) {
-			inGameService.removeDirtyInGame(summonerDto.getSummonerid());
+			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), -1);
 			mv.addObject("summoner", summonerDto);
 			mv.setViewName("error_ingame");
+			
+			return mv;
+		}else {
+			mv.addObject("summoner", summonerDto);
+			mv.addObject("ingame", inGameDto);
+			mv.setViewName("inGame");
+			
+			return mv;
 		}
-		
-		mv.addObject("summoner", summonerDto);
-		mv.addObject("ingame", inGameDto);
-		mv.setViewName("inGame");
-		
-		return mv;
 	}
 }

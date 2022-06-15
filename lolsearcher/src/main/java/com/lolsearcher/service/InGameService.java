@@ -63,13 +63,13 @@ public class InGameService {
 		
 		for(InGame ingame : ingames) {
 			if(ingame.getGameId()!=gameId) {
-				ingameRepository.deleteIngame(ingame);
+				try {
+					ingameRepository.deleteIngame(ingame);
+				}catch(Exception e) {
+					continue;
+				}
 			}
 		}
-	}
-
-	public void removeDirtyInGame(String summonerid) {
-		removeDirtyInGame(summonerid, -1);
 	}
 	
 }

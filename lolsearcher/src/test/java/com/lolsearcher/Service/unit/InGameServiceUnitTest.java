@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.domain.Dto.ingame.InGameDto;
@@ -158,7 +161,7 @@ public class InGameServiceUnitTest {
 	
 	@Test
 	void getInGameCase4() {
-		//test Case 2 : 최근 인게임 정보 확인한 시간이 현재 시각으로부터 2분 이상일 때
+		//test Case 4 : 최근 인게임 정보 확인한 시간이 현재 시각으로부터 2분 이상일 때
 		//				REST API 로 인게임 데이터를 전달받은 경우 
 		
 		//given
@@ -195,7 +198,7 @@ public class InGameServiceUnitTest {
 	
 	@Test
 	void getInGameCase5() {
-		//test Case 1 : 최근 인게임 정보 확인한 시간이 현재 시각으로부터 2분 이상일 때
+		//test Case 5 : 최근 인게임 정보 확인한 시간이 현재 시각으로부터 2분 이상일 때
 		//				REST API 로 인게임 데이터를 전달받지 못한 경우 
 		
 		//given
@@ -231,6 +234,105 @@ public class InGameServiceUnitTest {
 	
 	@Test
 	void removeDirtyInGameCase1() {
+		//test Case 1 : 현재 진행 중인 게임이 있을 경우
 		
+		//given
+		//전달받은 파라미터
+		String summonerId = "summonerId1";
+		long currentGameId = 3;
+		
+		//Mock 객체 리턴 값 1
+		InGame ingame3 = new InGame();
+		ingame3.setGameId(3);
+		InGame ingame2 = new InGame();
+		ingame2.setGameId(2);
+		InGame ingame1 = new InGame();
+		ingame1.setGameId(1);
+		
+		List<InGame> inGames = new ArrayList<>();
+		inGames.add(ingame3);
+		inGames.add(ingame2);
+		inGames.add(ingame1);
+		
+		when(inGameRepository.getIngame(summonerId))
+		.thenReturn(inGames);
+		
+		//when
+		inGameService.removeDirtyInGame(summonerId, currentGameId);
+		
+		//then
+		verify(inGameRepository, times(2)).deleteIngame(any()); //이미 끝난 게임 정보들은 삭제함
+		verify(inGameRepository, times(0)).deleteIngame(ingame3); //현재 진행 중인 게임 정보는 삭제하면 안됌
+	}
+	
+	@Test
+	void removeDirtyInGameCase2() {
+		//test Case 2 : 현재 진행 중인 게임이 없을 경우
+		
+		//given
+		//전달받은 파라미터
+		String summonerId = "summonerId1";
+		long currentGameId = -1;
+		
+		//Mock 객체 리턴 값 1
+		InGame ingame3 = new InGame();
+		ingame3.setGameId(3);
+		InGame ingame2 = new InGame();
+		ingame2.setGameId(2);
+		InGame ingame1 = new InGame();
+		ingame1.setGameId(1);
+		
+		List<InGame> inGames = new ArrayList<>();
+		inGames.add(ingame3);
+		inGames.add(ingame2);
+		inGames.add(ingame1);
+		
+		when(inGameRepository.getIngame(summonerId))
+		.thenReturn(inGames);
+		
+		//when
+		inGameService.removeDirtyInGame(summonerId, currentGameId);
+				
+		//then
+		verify(inGameRepository, times(3)).deleteIngame(any()); //이미 끝난 게임 정보들은 삭제함
+	}
+	
+	@Test
+	void removeDirtyInGameCase3() {
+		//test Case 3 : 제거해야할 인게임 데이터들을 가져왔으나 멀티 스레드 환경에서 다른 스레드가 기존 데이터를 삭제해
+		//				delete 쿼리문이 오류날 경우
+		
+		//given
+		//전달받은 파라미터
+		String summonerId = "summonerId1";
+		long currentGameId = 3;
+		
+		//Mock 객체 리턴 값 1
+		InGame ingame3 = new InGame();
+		ingame3.setGameId(3);
+		InGame ingame2 = new InGame();
+		ingame2.setGameId(2);
+		InGame ingame1 = new InGame();
+		ingame1.setGameId(1);
+		
+		List<InGame> inGames = new ArrayList<>();
+		inGames.add(ingame3);
+		inGames.add(ingame2);
+		inGames.add(ingame1);
+		
+		when(inGameRepository.getIngame(summonerId))
+		.thenReturn(inGames);
+		
+		//Mock 객체 리턴 값 2
+		doThrow(new DataIntegrityViolationException("이미 존재하지 않는 엔티티입니다."))
+		.when(inGameRepository)
+		.deleteIngame(ingame1);
+		
+		//when
+		inGameService.removeDirtyInGame(summonerId, currentGameId);
+				
+		//then
+		verify(inGameRepository, times(2)).deleteIngame(any()); //이미 끝난 게임 정보들은 삭제함
+		verify(inGameRepository, times(0)).deleteIngame(ingame3); //현재 실행 중인 게임은 삭제되지 않음
 	}
 }
