@@ -655,7 +655,7 @@ class SummonerServiceUnitTest {
 		matchIds.add("matchId2");
 		matchIds.add("matchId1");
 		
-		when(riotRestApi.listofmatch(summoner.getPuuid(),0,"all",0,20,summoner.getLastmatchid()))
+		when(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid()))
 		.thenReturn(matchIds);
 		
 		when(summonerRepository.findMatchid("matchId5")).thenReturn(false);
@@ -724,7 +724,7 @@ class SummonerServiceUnitTest {
 		matchIds.add("matchId2");
 		matchIds.add("matchId1");
 		
-		when(riotRestApi.listofmatch(summoner.getPuuid(),0,"all",0,20,summoner.getLastmatchid()))
+		when(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid()))
 		.thenReturn(matchIds);
 		
 		when(summonerRepository.findMatchid("matchId5")).thenReturn(false);
@@ -781,7 +781,7 @@ class SummonerServiceUnitTest {
 		
 		List<String> matchIds = new ArrayList<>();
 		
-		when(riotRestApi.listofmatch(summoner.getPuuid(),0,"all",0,20,summoner.getLastmatchid()))
+		when(riotRestApi.getAllMatchIds(summoner.getPuuid(),summoner.getLastmatchid()))
 		.thenReturn(matchIds);
 		
 		//when
@@ -811,7 +811,7 @@ class SummonerServiceUnitTest {
 		when(summonerRepository.findSummonerById(summonerDto.getSummonerid()))
 		.thenReturn(summoner);
 		
-		when(riotRestApi.listofmatch(summoner.getPuuid(), 0, "all", 0, 20, summoner.getLastmatchid()))
+		when(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid()))
 		.thenThrow(new WebClientResponseException(429, "많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.", null, null, null));
 		
 		//when & then
@@ -821,7 +821,7 @@ class SummonerServiceUnitTest {
 		assertThat(e.getStatusText()).isEqualTo("많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.");
 		
 		verify(summonerRepository, times(1)).findSummonerById(anyString());
-		verify(riotRestApi, times(1)).listofmatch(summoner.getPuuid(), 0, "all", 0, 20, summoner.getLastmatchid());
+		verify(riotRestApi, times(1)).getMatchIds(summoner.getPuuid(), 0, "all", 0, 20, summoner.getLastmatchid());
 	}
 	
 	

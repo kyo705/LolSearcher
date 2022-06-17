@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -31,7 +29,7 @@ import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 
 
-@Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+@Transactional
 @Service
 public class SummonerService {
 	
@@ -40,8 +38,9 @@ public class SummonerService {
 	
 	private final SummonerRepository summonerrepository;
 	private final RiotRestAPI riotApi;
-	
 	private final ApplicationContext applicationContext;
+	@Autowired
+	private EntityManager em;
 	
 	@Autowired
 	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi,ApplicationContext applicationContext) {
@@ -61,7 +60,6 @@ public class SummonerService {
 			summonerDto =  new SummonerDto(dbSummoner.get(0));
 			
 		}else {
-			
 			Iterator<Summoner> summonerIter = dbSummoner.iterator();
 			
 			while(summonerIter.hasNext()) {
@@ -75,11 +73,14 @@ public class SummonerService {
 						summonerDto = new SummonerDto(renew_Summoner);
 					}
 				}catch (WebClientResponseException e) {
-					
-					if(e.getStatusCode().value() == 404) //아이디가 삭제되었을 경우
+					if(e.getStatusCode().value() == 400) { //아이디가 삭제되었을 경우
 						summonerrepository.deleteSummoner(candi_summoner);
-					else if(e.getStatusCode().value() == 429) //요청 제한 횟수를 초과한 경우 controller에게 예외 처리 넘겨줌
+					}else if(e.getStatusCode().value() == 429) {
+						System.out.println("예외");
+						//요청 제한 횟수를 초과한 경우 controller에게 예외 처리 넘겨줌
+						em.flush();
 						throw e;
+					}
 				}
 				
 			}
@@ -87,6 +88,25 @@ public class SummonerService {
 		}
 		
 		return summonerDto;
+	}
+	
+	@Transactional(noRollbackFor = WebClientResponseException.class)
+	public void updateDbSummoner(String name) {
+		List<Summoner> dbSummoners = summonerrepository.findSummonerByName(name);
+		
+		for(Summoner dbSummoner : dbSummoners) {
+			try {
+				Summoner renewedSummoner = riotApi.getSummonerById(dbSummoner.getId());
+				summonerrepository.saveSummoner(renewedSummoner);
+			}catch(WebClientResponseException e) {
+				if(e.getStatusCode().value()==400) {
+					summonerrepository.deleteSummoner(dbSummoner);
+				}else if(e.getStatusCode().value()==429) {
+					em.flush();
+					throw e;
+				}
+			}
+		}
 	}
 	
 	public SummonerDto setSummoner(String summonername) throws WebClientResponseException, DataIntegrityViolationException {
@@ -154,7 +174,7 @@ public class SummonerService {
 		String puuid = summoner.getPuuid();
 		
 		//아래 코드에서 REST 통신 에러(429) 발생 가능 =>발생 시 Controller에게 예외 처리를 위임함
-		List<String> matchlist = riotApi.listofmatch(puuid, 0, "all", 0, 20, lastmathid);
+		List<String> matchlist = riotApi.getAllMatchIds(puuid, lastmathid);
 		
 		
 		// 최근 경기부터 REST 통신으로 데이터 가져와 DB에 저장 -> 해당 로직 실행 중 429에러(TOO MANY REQUEST) 발생 시

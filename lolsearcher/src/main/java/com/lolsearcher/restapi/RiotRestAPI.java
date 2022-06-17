@@ -13,7 +13,9 @@ public interface RiotRestAPI {
 	
 	public Summoner getSummonerById(String id);
 	
-	public List<String> listofmatch(String puuid, int queue, String type, int start, int count, String lastmatchid);
+	public List<String> getAllMatchIds(String puuid, String lastMatchId);
+	
+	public List<String> getMatchIds(String puuid, int queue, String type, int start, int count, String lastmatchid);
 	
 	public Match getmatch(String matchid);
 	

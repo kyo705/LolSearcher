@@ -45,31 +45,23 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		
 		summoner.setLastmatchid("");
         summoner.setLastRenewTimeStamp(System.currentTimeMillis());
+        summoner.setLastInGameSearchTimeStamp(0);
 		
 		return summoner;
 	}
 	
 	@Override
-	public List<String> listofmatch(String puuid, int queue, String type,
-			int start, int count, String lastmatchid) throws WebClientResponseException {
-		
+	public List<String> getAllMatchIds(String puuid, String lastMatchId) throws WebClientResponseException {
 		List<String> matchidlist = new ArrayList<>();
 		
 		boolean plag = true;
 		long lastmatchidlong;
-		String uri;
+		String uri = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/"+puuid+"/ids?";
 		int starts = 0;
 		int counts = 100;
 		
-		if(queue==0) {
-			uri = "https://asia.api.riotgames.com"
-					+ "/lol/match/v5/matches/by-puuid/"+puuid+"/ids?";
-		}else {
-			uri = "https://asia.api.riotgames.com"
-					+ "/lol/match/v5/matches/by-puuid/"+puuid+"/ids?queue="+queue+"&";
-		}
-		if(!lastmatchid.equals("")) {
-			lastmatchidlong = Long.parseLong(lastmatchid.substring(3));
+		if(!lastMatchId.equals("")) {
+			lastmatchidlong = Long.parseLong(lastMatchId.substring(3));
 		}else {
 			lastmatchidlong = 0;
 		}
@@ -81,7 +73,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
 					.bodyToMono(String[].class)
 					.block();
 			
-			if(matchids.length==0) {
+			if(matchids.length!=100) {
 				plag = false;
 				break;
 			}
@@ -89,6 +81,62 @@ public class RiotRestApiv2 implements RiotRestAPI{
 			for(String matchid : matchids) {
 				if(lastmatchidlong==Long.parseLong(matchid.substring(3))) {
 					plag = false;
+					break;
+				}else {
+					matchidlist.add(matchid);
+				}
+			}
+			
+			starts += counts;
+		}
+			
+		
+		return matchidlist;
+	}
+	
+	@Override
+	public List<String> getMatchIds(String puuid, int queue, String type,
+			int start, int count, String lastmatchid) throws WebClientResponseException {
+		
+		List<String> matchidlist = new ArrayList<>();
+		
+		long lastmatchidlong;
+		String uri;
+		int starts = start;
+		int counts = count;
+		
+		if(!lastmatchid.equals("")) {
+			lastmatchidlong = Long.parseLong(lastmatchid.substring(3));
+		}else {
+			lastmatchidlong = 0;
+		}
+		
+		if(queue==-1) {
+			uri = "https://asia.api.riotgames.com"
+					+ "/lol/match/v5/matches/by-puuid/"+puuid+"/ids?";
+		}else {
+			uri = "https://asia.api.riotgames.com"
+					+ "/lol/match/v5/matches/by-puuid/"+puuid+"/ids?queue="+queue+"&";
+		}
+		
+		while(count>0) {
+			
+			if(count>100) {
+				counts = 100;
+				count -= 100;
+			}else {
+				counts = count;
+				count = 0;
+			}
+			
+			String[] matchids = webclient.get()
+					.uri(uri + "start="+starts+"&count="+counts+"&api_key="+key)
+					.retrieve()
+					.bodyToMono(String[].class)
+					.block();
+			
+			for(String matchid : matchids) {
+				if(lastmatchidlong==Long.parseLong(matchid.substring(3))) {
 					break;
 				}else {
 					matchidlist.add(matchid);

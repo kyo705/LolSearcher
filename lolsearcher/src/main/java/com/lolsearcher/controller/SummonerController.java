@@ -61,7 +61,7 @@ public class SummonerController {
 		try {
 			summonerdto = summonerService.findDbSummoner(param.getName());
 		}catch(WebClientResponseException e) {
-			if(e.getStatusCode().toString().equals(error429)) { //요청 제한 횟수를 초과한 경우 대기 메세지 전달
+			if(e.getStatusCode().toString().equals(error429)) {
 				mv.setViewName("error_manyreq");
 				return mv;
 			}
@@ -77,6 +77,7 @@ public class SummonerController {
 			}catch(WebClientResponseException e) {
 				if(e.getStatusCode().toString().equals(error404)) {
 					//존재하지 않는 닉네임일 때
+					summonerService.updateDbSummoner(param.getName());
 					mv.addObject("params", param);
 					mv.setViewName("error_name");
 					return mv;
@@ -94,7 +95,6 @@ public class SummonerController {
 			try {
 				ranks = summonerService.setLeague(summonerdto);
 			}catch(WebClientResponseException e) {
-				System.out.println(e.getStatusCode());
 				if(e.getStatusCode().toString().equals(error429)) {
 					mv.setViewName("error_manyreq");
 					return mv;
