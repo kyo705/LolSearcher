@@ -68,7 +68,7 @@
 ```java
 //특수 문자 제거 로직
 String unfilteredname = param.getName();
-String regex = "[^\\uAC00-\\uD7A30-9a-zA-Z]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
+String regex = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
 String filteredname = unfilteredname.replaceAll(regex, "");
 param.setName(filteredname);
 ```
