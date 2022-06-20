@@ -44,6 +44,21 @@
 - 단위 테스트 : Service, Repository, RESTClient 계층 별 테스트 실시   
 - 통합 테스트 : 해당 단위 테스트 계층들을 하나로 통합하여 테스트 실시
 
+코드 소스 경로 : lolsearcher/src/test/
+
+![image](https://user-images.githubusercontent.com/89891704/174654609-f4759700-d18e-460c-b493-0a9fcc853f0f.png)
+
+위 그림처럼 'Go to file'버튼을 클릭하면 아래와 같은 파일 검색창이 뜬다. 
+
+![image](https://user-images.githubusercontent.com/89891704/174656060-1935b50e-4ae4-49f8-a039-f2289231e089.png)
+
+
+해당 검색창에 위의 코드 소스 경로를 검색하면 아래와 같이 test 코드들을 확인할 수 있다.
+
+![image](https://user-images.githubusercontent.com/89891704/174655978-03cc93f8-a9ef-4bda-923e-a91e47f57d97.png)
+
+
+
 프로젝트 제공 서비스
 -----------------------------------------
 **1. 유저의 랭크 점수, 최근 게임 전적 정보 제공**
