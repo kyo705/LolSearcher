@@ -29,7 +29,6 @@ import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 
 
-@Transactional
 @Service
 public class SummonerService {
 	
@@ -39,14 +38,15 @@ public class SummonerService {
 	private final SummonerRepository summonerrepository;
 	private final RiotRestAPI riotApi;
 	private final ApplicationContext applicationContext;
-	@Autowired
 	private EntityManager em;
 	
 	@Autowired
-	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi,ApplicationContext applicationContext) {
+	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi,
+			ApplicationContext applicationContext, EntityManager em) {
 		this.summonerrepository = summonerrepository;
 		this.riotApi = riotApi;
 		this.applicationContext = applicationContext;
+		this.em = em;
 	}
 	
 	@Transactional(noRollbackFor = WebClientResponseException.class)
@@ -56,9 +56,7 @@ public class SummonerService {
 		List<Summoner> dbSummoner = summonerrepository.findSummonerByName(summonername);
 		
 		if(dbSummoner.size()==1) {
-			
 			summonerDto =  new SummonerDto(dbSummoner.get(0));
-			
 		}else {
 			Iterator<Summoner> summonerIter = dbSummoner.iterator();
 			
@@ -78,13 +76,10 @@ public class SummonerService {
 					}else if(e.getStatusCode().value() == 429) {
 						System.out.println("예외");
 						//요청 제한 횟수를 초과한 경우 controller에게 예외 처리 넘겨줌
-						em.flush();
 						throw e;
 					}
 				}
-				
 			}
-			
 		}
 		
 		return summonerDto;
@@ -109,6 +104,7 @@ public class SummonerService {
 		}
 	}
 	
+	@Transactional
 	public SummonerDto setSummoner(String summonername) throws WebClientResponseException, DataIntegrityViolationException {
 		Summoner apisummoner = riotApi.getSummonerByName(summonername);
 		
@@ -119,6 +115,7 @@ public class SummonerService {
 		return summonerDto;
 	}
 	
+	@Transactional
 	public TotalRanksDto setLeague(SummonerDto summonerdto) throws WebClientResponseException, DataIntegrityViolationException {
 		String summonerid = summonerdto.getSummonerid();
 		
@@ -144,6 +141,7 @@ public class SummonerService {
 		return totalRanks;
 	}
 	
+	@Transactional(readOnly = true)
 	public TotalRanksDto getLeague(SummonerDto summonerdto){
 		
 		String summonerid = summonerdto.getSummonerid();
@@ -165,6 +163,7 @@ public class SummonerService {
 		return ranksDto;
 	}
 	
+	@Transactional
 	public void setMatches(SummonerDto summonerdto) throws WebClientResponseException, DataIntegrityViolationException {
 		
 		String id = summonerdto.getSummonerid();
@@ -198,6 +197,10 @@ public class SummonerService {
 						}
 						
 						break; //for문 빠져나옴
+					}catch(NullPointerException e2) {
+						//riot api에서 제공해주는 데이터가 다를 경우 이전 데이터까지만 db에 반영
+						em.flush();
+						break;
 					}
 				}
 				
@@ -207,6 +210,7 @@ public class SummonerService {
 	}
 	
 
+	@Transactional(readOnly = true)
 	public List<MatchDto> getMatches(MatchParamDto matchdto){
 		String champion = matchdto.getChampion();
 		int gametype = matchdto.getGametype();
@@ -222,6 +226,7 @@ public class SummonerService {
 		return matchlistDto;
 	}
 
+	@Transactional(readOnly = true)
 	public List<MostChampDto> getMostChamp(MostchampParamDto param) {
 		
 		String summonerid = param.getSummonerid();

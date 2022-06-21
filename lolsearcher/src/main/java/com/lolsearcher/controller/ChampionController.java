@@ -30,7 +30,7 @@ public class ChampionController {
 		
 		List<ChampionDto> champions = championService.getChampions(position);
 		mv.addObject("champions", champions);
-		mv.setViewName("champions");
+		mv.setViewName("champion/champions");
 			
 		return mv;
 	}
@@ -42,10 +42,9 @@ public class ChampionController {
 		
 		TotalChampDto totalChampDto = championService.getChampionDetail(champion);
 		mv.addObject("championDetail", totalChampDto);
-		mv.setViewName("champion_detail");
+		mv.setViewName("champion/champion_detail");
 		
 		return mv;
-		
 		
 	}
 }

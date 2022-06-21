@@ -41,7 +41,7 @@ class ChampionServiceUnitTest {
 		//test Case 1 : 파라미터로 포지션이 전달되었을 때, 해당 포지션에 해당하는 챔피언들을 리턴하는 상황
 		
 		//given
-		//전달받은 파라미터 값
+		//테스트할 메소드 파라미터 값
 		String position = "MIDDLE";
 		
 		//Mock 객체 리턴 값 1
@@ -74,7 +74,7 @@ class ChampionServiceUnitTest {
 		//				해당 챔피언의 아이템별 승률, 상대하기 쉬운 챔피언을 리턴하는 상황
 		
 		//given
-		//전달받은 파라미터
+		//테스트할 메소드 파라미터 값
 		String championId = "제드";
 		
 		//Mock 객체 리턴 값 1

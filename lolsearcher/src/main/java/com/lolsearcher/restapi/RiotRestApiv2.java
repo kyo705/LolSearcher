@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import com.lolsearcher.domain.Dto.ingame.CurrentGameParticipantDto;
 import com.lolsearcher.domain.Dto.ingame.InGameDto;
 import com.lolsearcher.domain.Dto.summoner.RankDto;
 import com.lolsearcher.domain.entity.summoner.Summoner;
@@ -244,6 +245,11 @@ public class RiotRestApiv2 implements RiotRestAPI{
 				+ "/lol/spectator/v4/active-games/by-summoner/"
 				+summonerid+"?api_key="+key)
 				.retrieve().bodyToMono(InGameDto.class).block();
+		
+		List<CurrentGameParticipantDto> curParticipants = currentGame.getParticipants();
+		for(int i=0;i<10;i++) {
+			curParticipants.get(i).setNum(i);
+		}
 		
 		return currentGame;
 	}

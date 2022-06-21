@@ -35,7 +35,7 @@ public class JpaChampionRepository implements ChampionReository {
 	@Override
 	public List<ChampItem> findChampItems(String champion) {
 		String jpql = "SELECT c FROM ChampItem c "
-				+ "WHERE c.ck.chapionId = :championId AND c.ck.seasonId = :seasonId "
+				+ "WHERE c.ck.championId = :championId AND c.ck.seasonId = :seasonId "
 				+ "ORDER BY c.wins + c.losses DESC";
 		
 		return em.createQuery(jpql, ChampItem.class)
@@ -47,7 +47,7 @@ public class JpaChampionRepository implements ChampionReository {
 	@Override
 	public List<ChampEnemy> findChampEnemys(String champion) {
 		String jpql = "SELECT c FROM ChampEnemy c "
-				+ "WHERE c.ck.chapionId = :championId AND c.ck.seasonId = :seasonId "
+				+ "WHERE c.ck.championId = :championId AND c.ck.seasonId = :seasonId "
 				+ "ORDER BY c.wins + c.losses DESC";
 		
 		return em.createQuery(jpql, ChampEnemy.class)

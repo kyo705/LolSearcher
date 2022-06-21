@@ -10,12 +10,12 @@ import com.lolsearcher.restapi.RiotRestApiv2;
 
 
 @Configuration
-public class SpringConfig {
+public class LolSearcherConfig {
 
 	private WebClient.Builder webclientBuilder;
 	
 	@Autowired
-	public SpringConfig( WebClient.Builder webclientBuilder) {
+	public LolSearcherConfig(WebClient.Builder webclientBuilder) {
 		this.webclientBuilder = webclientBuilder;
 	}
 	

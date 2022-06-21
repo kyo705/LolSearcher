@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -41,14 +42,14 @@ public class InGame {
 	@OneToMany(mappedBy = "ingame", cascade = CascadeType.ALL)
 	private List<BannedChampion> bannedChampions = new ArrayList<>();
 	
+	@OrderColumn(name="numb")
 	@Fetch(FetchMode.SUBSELECT)
 	@OneToMany(mappedBy = "ingame", cascade = CascadeType.ALL)
 	private List<CurrentGameParticipant> participants = new ArrayList<>();
 	
 	public InGame() {}
 	
-	public void changeDtoToEntity(InGameDto ingameDto) {
-		
+	public InGame(InGameDto ingameDto) {
 		this.gameId = ingameDto.getGameId();
 		this.gameType = ingameDto.getGameType();
 		this.gameStartTime = ingameDto.getGameStartTime();
@@ -58,20 +59,16 @@ public class InGame {
 		this.gameMode = ingameDto.getGameMode();
 		this.gameQueueConfigId = ingameDto.getGameQueueConfigId();
 		
+		this.bannedChampions = new ArrayList<>();
 		for(BannedChampionDto bannedchampDto : ingameDto.getBannedChampions()) {
-			
-			BannedChampion bannedchamp = new BannedChampion();
-			bannedchamp.changeDtoToEntity(bannedchampDto, ingameDto.getGameId());
-			
-			this.addBannedChampion(bannedchamp);
+			BannedChampion bannedchamp = new BannedChampion(bannedchampDto, ingameDto.getGameId());
+			addBannedChampion(bannedchamp);
 		}
 		
+		this.participants = new ArrayList<>();
 		for(CurrentGameParticipantDto participantDto : ingameDto.getParticipants()) {
-			
-			CurrentGameParticipant participant = new CurrentGameParticipant();
-			participant.changeDtoToEntity(participantDto, ingameDto.getGameId()); 
-			
-			this.addCurrentGameParticipant(participant);
+			CurrentGameParticipant participant = new CurrentGameParticipant(participantDto, ingameDto.getGameId());
+			addCurrentGameParticipant(participant);
 		}
 	}
 	

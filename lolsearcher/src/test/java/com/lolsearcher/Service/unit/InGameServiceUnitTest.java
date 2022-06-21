@@ -54,10 +54,12 @@ public class InGameServiceUnitTest {
 		//				최근 저장된 데이터가 하나 있을 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summonerDto = new SummonerDto();
 		summonerDto.setSummonerid("Id1");
 		summonerDto.setName("푸켓푸켓");
 		
+		//Mock 객체 리턴 값
 		Summoner summoner = new Summoner();
 		summoner.setId("Id1");
 		summoner.setName("푸켓푸켓");
@@ -91,10 +93,12 @@ public class InGameServiceUnitTest {
 		//				최근 저장된 데이터가 둘 이상 있을 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summonerDto = new SummonerDto();
 		summonerDto.setSummonerid("Id1");
 		summonerDto.setName("푸켓푸켓");
 		
+		//Mock 객체 리턴 값
 		Summoner summoner = new Summoner();
 		summoner.setId("Id1");
 		summoner.setName("푸켓푸켓");
@@ -131,6 +135,7 @@ public class InGameServiceUnitTest {
 		//				최근 저장된 데이터가 없을 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summonerDto = new SummonerDto();
 		summonerDto.setSummonerid("Id1");
 		summonerDto.setName("푸켓푸켓");
@@ -165,7 +170,7 @@ public class InGameServiceUnitTest {
 		//				REST API 로 인게임 데이터를 전달받은 경우 
 		
 		//given
-		//전달받은 파라미터
+		//테스트할 메소드 파라미터 값
 		SummonerDto summonerDto = new SummonerDto();
 		summonerDto.setSummonerid("Id1");
 		summonerDto.setName("푸켓푸켓");
@@ -202,7 +207,7 @@ public class InGameServiceUnitTest {
 		//				REST API 로 인게임 데이터를 전달받지 못한 경우 
 		
 		//given
-		//전달받은 파라미터
+		//테스트할 메소드 파라미터 값
 		SummonerDto summonerDto = new SummonerDto();
 		summonerDto.setSummonerid("Id1");
 		summonerDto.setName("푸켓푸켓");
@@ -237,7 +242,7 @@ public class InGameServiceUnitTest {
 		//test Case 1 : 현재 진행 중인 게임이 있을 경우
 		
 		//given
-		//전달받은 파라미터
+		//테스트할 메소드 파라미터 값
 		String summonerId = "summonerId1";
 		long currentGameId = 3;
 		
@@ -270,7 +275,7 @@ public class InGameServiceUnitTest {
 		//test Case 2 : 현재 진행 중인 게임이 없을 경우
 		
 		//given
-		//전달받은 파라미터
+		//테스트할 메소드 파라미터 값
 		String summonerId = "summonerId1";
 		long currentGameId = -1;
 		
@@ -303,7 +308,7 @@ public class InGameServiceUnitTest {
 		//				delete 쿼리문이 오류날 경우
 		
 		//given
-		//전달받은 파라미터
+		//테스트할 메소드 파라미터 값
 		String summonerId = "summonerId1";
 		long currentGameId = 3;
 		

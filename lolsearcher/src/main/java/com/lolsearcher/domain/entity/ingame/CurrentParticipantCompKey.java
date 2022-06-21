@@ -13,9 +13,10 @@ public class CurrentParticipantCompKey implements Serializable {
 	private long gameId;
 	
 	private String summonerId;
+	
 
 	public CurrentParticipantCompKey() {}
-	
+
 	public CurrentParticipantCompKey(long gameId, String summonerId) {
 		this.gameId = gameId;
 		this.summonerId = summonerId;
@@ -53,6 +54,7 @@ public class CurrentParticipantCompKey implements Serializable {
 		CurrentParticipantCompKey other = (CurrentParticipantCompKey) obj;
 		return gameId == other.gameId && Objects.equals(summonerId, other.summonerId);
 	}
+
 	
 	
 }

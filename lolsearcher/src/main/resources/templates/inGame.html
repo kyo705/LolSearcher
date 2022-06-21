@@ -3,57 +3,14 @@
 	<head>
 		<title th:text="${summoner.name}+ ' - 인게임 정보'"></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link rel="stylesheet" href="/css/style_summoner.css" type="text/css"> 
+		<link rel="stylesheet" href="/css/style_summoner.css" type="text/css">
+		<script type="text/javascript" src="./javascript/ingame.js"></script>
 	</head>
 	<body>
-		<script>
-			/*var champions;
-			
-			function readTextFile(file, callback) {
-			    var rawFile = new XMLHttpRequest();
-			    rawFile.overrideMimeType("application/json");
-			    rawFile.open("GET", file, true);
-			    rawFile.onreadystatechange = function() {
-			        if (rawFile.readyState === 4 && rawFile.status == "200") {
-			            callback(rawFile.responseText);
-			        }
-			    }
-			    rawFile.send(null);
-			    
-			}
-			
-			readTextFile("/json/champion.json", function(text){
-				var champJsonData = JSON.parse(text);
-				champions = champJsonData.data;
-			});*/
-			
-			var champJsonData = fetch("./json/champion.json")
-			.then(response => {
-				return response.json();
-			})
-			.then(jsondata => console.log(jsondata));
-				
-			var champions = champJsonData.data;
-			
-			function findChampName(champid){
-				console.log(champid);
-				var champs = champions;
-				console.log(champJsonData);
-				for(champion in champs) {
-					var champ = champs[champion];
-					console.log(champ);
-					if(champ.key===champid) {
-						return champ.id;
-
-					}
-				}		
-			}
-			
-		</script>
 		<h1 class="head">
 			<a href="/">LOL Searcher</a>
 		</h1>
-		<div class="same_row">
+		<div class="subTitle">
 			<div>
 				<form name="champions" action ="/champions"  method="POST">
 					<button type="submit">챔피언 분석</button>
@@ -77,40 +34,39 @@
 			<div class="same_row">
 				<div th:text="${ingame.gameId}"/>
 				<div th:text="${ingame.gameType}"/>
-				<div th:text="${ingame.gameStartTime}"/>
-				<div th:text="${ingame.gameMode}"/>
-			</div>
-			<div class="same_row" th:each="participant : ${ingame.participants}">
+				<div id="duringTime"></div>
 				<script th:inline="javascript">
-					console.log(champions);
-				    /*<![CDATA[*/
-				    
-				    var champId = "[[${participant.championId}]]";
-
-				    /*]]>*/
-				    
-				    var champInfo = findChampName(champId);
-					document.write('<img src="/champion/'+champInfo+'.png" width="50"/>');
+					/*<![CDATA[*/
+						startTimeStamp = "[[${ingame.gameStartTime}]]";
+					/*]]>*/
+					
+					setTimeout(timeFormat(startTimeStamp), 1000);
 				</script>
-				<div th:text="${participant.summonerName}"/>
-				<div th:text="${participant.spell1Id}"/>
-				<div th:text="${participant.spell2Id}"/>
+				
+				<div th:text="${ingame.gameMode}"/>
+				
+				<div th:if="${ingame.gameQueueConfigId} == '420'">솔로 랭크</div>
+				<div th:if="${ingame.gameQueueConfigId} == '430'">일반</div>
+				<div th:if="${ingame.gameQueueConfigId} == '440'">자유 5:5 랭크</div>
+				<div th:if="${ingame.gameQueueConfigId} == '450'">무작위 총력전</div>
+				<div th:if="${ingame.gameQueueConfigId} == '1400'">궁극기 모드</div>
 			</div>
-			<div class="same_row" th:each="participant2 : ${ingame.participants}">
+			<div class="curParticipant_row" th:each="participant2,index : ${ingame.participants}">
 				<script th:inline="javascript">
-					console.log(champions);
 				    /*<![CDATA[*/
 				    
 				    var champId = "[[${participant2.championId}]]";
-	
+					var num = "[[${index.index}]]";
+					var spell1 = "[[${participant2.spell1Id}]]";
+					var spell2 = "[[${participant2.spell2Id}]]";
 				    /*]]>*/
 				    
-				    var champInfo = findChampName(champId);
-					document.write('<img src="/champion/'+champInfo+'.png" width="50"/>');
+				    findChampName(champId, num);
+					findspellName(spell1, num);
+					findspellName(spell2, num);
 				</script>
-				<div th:text="${participant2.summonerName}"/>
-				<div th:text="${participant2.spell1Id}"/>
-				<div th:text="${participant2.spell2Id}"/>
+				<div class="spell_column"></div>
+				<div th:text="${participant2.summonerName}"></div>
 			</div>
 		</div>
 	</body>

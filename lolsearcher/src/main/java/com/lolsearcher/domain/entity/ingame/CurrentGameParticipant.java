@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
@@ -16,6 +17,7 @@ public class CurrentGameParticipant {
 	@EmbeddedId
 	private CurrentParticipantCompKey ck;
 	
+	private int numb;
 	private long championId;
 	private long profileIconId;
 	private boolean bot;
@@ -38,14 +40,15 @@ public class CurrentGameParticipant {
 	private long perkSubStyle;
 	
 	@MapsId("gameId")
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="gameId")
 	private InGame ingame;
 	
 	public CurrentGameParticipant() {}
 	
-	public void changeDtoToEntity(CurrentGameParticipantDto participant, long gameId) {
+	public CurrentGameParticipant(CurrentGameParticipantDto participant, long gameId) {
 		this.ck = new CurrentParticipantCompKey(gameId, participant.getSummonerId());
+		this.numb = participant.getNum();
 		this.championId = participant.getChampionId();
 		this.profileIconId = participant.getProfileIconId();
 		this.bot = participant.isBot();
@@ -75,6 +78,15 @@ public class CurrentGameParticipant {
 
 	public void setCk(CurrentParticipantCompKey ck) {
 		this.ck = ck;
+	}
+	
+
+	public int getNumb() {
+		return numb;
+	}
+
+	public void setNumb(int numb) {
+		this.numb = numb;
 	}
 
 	public long getChampionId() {

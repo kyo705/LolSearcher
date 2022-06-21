@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import com.lolsearcher.domain.Dto.ingame.InGameDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
+import com.lolsearcher.domain.entity.ingame.CurrentGameParticipant;
 import com.lolsearcher.domain.entity.ingame.InGame;
 import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
@@ -44,12 +45,12 @@ public class InGameService {
 			
 			ingameDto = riotApi.getInGameBySummonerId(summoner.getId());
 			
-			InGame ingame = new InGame();
-			ingame.changeDtoToEntity(ingameDto);
+			InGame ingame = new InGame(ingameDto);
 			
 			ingameRepository.saveIngame(ingame);
 		}else {
 			List<InGame> ingames = ingameRepository.getIngame(summoner.getId());
+			System.out.println(ingames.get(0).getParticipants().size());
 			if(ingames.size()>0)
 				ingameDto = new InGameDto(ingames.get(0));
 		}
@@ -66,6 +67,7 @@ public class InGameService {
 				try {
 					ingameRepository.deleteIngame(ingame);
 				}catch(Exception e) {
+					System.out.println("없는 데이터 삭제 에러");
 					continue;
 				}
 			}

@@ -20,12 +20,17 @@ public class jpaIngameRepository implements IngameRepository {
 	
 	@Override
 	public void saveIngame(InGame ingame) {
-		em.merge(ingame);
+		if(em.find(InGame.class, ingame.getGameId())==null) {
+			em.persist(ingame);
+		}else
+			em.merge(ingame);
 	}
 
 	@Override
 	public List<InGame> getIngame(String summonerid) {
 		//onetomany관계가 2개 존재하기 때문에 패치조인 사용 불가 => @fetch(FetchMode.SUBSELECT) 사용 (WHERE IN 절 사용)
+		
+		//where절의 in절에 서브쿼리를 넣게 되면 느려짐 => 하지만 인게임 데이터는 주기적으로 데이터를 삭제하기때문에 성능에 큰 차이는 없음.
 		String jpql = "SELECT i FROM InGame i WHERE i.gameId IN "
 				+ "(SELECT p.ck.gameId FROM CurrentGameParticipant p WHERE p.ck.summonerId = :summonerId) "
 				+ "ORDER BY i.gameStartTime DESC";

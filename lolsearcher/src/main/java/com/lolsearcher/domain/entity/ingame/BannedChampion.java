@@ -2,6 +2,7 @@ package com.lolsearcher.domain.entity.ingame;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
@@ -19,13 +20,13 @@ public class BannedChampion {
 	private long teamId;
 	
 	@MapsId("gameId") //ck의 필드값
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "gameId") //One table의 조인되는 컬럼명
 	private InGame ingame;
 	
 	public BannedChampion() {}
 
-	public void changeDtoToEntity(BannedChampionDto bannedchampDto, long gameId) {
+	public BannedChampion(BannedChampionDto bannedchampDto, long gameId) {
 		this.ck = new BannedChampionCompKey(gameId, bannedchampDto.getPickTurn());
 		this.championId = bannedchampDto.getChampionId();
 		this.teamId = bannedchampDto.getTeamId();
@@ -60,6 +61,9 @@ public class BannedChampion {
 	}
 
 	public void setIngame(InGame ingame) {
+		
 		this.ingame = ingame;
+
+		
 	}
 }

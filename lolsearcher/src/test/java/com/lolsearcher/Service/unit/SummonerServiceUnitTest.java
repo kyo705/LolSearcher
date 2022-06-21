@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,7 +54,7 @@ class SummonerServiceUnitTest {
 	
 	@BeforeEach
 	void upset() {
-		summonerService = new SummonerService(summonerRepository, riotRestApi, applicationContext);
+		summonerService = new SummonerService(summonerRepository, riotRestApi, applicationContext, em);
 	}
 
 	//----------------------findDbSummoner() 메소드 Test Case------------------------------------
@@ -63,19 +64,23 @@ class SummonerServiceUnitTest {
 		//testCase1 : DB에 특정 닉네임이 1개 존재할 때
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		String summonerName = "푸켓푸켓";
-		
-		List<Summoner> dbSummoners = new ArrayList<>();
+		//Mock 객체 데이터 셋팅
 		Summoner summoner = new Summoner();
 		summoner.setId("id");
 		summoner.setName(summonerName);
+		
+		List<Summoner> dbSummoners = new ArrayList<>();
 		dbSummoners.add(summoner);
 		
 		when(summonerRepository.findSummonerByName(summonerName))
 		.thenReturn(dbSummoners);
 		
+		
 		//when
 		SummonerDto summonerDto = summonerService.findDbSummoner(summonerName);
+		
 		
 		//then
 		assertThat(summonerDto.getName()).isEqualTo(summonerName);
@@ -87,12 +92,10 @@ class SummonerServiceUnitTest {
 		//testCase2 : DB에 특정 닉네임이 존재하지 않을 때
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		String summonerName = "푸켓푸켓";
 		
-		Summoner summoner = new Summoner();
-		summoner.setId("id");
-		summoner.setName(summonerName);
-		
+		//Mock 객체 데이터 셋팅
 		when(summonerRepository.findSummonerByName(summonerName))
 		.thenReturn(new ArrayList<>());
 		
@@ -112,8 +115,10 @@ class SummonerServiceUnitTest {
 		//DB 데이터 갱신이 안되면 닉네임 중복상황이 발생할 수 있음
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		String summonerName = "푸켓푸켓";
 		
+		//Mock 객체 데이터 셋팅
 		Summoner summoner1 = new Summoner();
 		summoner1.setId("id1");
 		summoner1.setName(summonerName);
@@ -163,8 +168,10 @@ class SummonerServiceUnitTest {
 		//해당 실제 닉네임을 가진 유저가 DB에 존재하지 않을 때
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		String summonerName = "푸켓푸켓";
 		
+		//Mock 객체 데이터 셋팅
 		Summoner dbSummoner1 = new Summoner();
 		dbSummoner1.setId("id1");
 		dbSummoner1.setName(summonerName);
@@ -212,8 +219,9 @@ class SummonerServiceUnitTest {
 		//해당 리스트 중 유저 중 삭제된 인원이 있고, 해당 닉네임을 가진 유저 존재할 때
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		String summonerName = "푸켓푸켓";
-		
+		//Mock 객체 데이터 셋팅
 		Summoner dbSummoner1 = new Summoner();
 		dbSummoner1.setId("id1");
 		dbSummoner1.setName(summonerName);
@@ -231,7 +239,7 @@ class SummonerServiceUnitTest {
 		.thenReturn(dbSummoners);
 		
 		when(riotRestApi.getSummonerById("id1"))
-		.thenThrow(new WebClientResponseException(404, "존재하지 않는 유저입니다", null, null, null));
+		.thenThrow(new WebClientResponseException(400, "존재하지 않는 유저입니다", null, null, null));
 		
 		Summoner apiSummoner1 = new Summoner();
 		apiSummoner1.setId("id2");
@@ -259,8 +267,10 @@ class SummonerServiceUnitTest {
 		//해당 리스트 중 유저 중 삭제된 인원이 있고, 해당 닉네임을 가진 유저 존재하지 않을 때
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		String summonerName = "푸퀫푸켓";
 		
+		//Mock 객체 데이터 셋팅
 		Summoner dbSummoner1 = new Summoner();
 		dbSummoner1.setId("id1");
 		dbSummoner1.setName(summonerName);
@@ -277,7 +287,7 @@ class SummonerServiceUnitTest {
 		.thenReturn(dbSummoners);
 		
 		when(riotRestApi.getSummonerById("id1"))
-		.thenThrow(new WebClientResponseException(404, "존재하지 않는 유저입니다", null, null, null));
+		.thenThrow(new WebClientResponseException(400, "존재하지 않는 유저입니다", null, null, null));
 		
 		Summoner apiSummoner1 = new Summoner();
 		apiSummoner1.setId("id2");
@@ -304,8 +314,10 @@ class SummonerServiceUnitTest {
 		//예외 발생 전, 수행 된 DB쿼리를 롤백할지 커밋할지 결정해야함(@tranactional(noRollbackFor=?)을 이용해)
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		String summonerName = "푸켓푸켓";
 		
+		//Mock 객체 데이터 셋팅
 		Summoner dbSummoner1 = new Summoner();
 		dbSummoner1.setId("id1");
 		dbSummoner1.setName(summonerName);
@@ -335,6 +347,7 @@ class SummonerServiceUnitTest {
 		when(riotRestApi.getSummonerById("id2"))
 		.thenThrow(new WebClientResponseException(429, "너무 많은 요청입니다. 잠시 후, 다시 시도해주세요", null, null, null));
 		
+		doNothing().when(em).flush();
 		
 		//when,then
 		WebClientResponseException e = assertThrows(WebClientResponseException.class,
@@ -355,8 +368,10 @@ class SummonerServiceUnitTest {
 		//test Case 1 : 게임 플랫폼에 특정 닉네임을 가진 유저가 존재할 때
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		String summonerName = "푸켓푸켓";
 		
+		//Mock 객체 데이터 셋팅
 		Summoner summoner1 = new Summoner();
 		summoner1.setId("id1");
 		summoner1.setName(summonerName);
@@ -383,8 +398,10 @@ class SummonerServiceUnitTest {
 		//test Case 2 : REST 통신이 실패한 경우(EX. 해당 닉네임을 가진 유저가 존재하지 않을 경우)
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		String summonerName = "푸켓푸켓";
 		
+		//Mock 객체 데이터 셋팅
 		when(riotRestApi.getSummonerByName(summonerName))
 		.thenThrow(new WebClientResponseException(404,"존재하지 않는 닉네임입니다.", null, null, null));
 		
@@ -409,11 +426,13 @@ class SummonerServiceUnitTest {
 		//test Case 1 : REST 통신을 통해 유저의 랭크 관련 정보를 가져온 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summoner = new SummonerDto();
 		summoner.setSummonerid("id1");
 		summoner.setName("푸켓푸켓");
 		summoner.setSummonerLevel(553);
 		
+		//Mock 객체 데이터 셋팅
 		RankDto teamRank = new RankDto();
 		teamRank.setSummonerId(summoner.getSummonerid());
 		teamRank.setQueueType("RANKED_TEAM_5x5");
@@ -458,11 +477,13 @@ class SummonerServiceUnitTest {
 		//test Case 2 : REST 통신이 실패한 경우(EX. 요청 제한 횟수를 초과한 경우)
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summoner = new SummonerDto();
 		summoner.setSummonerid("id1");
 		summoner.setName("푸켓푸켓");
 		summoner.setSummonerLevel(553);
 		
+		//Mock 객체 데이터 셋팅
 		when(riotRestApi.getLeague(summoner.getSummonerid()))
 		.thenThrow(new WebClientResponseException(429, "많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.", null, null, null));
 		
@@ -486,11 +507,13 @@ class SummonerServiceUnitTest {
 		//test Case 1 : DB에서 유저 Rank 관련 데이터 가져올 때 soloRank 정보만 있을 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summoner = new SummonerDto();
 		summoner.setSummonerid("id1");
 		summoner.setName("푸켓푸켓");
 		summoner.setSummonerLevel(553);
 		
+		//Mock 객체 데이터 셋팅
 		Rank rank1 = new Rank();
 		rank1.setCk(new RankCompKey("id1", "RANKED_SOLO_5x5", 22));
 		rank1.setTier("GOLD");
@@ -522,11 +545,13 @@ class SummonerServiceUnitTest {
 		//test Case 2 : DB에서 유저 Rank 관련 데이터 가져올 때 teamRank 정보만 있을 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summoner = new SummonerDto();
 		summoner.setSummonerid("id1");
 		summoner.setName("푸켓푸켓");
 		summoner.setSummonerLevel(553);
 		
+		//Mock 객체 데이터 셋팅
 		Rank rank1 = new Rank();
 		rank1.setCk(new RankCompKey("id1", "RANKED_TEAM_5x5", 22));
 		rank1.setTier("GOLD");
@@ -559,11 +584,13 @@ class SummonerServiceUnitTest {
 		//teamRank, soloRank 정보 둘다 있을 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summoner = new SummonerDto();
 		summoner.setSummonerid("id1");
 		summoner.setName("푸켓푸켓");
 		summoner.setSummonerLevel(553);
 		
+		//Mock 객체 데이터 셋팅
 		Rank rank1 = new Rank();
 		rank1.setCk(new RankCompKey("id1", "RANKED_SOLO_5x5", currentSeasonId));
 		rank1.setTier("GOLD");
@@ -607,11 +634,13 @@ class SummonerServiceUnitTest {
 		//test Case 2 : DB에서 유저 Rank 관련 데이터 가져올 때 데이터가 없는 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summoner = new SummonerDto();
 		summoner.setSummonerid("id1");
 		summoner.setName("푸켓푸켓");
 		summoner.setSummonerLevel(553);
 		
+		//Mock 객체 데이터 셋팅
 		List<Rank> ranks = new ArrayList<>();
 		
 		when(summonerRepository.findLeagueEntry(summoner.getSummonerid(), currentSeasonId))
@@ -635,10 +664,12 @@ class SummonerServiceUnitTest {
 		//				가져온 모든 matchId에 해당하는 match 데이터들이 DB에 없는 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summonerDto = new SummonerDto();
 		summonerDto.setSummonerid("id1");
 		summonerDto.setName("푸켓푸켓");
 		
+		//Mock 객체 데이터 셋팅
 		Summoner summoner = new Summoner();
 		summoner.setId("id1");
 		summoner.setPuuid("puuId1");
@@ -657,24 +688,22 @@ class SummonerServiceUnitTest {
 		
 		when(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid()))
 		.thenReturn(matchIds);
-		
 		when(summonerRepository.findMatchid("matchId5")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId4")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId3")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId2")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId1")).thenReturn(false);
-		
 		Match match1 = new Match();
 		Match match2 = new Match();
 		Match match3 = new Match();
 		Match match4 = new Match();
 		Match match5 = new Match();
-		
 		when(riotRestApi.getmatch("matchId1")).thenReturn(match1);
 		when(riotRestApi.getmatch("matchId2")).thenReturn(match2);
 		when(riotRestApi.getmatch("matchId3")).thenReturn(match3);
 		when(riotRestApi.getmatch("matchId4")).thenReturn(match4);
 		when(riotRestApi.getmatch("matchId5")).thenReturn(match5);
+		
 		
 		//when
 		summonerService.setMatches(summonerDto);
@@ -704,10 +733,12 @@ class SummonerServiceUnitTest {
 		//				가져온 matchIdList에 일부 match정보가 DB에 저장되어있는 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summonerDto = new SummonerDto();
 		summonerDto.setSummonerid("id1");
 		summonerDto.setName("푸켓푸켓");
 		
+		//Mock 객체 데이터 셋팅
 		Summoner summoner = new Summoner();
 		summoner.setId("id1");
 		summoner.setPuuid("puuId1");
@@ -726,17 +757,14 @@ class SummonerServiceUnitTest {
 		
 		when(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid()))
 		.thenReturn(matchIds);
-		
 		when(summonerRepository.findMatchid("matchId5")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId4")).thenReturn(true); //이미 저장된 매치 정보
 		when(summonerRepository.findMatchid("matchId3")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId2")).thenReturn(true); //이미 저장된 매치 정보
 		when(summonerRepository.findMatchid("matchId1")).thenReturn(false);
-		
 		Match match1 = new Match();
 		Match match3 = new Match();
 		Match match5 = new Match();
-		
 		when(riotRestApi.getmatch("matchId1")).thenReturn(match1);
 		when(riotRestApi.getmatch("matchId3")).thenReturn(match3);
 		when(riotRestApi.getmatch("matchId5")).thenReturn(match5);
@@ -766,10 +794,12 @@ class SummonerServiceUnitTest {
 		//				가져온 matchIdList의 size()가 0인 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summonerDto = new SummonerDto();
 		summonerDto.setSummonerid("id1");
 		summonerDto.setName("푸켓푸켓");
 		
+		//Mock 객체 데이터 셋팅
 		Summoner summoner = new Summoner();
 		summoner.setId("id1");
 		summoner.setPuuid("puuId1");
@@ -798,10 +828,12 @@ class SummonerServiceUnitTest {
 		//test Case 4 : REST API 통신으로 matchIdList를 가져오는데 실패한 경우(EX. 요청 제한 횟수를 초과한 경우)
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		SummonerDto summonerDto = new SummonerDto();
 		summonerDto.setSummonerid("id1");
 		summonerDto.setName("푸켓푸켓");
 		
+		//Mock 객체 데이터 셋팅
 		Summoner summoner = new Summoner();
 		summoner.setId("id1");
 		summoner.setPuuid("puuId1");
@@ -821,7 +853,7 @@ class SummonerServiceUnitTest {
 		assertThat(e.getStatusText()).isEqualTo("많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.");
 		
 		verify(summonerRepository, times(1)).findSummonerById(anyString());
-		verify(riotRestApi, times(1)).getMatchIds(summoner.getPuuid(), 0, "all", 0, 20, summoner.getLastmatchid());
+		verify(riotRestApi, times(1)).getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid());
 	}
 	
 	
@@ -833,10 +865,12 @@ class SummonerServiceUnitTest {
 		//test Case 1 : parameter로 전달 받은 조건들을 이용해 DB에서 적절한 matchList를 반환하는 상황
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		MatchParamDto matchparam = new MatchParamDto();
 		matchparam.setName("푸켓푸켓");
 		matchparam.setSummonerid("id1");
 		
+		//Mock 객체 데이터 셋팅
 		Match match1 = new Match();
 		match1.setMatchId("match1");
 		Match match2 = new Match();
@@ -877,10 +911,12 @@ class SummonerServiceUnitTest {
 		//test Case 2 : parameter로 전달 받은 조건에 만족하는 matchList가 없는 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		MatchParamDto matchparam = new MatchParamDto();
 		matchparam.setName("푸켓푸켓");
 		matchparam.setSummonerid("id1");
 		
+		//Mock 객체 데이터 셋팅
 		List<Match> matchList = new ArrayList<>();
 		
 		when(summonerRepository.findMatchList(
@@ -907,11 +943,13 @@ class SummonerServiceUnitTest {
 		//test Case 1 : parameter로 전달받은 조건에 만족하는 모스트 챔피언 통계 데이터를 가져오는 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		MostchampParamDto mostChampParam = new MostchampParamDto();
 		mostChampParam.setGamequeue(420);
 		mostChampParam.setSeason(12);
 		mostChampParam.setSummonerid("Id1");
 		
+		//Mock 객체 데이터 셋팅
 		List<String> champIds = new ArrayList<>();
 		champIds.add("가렌");
 		champIds.add("이블린");
@@ -952,11 +990,13 @@ class SummonerServiceUnitTest {
 		//test Case 2 : parameter로 전달받은 조건에 만족하는 모스트 챔피언 통계 데이터가 존재하지 않는 경우
 		
 		//given
+		//테스트할 메소드 파라미터 값
 		MostchampParamDto mostChampParam = new MostchampParamDto();
 		mostChampParam.setGamequeue(420);
 		mostChampParam.setSeason(12);
 		mostChampParam.setSummonerid("Id1");
 		
+		//Mock 객체 데이터 셋팅
 		List<String> champIds = new ArrayList<>();
 		
 		when(summonerRepository.findMostchampids("Id1", 420, 12))

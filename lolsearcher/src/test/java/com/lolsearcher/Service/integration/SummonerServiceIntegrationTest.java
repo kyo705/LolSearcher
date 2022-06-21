@@ -3,6 +3,7 @@ package com.lolsearcher.Service.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,8 @@ class SummonerServiceIntegrationTest {
 	
 	@Autowired
 	SummonerService summonerService;
+	
+	
 	@Autowired
 	SummonerRepository summonerRepository;
 	@Autowired

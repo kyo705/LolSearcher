@@ -7,6 +7,7 @@ import com.lolsearcher.domain.entity.ingame.CurrentGameParticipant;
 
 public class CurrentGameParticipantDto {
 	
+	private int num;
 	private long championId;
 	private PerksDto perks;
 	private long profileIconId;
@@ -21,12 +22,13 @@ public class CurrentGameParticipantDto {
 	public CurrentGameParticipantDto() {}
 	
 	public CurrentGameParticipantDto(CurrentGameParticipant participant) {
+		this.num = participant.getNumb();
 		this.championId = participant.getChampionId();
 		this.profileIconId = participant.getProfileIconId();
 		this.bot = participant.isBot();
 		this.teamId = participant.getTeamId();
 		this.summonerName = participant.getSummonerName();
-		this.summonerId = participant.getCk().getSummonerId();
+		this.summonerId = participant.getCk() .getSummonerId();
 		this.spell1Id = participant.getSpell1Id();
 		this.spell2Id = participant.getSpell2Id();
 		
@@ -48,6 +50,16 @@ public class CurrentGameParticipantDto {
 		
 		this.perks = perkDto;
 	}
+	
+
+	public int getNum() {
+		return num;
+	}
+
+	public void setNum(int num) {
+		this.num = num;
+	}
+
 	public long getChampionId() {
 		return championId;
 	}

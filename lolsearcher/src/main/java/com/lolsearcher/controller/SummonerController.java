@@ -11,6 +11,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.servlet.ModelAndView;
 
 import com.lolsearcher.domain.Dto.command.MatchParamDto;
+import com.lolsearcher.domain.Dto.command.MatchParamDtoBuilder;
+import com.lolsearcher.domain.Dto.command.MostChampParamDtoBuilder;
 import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.Dto.command.SummonerParamDto;
 import com.lolsearcher.domain.Dto.ingame.InGameDto;
@@ -45,7 +47,7 @@ public class SummonerController {
 		
 		//사용자 요청 필터링(xxs 방지)
 		String unfilteredname = param.getName();
-		String regex = "[^\\uAC00-\\uD7A30-9a-zA-Z]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
+		String regex = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
 		String filteredname = unfilteredname.replaceAll(regex, "");
 		param.setName(filteredname);
 		
@@ -67,7 +69,6 @@ public class SummonerController {
 			}
 		}
 		
-		
 		//DB에서 소환사 정보가 없는 경우 || 클라이언트에서 전적 갱신 버튼을 통해 갱신 요청이 들어오는 경우
 		if(summonerdto==null||
 				(param.isRenew()&&System.currentTimeMillis()-summonerdto.getLastRenewTimeStamp()>=5*60*1000)) {
@@ -78,7 +79,7 @@ public class SummonerController {
 				if(e.getStatusCode().toString().equals(error404)) {
 					//존재하지 않는 닉네임일 때
 					summonerService.updateDbSummoner(param.getName());
-					mv.addObject("params", param);
+					mv.addObject("name", param.getName());
 					mv.setViewName("error_name");
 					return mv;
 				} else if(e.getStatusCode().toString().equals(error429)) {
@@ -91,6 +92,7 @@ public class SummonerController {
 				summonerdto = summonerService.findDbSummoner(param.getName());
 			}
 			
+			
 			// RANK 관련 데이터 RIOT 서버에서 데이터 받아와서 DB에 저장
 			try {
 				ranks = summonerService.setLeague(summonerdto);
@@ -102,6 +104,7 @@ public class SummonerController {
 			}catch(DataIntegrityViolationException e) {
 				ranks = summonerService.getLeague(summonerdto);
 			}
+			
 			
 			// MATCH 관련 데이터 RIOT 서버에서 데이터 받아와서 DB에 저장
 			try {
@@ -124,11 +127,19 @@ public class SummonerController {
 		
 		param.setSummonerid(summonerdto.getSummonerid());
 		
-		MatchParamDto matchParamDto = new MatchParamDto(param.getName(),param.getSummonerid(),
-				param.getChampion(),param.getMatchgametype(),param.getCount());
+		MatchParamDto matchParamDto = new MatchParamDtoBuilder()
+				.setName(param.getName())
+				.setChampion(param.getChampion())
+				.setSummonerid(param.getSummonerid())
+				.setGametype(param.getMatchgametype())
+				.setGametype(param.getCount())
+				.build();
 		
-		MostchampParamDto mostchampParamDto = new MostchampParamDto(param.getSummonerid(),
-				param.getMostgametype(),param.getSeason());
+		MostchampParamDto mostchampParamDto = new MostChampParamDtoBuilder()
+				.setSeason(param.getSeason())
+				.setGameQueue(param.getMostgametype())
+				.setSummonerid(param.getSummonerid())
+				.build();
 		
 		
 		matches = summonerService.getMatches(matchParamDto);
@@ -151,22 +162,30 @@ public class SummonerController {
 	public ModelAndView inGame(String name) {
 		ModelAndView mv = new ModelAndView();
 		
+		//사용자 요청 필터링(xxs 방지)
+		String unfilteredname = name;
+		String regex = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
+		String filteredname = unfilteredname.replaceAll(regex, "");
+		
 		InGameDto inGameDto = null;
 		
 		SummonerDto summonerDto = null;
 		
 		try {
-			summonerDto = summonerService.findDbSummoner(name);
+			summonerDto = summonerService.findDbSummoner(filteredname);
 		}catch(WebClientResponseException e) {
 			if(e.getStatusCode().toString().equals(error429)) {
 				mv.setViewName("error_manyreq");
+				return mv;
+			}else if(e.getStatusCode().toString().equals(error404)) {
+				mv.addObject("name", filteredname);
+				mv.setViewName("error_name");
 				return mv;
 			}
 		}
 		
 		try {
 			inGameDto = inGameService.getInGame(summonerDto);
-			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), inGameDto.getGameId());
 		}catch(WebClientResponseException e) {
 			if(e.getStatusCode().toString().equals(error404)) {
 				inGameService.removeDirtyInGame(summonerDto.getSummonerid(), -1);
@@ -181,11 +200,14 @@ public class SummonerController {
 		
 		if(inGameDto == null) {
 			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), -1);
+			
 			mv.addObject("summoner", summonerDto);
 			mv.setViewName("error_ingame");
 			
 			return mv;
 		}else {
+			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), inGameDto.getGameId());
+			
 			mv.addObject("summoner", summonerDto);
 			mv.addObject("ingame", inGameDto);
 			mv.setViewName("inGame");
