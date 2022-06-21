@@ -44,6 +44,8 @@
 - 단위 테스트 : Service, Repository, RESTClient 계층 별 테스트 실시   
 - 통합 테스트 : 해당 단위 테스트 계층들을 하나로 통합하여 테스트 실시
 
+**※통합 테스트 시 주의점** : REST API 통신 계층도 통합하여 테스트하기 때문에 모든 테스트케이스를 한꺼번에 실행하면 REST API 요청 제한 횟수(2분에 100회)를 초과할 수 있음. 다시 말해, 멱등성이 유지되지 않음.
+
 코드 소스 경로 : lolsearcher/src/test/
 
 ![image](https://user-images.githubusercontent.com/89891704/174654609-f4759700-d18e-460c-b493-0a9fcc853f0f.png)
