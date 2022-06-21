@@ -5,12 +5,11 @@
 롤 전적 검색 사이트란??
 -----------------------------------------
 
-롤(League Of Legend) 게임 회사 서버에서 *REST API*를 통해 제공되는 유저의 게임 데이터들(랭킹 점수, 게임 횟수, 상세 게임 정보 등)을 가공 및 활용하여 유저들에게 제공하는 사이트입니다.
+롤(League Of Legend) 게임 서버에서 REST API로 제공되는 유저의 게임 데이터들(랭킹 점수, 게임 횟수, 상세 게임 정보 등)을 수집하고 활용하여 클라이언트에게 제공하는 사이트입니다.
 
 프로젝트 내 적용 기술
 -----------------------------------------
 > - 백 앤드
->
 >   - 언어 : Java
 >   - 프레임 워크 : SpringBoot, Spring MVC
 >   -  빌드 관리 툴 : Gradle
@@ -26,6 +25,41 @@
 -----------------------------------------
 ![ServerStructure](https://user-images.githubusercontent.com/89891704/157023264-e4c10e2a-0a37-4e50-b181-962c45dcca82.png)
 
+프로젝트 코드 내 용어 설명
+-----------------------------------------
+- **Summoner** : 소환사(게임 내 개개인 유저를 나타내는 용어)   
+- **Rank** : 랭크(게임을 얼마나 잘하는가를 나타내는 척도) *랭크 게임은 크게 솔로랭크, 자유랭크로 나뉜다.*   
+- **Match** : 실제 게임 단위를 나타냄 (롤 게임은 5:5 매칭 게임)   
+- **Member** : 하나의 게임(Match) 내 존재하는 유저 개개인   
+- **Champion** : 챔피언(게임 내 캐릭터를 나타내는 용어)   
+  - **MostChamp** : 특정 유저의 가장 많이하는 챔피언
+- **Ingame** : 현재 진행 중인 게임
+
+테스트 코드 설명서
+--------------------------
+테스트 환경 프레임 워크 : springboot, mockito, junit5   
+
+ 해당 프로젝트의 테스트 코드는 비지니스 로직을 중점으로 크게 두가지(단위 테스트, 통합 테스트)로 작성되었다.   
+   
+- 단위 테스트 : Service, Repository, RESTClient 계층 별 테스트 실시   
+- 통합 테스트 : 해당 단위 테스트 계층들을 하나로 통합하여 테스트 실시
+
+**※통합 테스트 시 주의점** : REST API 통신 계층도 통합하여 테스트하기 때문에 모든 테스트케이스를 한꺼번에 실행하면 REST API 요청 제한 횟수(2분에 100회)를 초과할 수 있음. 다시 말해, 멱등성이 유지되지 않음.
+
+코드 소스 경로 : lolsearcher/src/test/
+
+![image](https://user-images.githubusercontent.com/89891704/174654609-f4759700-d18e-460c-b493-0a9fcc853f0f.png)
+
+위 그림처럼 'Go to file'버튼을 클릭하면 아래와 같은 파일 검색창이 뜬다. 
+
+![image](https://user-images.githubusercontent.com/89891704/174656060-1935b50e-4ae4-49f8-a039-f2289231e089.png)
+
+
+해당 검색창에 위의 코드 소스 경로를 검색하면 아래와 같이 test 코드들을 확인할 수 있다.
+
+![image](https://user-images.githubusercontent.com/89891704/174655978-03cc93f8-a9ef-4bda-923e-a91e47f57d97.png)
+
+
 
 프로젝트 제공 서비스
 -----------------------------------------
@@ -39,55 +73,91 @@
 
 **3. 게임 캐릭터(챔피언) 관련 통계 정보 제공**
 
-**4. REST API 서비스 제공(REST DOCS 파일 제공)**
+**4. REST API 서비스 제공**
 ![image](https://user-images.githubusercontent.com/89891704/173006203-397f4b9d-9e86-48b9-b0ae-3e70ce6deb15.png)
-
+**REST DOCS 파일 제공**
 ![image](https://user-images.githubusercontent.com/89891704/173006734-d3de6ed3-f822-41ba-baf7-03ba1517f2c6.png)
 
 
-프로젝트 작동 과정 및 원리
+제공되는 서비스 별 작동 과정 설명서
 -----------------------------------------
-1. **index.html** 에서 게임 유저 닉네임을 검색 => 닉네임 및 다양한 파라미터들을 POST 방식으로 서버에 전송
-
-2. 웹 통신을 통해 전달되는 데이터들을 Filter Interface를 구현한 **LolsearcherFilter** 클래스를 통해 character encoding 방식 *UTF-8*로 설정한 후 **SummonerController**로 데이터 전송
-
-3. **SummonerController**에서 요청 파라미터들을 Command 객체로 받고 해당 Command 객체의 값의 특수문자들을 제거 <= XXS 공격을 막기 위해   
-
+**1.특정 유저의 랭크 점수 및 최근 전적 제공 서비스 작동 과정 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L42)**   
+> 
+> ① 닉네임 검색창을 통해 특정 유저의 닉네임을 검색하게 되면 해당 닉네임 및 디폴트 설정이 된 파라미터들이 POST 방식으로 서버로 전송된다.
+> 
+> ② 서버로 전달된 파라미터들은 WAS(톰캣)에 의해 Request객체로 생성된 후 **LolsearcherFilter** 클래스를 거치며 character encoding 방식을 *UTF-8*로 설정한 후 **SummonerController**로 전달된다.
+> 
+> ③ **SummonerController**에 전달된 객체를 Command 객체로 받고, XXS 공격을 막기 위해 해당 값의 특수문자들을 제거한다.   
+> 
 ```java
+//특수 문자 제거 로직
 String unfilteredname = param.getName();
-String regex = "[^\\uAC00-\\uD7A30-9a-zA-Z]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
+String regex = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
 String filteredname = unfilteredname.replaceAll(regex, "");
 param.setName(filteredname);
 ```
+>
+> *cf) 스프링에서는 클라이언트로부터 요청된 파라미터들을 한번에 받을 수 있도록 Command 객체 제공해준다. 스프링은 커맨드 객체에 클라이언트로부터 전달되는 파라미터와 이름이 같은 setter 값이 있어야지만 파라미터 값을 커맨드 객체에 넘겨줄 수 있다. 만약 클라이언트로부터 전달된 값이 없을 땐 Command 객체의 생성자를 통해 초기값 설정이 가능하다.*    
+>
+> ④ 필터된 닉네임에 해당되는 유저가 DB에 존재하는지 확인한다. => DB에 해당 닉네임을 가지는 유저가 1명인 경우 정상적으로 해당 유저 객체(Summoner.class) 반환, 유저가 없는 경우 NULL을 반환, 유저가 2명 이상인 경우 해당 유저들의 데이터를 갱신한 후, 필터된 닉네임과 일치하는 유저를 반환한다.    ***자세한 케이스들은 [테스트 케이스](https://github.com/kyo705/LolSearcher/blob/f117f2ff76a8a488b051130264b16fdcbf3e82e3/lolsearcher/src/test/java/com/lolsearcher/Service/SummonerServiceUnitTest.java#L56)에 나와있다.***
+> 
+> *cf) DB에 2명 이상의 유저가 중복된 닉네임을 가지게 된 상황 설명 : 게임 내에서 닉네임은 중복될 수 없다. 하지만 게임에서 닉네임은 변경이 가능하기 때문에 웹 서버의 DB에 저장된 유저1이 게임 내에서 닉네임1을 닉네임2로 변경하고 변경된 내용이 DB에 갱신이 안된 상황에서 유저2가 닉네임1을 소유한 뒤 DB에 유저2의 정보를 저장하면 DB에 똑같은 닉네임을 가진 유저가 2명이상 될 수 있다. 그래서 해당 중복된 닉네임을 가진 데이터들을 업데이트하는 로직을 수행하면 실제 닉네임 소유 유저는 1명 또는 0명이 되게 된다.*   
+>
+> ⑤ DB에 해당 닉네임 유저가 존재하지 않는 경우 OR 해당 닉네임 유저의 업데이트 요청이 들어오는 경우  => 게임 데이터 제공 사이트와의 **REST API** 통신으로 유저 데이터들을 받아 DB에 저장하거나 갱신한다.   
+  DB에 해당 닉네임 유저가 존재하고 업데이트 요청이 들어오지 않은 경우 => 다음 단계로 이동한다.   
+>
+> ⑥ DB로부터 유저의 다양한 데이터들을 조회하여 Model에 담아 매핑된 Templete(View)에 Model을 전송한다.
+>
+> ⑦ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.   
 
-*cf) 스프링에서는 클라이언트로부터 요청된 파라미터들을 한번에 받을 수 있도록 Command 객체 제공해준다. 스프링은 커맨드 객체에 클라이언트로부터 전달되는 파라미터와 이름이 같은 setter 값이 있어야지만 파라미터 값을 커맨드 객체에 넘겨줄 수 있다. 만약 클라이언트로부터 전달된 값이 없을 땐 Command 객체를 생성자를 통해 값을 초기화 할 수 있다.*    
-https://github.com/kyo705/LolSearcher/blob/ef036088e2a18935768485ae479e0e81fc39429b/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L42
+**2.특정 유저의 인게임 데이터 제공 서비스 작동 과정 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L151)**
 
-https://github.com/kyo705/LolSearcher/blob/ef036088e2a18935768485ae479e0e81fc39429b/lolsearcher/src/main/java/com/lolsearcher/domain/Dto/command/SummonerParamDto.java#L3
+> ① 특정 유저 페이지의 '인게임 정보' 버튼을 누르면 해당 유저의 닉네임을 파라미터로 서버에 전달된다.
+>
+> ② 서버로 전달된 파라미터들은 WAS(톰캣)에 의해 Request객체로 생성된 후 **LolsearcherFilter** 클래스를 거치며 character encoding 방식을 *UTF-8*로 설정한 후 **SummonerController**의 **inGame(String name)** 메소드로 전달된다.
+>
+> ③ 파라미터로 전달된 닉네임은 GET 요청으로 URL로 전달할 수 있기 때문에, XXS 공격을 막기 위해 전달받은 파라미터의 특수문자를 제거한다.
+>
+> ④ 필터된 닉네임에 해당하는 유저가 DB에 존재하는지 확인한다. 이 때, DB에 존재하지 않는다면 해당 요청은 UI를 통한 요청이 아닌 URL로의 요청(잘못된 요청)이기 때문에 해당 값을 400 ERROR를 클라이언트에게 전달한다.
+>
+> ⑤ DB에서 유저를 조회하는데 성공한 경우 아래와 같은 로직이 실행된다.   
+최근 요청 조회 시간이 2분 이하인 경우 => DB에서 인게임 데이터를 조회하고 값이 없으면 null을 반환, 1개 이상일 경우 최근 인게임 데이터를 반환한다.   
+최근 요청 조회 시간이 2분 이상인 경우 => 게임 데이터 제공 서버와 REST API 통신으로 데이터를 조회하고 DB에 저장한다. 현재 진행 중인 게임이 없다면 error 페이지를 클라이언트에게 전달한다.
+>
+> ⑥ 최신 인게임 데이터를 제외한 다른 데이터들은 삭제한다.
+>
+> ⑦ Model에 인게임 데이터를 담아 매핑된 Templete(View)에 Model을 전송한다.
+>
+> ⑧ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.  
 
+**3. 게임 캐릭터(챔피언) 관련 통계 데이터 제공 서비스 작동 과정1 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L27)**
 
+> ① 웹 페이지 상단의 '챔피언 분석' 버튼을 누르면 디폴트 포지션("TOP") 파라미터가 POST 방식으로 서버에 전달된다.
+> 
+> ② 서버로 전달된 파라미터들은 WAS(톰캣)에 의해 Request객체로 생성된 후 **LolsearcherFilter** 클래스를 거치며 character encoding 방식을 *UTF-8*로 설정한 후 **ChampionController**의 **champions(String position)** 메소드로 전달된다.
+>
+> ③ 파라미터로 전달된 포지션에 해당하는 챔피언 데이터들을 내부 로직의 우선순위(승률, 픽률 등)에 따라 DB에서 조회한다.
+>
+> ④ 조회된 데이터는 Model 객체에 셋팅하고 매핑된 Templete(View)에 Model을 전송한다.
+>
+> ⑤ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.  
 
+**4. 게임 캐릭터(챔피언) 관련 통계 데이터 제공 서비스 작동 과정2 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L39)**
 
-4. 필터된 닉네임을 [**summonerService.findDbSummoner(String name)**](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L62) 메소드의 파라미터 값으로 전달해 해당 닉네임에 대한 유저가 DB에 존재하는지 판단 => 유저가 1명인 경우 정상적으로 해당 유저 객체(Summoner.class) 반환, 유저가 없는 경우 NULL을 반환, 유저가 2명 이상인 경우 해당 유저들에 대한 정보를 [**갱신**](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/service/SummonerService.java#L73)함   
-
-*cf) DB에 2명 이상의 중복된 닉네임이 존재하게 될 수 있는 상황 설명 : 게임 내에서 닉네임은 중복될 수 없다. 하지만 닉네임은 변경이 가능하기 때문에 DB에 저장된 유저1이 게임 내에서 닉네임1을 닉네임2로 변경하고 변경된 내용이 DB에 갱신이 안된 상황에서 유저2가 닉네임1을 소유한 뒤 DB에 유저2의 정보를 저장하면 DB에 똑같은 닉네임을 가진 유저가 2명이상 될 수 있다. 그래서 해당 중복된 닉네임을 가진 데이터들을 업데이트하는 로직을 수행하면 실제 닉네임 소유 유저는 1명 또는 0명이 되게 된다.*   
-
-***자세한 내용은 [테스트 케이스](https://github.com/kyo705/LolSearcher/blob/f117f2ff76a8a488b051130264b16fdcbf3e82e3/lolsearcher/src/test/java/com/lolsearcher/Service/SummonerServiceUnitTest.java#L56)들을 보면 쉽게 알 수 있다***
-
-5. [DB에 해당 닉네임 유저가 존재하고 업데이트 요청이 들어오지 않은 경우](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L121) => DB에 해당 유저에 대한 정보들(랭킹, 최근 전적 등)을 조회   
- [DB에 해당 닉네임 유저가 존재하지 않는 경우 OR 해당 닉네임 유저의 업데이트 요청이 들어오는 경우](https://github.com/kyo705/LolSearcher/blob/b8b16c687c2e4f60048893b13fafb6b271f198ab/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L72)  => 게임 회사의 데이터 제공 사이트와의 **REST API** 통신을 통해 Entity 객체에 데이터를 받아 DB에 저장 or 갱신함   
-
-*cf) Entity 객체를 통해 DB에 데이터를 저장,조회,삭제,갱신할 때 JPA를 이용한다. JPA의 핵심기능은 EntityManager을 이용해서 영속성 컨텍스트에 entity를 다루는 것이다. 
-영속성 컨텍스트에는 1차 캐시, 같은 key값에 대한 동일성 보장, 쓰기 지연, 변경감지 등의 다양한 기능들을 제공해준다. 이러한 특징 덕분에 DB와의 I/O 비용도 줄일 수 있고, DB에서의 트랜잭션의 ISOLATION 단계를 기본값(READ_COMMITTED)으로 설정해도 REPEATABLE READ가 가능해 병렬 처리에 대한 성능도 향상시킬 수 있게 된다.* 
-
-6. DB에서 유저의 다양한 데이터들을 조회하여 Model에 담아 매핑된 Templete(View)에 Model을 전송
-
-7. Templete Engine은 해당 템플릿을 가공하여 html을 작성한 후 데이터를 클라이언트 쪽으로 전송   
+> ① 챔피언 분석 웹 페이지에서 특정 챔피언을 클릭하면 해당 챔피언 이름의 파라미터가 POST 방식으로 서버에 전달된다.
+> 
+> ② 서버로 전달된 파라미터들은 WAS(톰캣)에 의해 Request객체로 생성된 후 **LolsearcherFilter** 클래스를 거치며 character encoding 방식을 *UTF-8*로 설정한 후 **ChampionController**의 **championDetail(String champion)** 메소드로 전달된다.
+>
+> ③ 해당 챔피언의 구체적인 승률, 아이템 승률, 상대하기 쉬운 챔피언 등의 데이터들을 DB에서 조회한다.
+>
+> ④ 조회된 데이터는 Model 객체에 셋팅하고 매핑된 Templete(View)에 Model을 전송한다.
+>
+> ⑤ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.  
 
 DB 테이블 연관 관계
 ----------------------------------------
 ![image](https://user-images.githubusercontent.com/89891704/173000894-97aa1f85-40b8-4ae3-a4c4-fac2d137cc17.png)
-
+ 
 
 업데이트 설명
 --------------------------
