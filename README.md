@@ -71,36 +71,7 @@
 
 프로젝트 제공 서비스
 -----------------------------------------
-**1. 유저의 랭크 점수, 최근 게임 전적 정보 제공**
-
-
-
-**2. 유저의 인게임 정보 제공(현재 게임 중일 경우 해당 매치 데이터 제공)**
-
-
-
-**3. 게임 캐릭터(챔피언) 관련 통계 정보 제공**
-
-
-
-**4. REST API 서비스 제공**
-
-
-
-**REST DOCS 파일 제공**
-
-<details>
-<summary>이미지 보기</summary>
-<div markdown="1">
-
-
-
-</div>
-</details>
-
-제공되는 서비스 별 작동 과정 설명서
------------------------------------------
-**1.특정 유저의 랭크 점수 및 최근 전적 제공 서비스** 
+**1.특정 유저의 랭크 점수 및 최근 전적 제공** 
 
 <details>
 <summary>이미지 보기</summary>
@@ -148,7 +119,7 @@ param.setName(filteredname);
 
 [**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L42)   
 
-**2.특정 유저의 인게임 데이터 서비스 제공**
+**2.특정 유저의 인게임 데이터 제공(현재 게임 중일 경우 해당 매치 데이터 제공)**
 
 <details>
 <summary>이미지 보기</summary>
