@@ -48,6 +48,11 @@
 
 코드 소스 경로 : lolsearcher/src/test/
 
+<details>
+    <summary>소스 코드 보는 방법</summary>
+    
+<div markdown="1">
+
 ![image](https://user-images.githubusercontent.com/89891704/174654609-f4759700-d18e-460c-b493-0a9fcc853f0f.png)
 
 위 그림처럼 'Go to file'버튼을 클릭하면 아래와 같은 파일 검색창이 뜬다. 
@@ -58,6 +63,9 @@
 해당 검색창에 위의 코드 소스 경로를 검색하면 아래와 같이 test 코드들을 확인할 수 있다.
 
 ![image](https://user-images.githubusercontent.com/89891704/174655978-03cc93f8-a9ef-4bda-923e-a91e47f57d97.png)
+	
+</div>
+</details>
 
 
 
@@ -65,23 +73,48 @@
 -----------------------------------------
 **1. 유저의 랭크 점수, 최근 게임 전적 정보 제공**
 
-![image](https://user-images.githubusercontent.com/89891704/173005260-b4223420-9d2b-4ed1-a8ca-277cc1c72d95.png)
-
 
 
 **2. 유저의 인게임 정보 제공(현재 게임 중일 경우 해당 매치 데이터 제공)**
 
+
+
 **3. 게임 캐릭터(챔피언) 관련 통계 정보 제공**
 
-**4. REST API 서비스 제공**
-![image](https://user-images.githubusercontent.com/89891704/173006203-397f4b9d-9e86-48b9-b0ae-3e70ce6deb15.png)
-**REST DOCS 파일 제공**
-![image](https://user-images.githubusercontent.com/89891704/173006734-d3de6ed3-f822-41ba-baf7-03ba1517f2c6.png)
 
+
+**4. REST API 서비스 제공**
+
+
+
+**REST DOCS 파일 제공**
+
+<details>
+<summary>이미지 보기</summary>
+<div markdown="1">
+
+
+
+</div>
+</details>
 
 제공되는 서비스 별 작동 과정 설명서
 -----------------------------------------
-**1.특정 유저의 랭크 점수 및 최근 전적 제공 서비스 작동 과정 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L42)**   
+**1.특정 유저의 랭크 점수 및 최근 전적 제공 서비스** 
+
+<details>
+<summary>이미지 보기</summary>
+<div markdown="1">
+
+![image](https://user-images.githubusercontent.com/89891704/173005260-b4223420-9d2b-4ed1-a8ca-277cc1c72d95.png)
+
+</div>
+</details>
+
+<details>
+<summary>작동 과정</summary>
+<div markdown="1">
+
 > 
 > ① 닉네임 검색창을 통해 특정 유저의 닉네임을 검색하게 되면 해당 닉네임 및 디폴트 설정이 된 파라미터들이 POST 방식으로 서버로 전송된다.
 > 
@@ -110,7 +143,24 @@ param.setName(filteredname);
 >
 > ⑦ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.   
 
-**2.특정 유저의 인게임 데이터 제공 서비스 작동 과정 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L151)**
+</div>
+</details>
+
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L42)   
+
+**2.특정 유저의 인게임 데이터 서비스 제공**
+
+<details>
+<summary>이미지 보기</summary>
+<div markdown="1">
+
+
+</div>
+</details>
+
+<details>
+<summary>작동 과정</summary>
+<div markdown="1">
 
 > ① 특정 유저 페이지의 '인게임 정보' 버튼을 누르면 해당 유저의 닉네임을 파라미터로 서버에 전달된다.
 >
@@ -130,7 +180,16 @@ param.setName(filteredname);
 >
 > ⑧ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.  
 
-**3. 게임 캐릭터(챔피언) 관련 통계 데이터 제공 서비스 작동 과정1 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L27)**
+</div>
+</details>
+
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L151)
+
+**3. 게임 캐릭터(챔피언) 전체 통계 서비스 제공**
+
+<details>
+<summary>작동 과정</summary>
+<div markdown="1">
 
 > ① 웹 페이지 상단의 '챔피언 분석' 버튼을 누르면 디폴트 포지션("TOP") 파라미터가 POST 방식으로 서버에 전달된다.
 > 
@@ -142,7 +201,16 @@ param.setName(filteredname);
 >
 > ⑤ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.  
 
-**4. 게임 캐릭터(챔피언) 관련 통계 데이터 제공 서비스 작동 과정2 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L39)**
+</div>
+</details>
+
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L27)
+
+**4. 게임 캐릭터(챔피언) 세부 통계 서비스 제공**
+
+<details>
+<summary>작동 과정</summary>
+<div markdown="1">
 
 > ① 챔피언 분석 웹 페이지에서 특정 챔피언을 클릭하면 해당 챔피언 이름의 파라미터가 POST 방식으로 서버에 전달된다.
 > 
@@ -153,6 +221,25 @@ param.setName(filteredname);
 > ④ 조회된 데이터는 Model 객체에 셋팅하고 매핑된 Templete(View)에 Model을 전송한다.
 >
 > ⑤ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.  
+
+</div>
+</details>
+
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L39)
+
+**5. REST API 서비스 제공**
+
+
+<details>
+<summary>이미지 보기</summary>
+<div markdown="1">
+
+![image](https://user-images.githubusercontent.com/89891704/173006203-397f4b9d-9e86-48b9-b0ae-3e70ce6deb15.png)
+
+![image](https://user-images.githubusercontent.com/89891704/173006734-d3de6ed3-f822-41ba-baf7-03ba1517f2c6.png)
+
+</div>
+</details>
 
 DB 테이블 연관 관계
 ----------------------------------------
