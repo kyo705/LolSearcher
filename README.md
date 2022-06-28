@@ -214,7 +214,12 @@ param.setName(filteredname);
 
 DB 테이블 연관 관계
 ----------------------------------------
-![image](https://user-images.githubusercontent.com/89891704/173000894-97aa1f85-40b8-4ae3-a4c4-fac2d137cc17.png)
+![image](https://user-images.githubusercontent.com/89891704/176092307-c32640d6-c883-4c10-a33e-285975b536c8.png)
+
+![image](https://user-images.githubusercontent.com/89891704/176094789-83380d09-fe55-48d9-a6cd-1eeed82670cc.png)
+
+![image](https://user-images.githubusercontent.com/89891704/176096311-9710fe8a-5401-4b57-bdbd-67580bd05dff.png)
+
  
 
 업데이트 설명
