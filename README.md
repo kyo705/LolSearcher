@@ -221,38 +221,10 @@ DB 테이블 연관 관계
 ![image](https://user-images.githubusercontent.com/89891704/176096311-9710fe8a-5401-4b57-bdbd-67580bd05dff.png)
 
  
-
-업데이트 설명
---------------------------
-**2022-04-10**   
-기존 클라이언트의 갱신 요청 버튼을 통해 게임 서버의 REST 통신이 이루어졌는데 해당 요청을 무한정 요청할 수 있었기에 클라이언트가 5분마다 한 번씩 갱신 요청을 하도록 Summoner 객체에 'lastRenewTimeStamp' 필드 값을 추가하고 해당 필드 값을 통해 프론트 쪽에서 자바스크립트를 통해 5분 이하면 갱신 버튼을 비활성화 시키고 5분 이상이 되어야 갱신버튼을 활성화 시키는 방향으로 수정하였다.   
-
-![image](https://user-images.githubusercontent.com/89891704/163554119-5dbedd3b-02f2-4eef-b2dd-620fd7ddf0d5.png)   
-**전적 갱신 버튼 누르기 전/후**
-
-
-**2022-04-14**   
-SummonerService 클래스의 트랜잭션 처리를 스프링이 제공해주는 @transactional로 처리하였다. 이 때, 고립단계를 기본값인 1단계(READ_COMMITTED)를 사용하였다. 그래서 멀티스레드 환경에서 데이터를 입력할 때 중복 삽입이 될 수 있다는 생각에 테스트 코드(SummonerServiceTest)를 작성하여 멀티스레드로 동시에 SummonerService 메소드인 setSummoner() 메소드로 데이터 삽입을 해본 결과, 중복 삽입 예외가 발생되는 것을 확인하였다.
-```
-Hibernate: select summoner0_.id as id1_3_0_, summoner0_.account_id as account_2_3_0_, summoner0_.last_renew_time_stamp as last_ren3_3_0_, summoner0_.lastmatchid as lastmatc4_3_0_, summoner0_.name as name5_3_0_, summoner0_.profile_icon_id as profile_6_3_0_, summoner0_.puuid as puuid7_3_0_, summoner0_.revision_date as revision8_3_0_, summoner0_.summoner_level as summoner9_3_0_ from summoner summoner0_ where summoner0_.id=?
-Hibernate: select summoner0_.id as id1_3_0_, summoner0_.account_id as account_2_3_0_, summoner0_.last_renew_time_stamp as last_ren3_3_0_, summoner0_.lastmatchid as lastmatc4_3_0_, summoner0_.name as name5_3_0_, summoner0_.profile_icon_id as profile_6_3_0_, summoner0_.puuid as puuid7_3_0_, summoner0_.revision_date as revision8_3_0_, summoner0_.summoner_level as summoner9_3_0_ from summoner summoner0_ where summoner0_.id=?
-Hibernate: insert into summoner (account_id, last_renew_time_stamp, lastmatchid, name, profile_icon_id, puuid, revision_date, summoner_level, id) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
-Hibernate: insert into summoner (account_id, last_renew_time_stamp, lastmatchid, name, profile_icon_id, puuid, revision_date, summoner_level, id) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
-2022-04-14 16:10:50.028  WARN 19428 --- [      Thread-14] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
-2022-04-14 16:10:50.028 ERROR 19428 --- [      Thread-14] o.h.engine.jdbc.spi.SqlExceptionHelper   : (conn=932) Duplicate entry 'fwo2HwBhQTd5NU0Z7t3cVnRP5tfrUMAI-6DkPKDwDsXL80M' for key 'PRIMARY'
-2022-04-14 16:10:50.029  INFO 19428 --- [      Thread-14] o.h.e.j.b.internal.AbstractBatchImpl     : HHH000010: On release of batch it still contained JDBC statements
-```
-그래서 중복 삽입 예외처리를 Controller에서 처리하였다.
-```java
-try {
-	summonerdto = summonerservice.setSummoner(param.getName());    //riot 서버로부터 정보 받아옴
-}catch(DataIntegrityViolationException e) { 			       //멀티스레드에 의해 중복 삽입 발생 시 예외처리
-	summonerdto = summonerservice.findSummoner(param.getName()); 
-}
-```
-
-프로젝트 과정에서 겪은 고민들과 해결 과정
 ----------------------------------------
+
+# 프로젝트 과정에서 겪은 고민들과 해결 과정
+
 ----------------------------------------
 
 **프로젝트 설계 시 외부 JSON 데이터를 바로 파싱해서 클라이언트에게 전달하지 않고 DB에 저장한 후 클라이언트에게 데이터를 제공한 이유**   
