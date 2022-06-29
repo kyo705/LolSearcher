@@ -48,6 +48,11 @@
 
 코드 소스 경로 : lolsearcher/src/test/
 
+<details>
+    <summary>소스 코드 보는 방법</summary>
+    
+<div markdown="1">
+
 ![image](https://user-images.githubusercontent.com/89891704/174654609-f4759700-d18e-460c-b493-0a9fcc853f0f.png)
 
 위 그림처럼 'Go to file'버튼을 클릭하면 아래와 같은 파일 검색창이 뜬다. 
@@ -58,30 +63,29 @@
 해당 검색창에 위의 코드 소스 경로를 검색하면 아래와 같이 test 코드들을 확인할 수 있다.
 
 ![image](https://user-images.githubusercontent.com/89891704/174655978-03cc93f8-a9ef-4bda-923e-a91e47f57d97.png)
+	
+</div>
+</details>
 
 
 
 프로젝트 제공 서비스
 -----------------------------------------
-**1. 유저의 랭크 점수, 최근 게임 전적 정보 제공**
+**1.특정 유저의 랭크 점수 및 최근 전적 제공** 
+
+<details>
+<summary>이미지 보기</summary>
+<div markdown="1">
 
 ![image](https://user-images.githubusercontent.com/89891704/173005260-b4223420-9d2b-4ed1-a8ca-277cc1c72d95.png)
 
+</div>
+</details>
 
+<details>
+<summary>작동 과정</summary>
+<div markdown="1">
 
-**2. 유저의 인게임 정보 제공(현재 게임 중일 경우 해당 매치 데이터 제공)**
-
-**3. 게임 캐릭터(챔피언) 관련 통계 정보 제공**
-
-**4. REST API 서비스 제공**
-![image](https://user-images.githubusercontent.com/89891704/173006203-397f4b9d-9e86-48b9-b0ae-3e70ce6deb15.png)
-**REST DOCS 파일 제공**
-![image](https://user-images.githubusercontent.com/89891704/173006734-d3de6ed3-f822-41ba-baf7-03ba1517f2c6.png)
-
-
-제공되는 서비스 별 작동 과정 설명서
------------------------------------------
-**1.특정 유저의 랭크 점수 및 최근 전적 제공 서비스 작동 과정 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L42)**   
 > 
 > ① 닉네임 검색창을 통해 특정 유저의 닉네임을 검색하게 되면 해당 닉네임 및 디폴트 설정이 된 파라미터들이 POST 방식으로 서버로 전송된다.
 > 
@@ -110,7 +114,24 @@ param.setName(filteredname);
 >
 > ⑦ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.   
 
-**2.특정 유저의 인게임 데이터 제공 서비스 작동 과정 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L151)**
+</div>
+</details>
+
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L42)   
+
+**2.특정 유저의 인게임 데이터 제공(현재 게임 중일 경우 해당 매치 데이터 제공)**
+
+<details>
+<summary>이미지 보기</summary>
+<div markdown="1">
+
+
+</div>
+</details>
+
+<details>
+<summary>작동 과정</summary>
+<div markdown="1">
 
 > ① 특정 유저 페이지의 '인게임 정보' 버튼을 누르면 해당 유저의 닉네임을 파라미터로 서버에 전달된다.
 >
@@ -130,7 +151,16 @@ param.setName(filteredname);
 >
 > ⑧ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.  
 
-**3. 게임 캐릭터(챔피언) 관련 통계 데이터 제공 서비스 작동 과정1 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L27)**
+</div>
+</details>
+
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L151)
+
+**3. 게임 캐릭터(챔피언) 전체 통계 서비스 제공**
+
+<details>
+<summary>작동 과정</summary>
+<div markdown="1">
 
 > ① 웹 페이지 상단의 '챔피언 분석' 버튼을 누르면 디폴트 포지션("TOP") 파라미터가 POST 방식으로 서버에 전달된다.
 > 
@@ -142,7 +172,16 @@ param.setName(filteredname);
 >
 > ⑤ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.  
 
-**4. 게임 캐릭터(챔피언) 관련 통계 데이터 제공 서비스 작동 과정2 => [소스 코드로 보기](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L39)**
+</div>
+</details>
+
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L27)
+
+**4. 게임 캐릭터(챔피언) 세부 통계 서비스 제공**
+
+<details>
+<summary>작동 과정</summary>
+<div markdown="1">
 
 > ① 챔피언 분석 웹 페이지에서 특정 챔피언을 클릭하면 해당 챔피언 이름의 파라미터가 POST 방식으로 서버에 전달된다.
 > 
@@ -154,36 +193,70 @@ param.setName(filteredname);
 >
 > ⑤ Templete Engine은 Model 데이터를 통해 템플릿을 가공하여 response 객체를 생성하고 클라이언트로 전송한다.  
 
+</div>
+</details>
+
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L39)
+
+**5. REST API 서비스 제공**
+
+
+<details>
+<summary>이미지 보기</summary>
+<div markdown="1">
+
+![image](https://user-images.githubusercontent.com/89891704/173006203-397f4b9d-9e86-48b9-b0ae-3e70ce6deb15.png)
+
+![image](https://user-images.githubusercontent.com/89891704/173006734-d3de6ed3-f822-41ba-baf7-03ba1517f2c6.png)
+
+</div>
+</details>
+
 DB 테이블 연관 관계
 ----------------------------------------
-![image](https://user-images.githubusercontent.com/89891704/173000894-97aa1f85-40b8-4ae3-a4c4-fac2d137cc17.png)
+![image](https://user-images.githubusercontent.com/89891704/176092307-c32640d6-c883-4c10-a33e-285975b536c8.png)
+
+![image](https://user-images.githubusercontent.com/89891704/176094789-83380d09-fe55-48d9-a6cd-1eeed82670cc.png)
+
+![image](https://user-images.githubusercontent.com/89891704/176096311-9710fe8a-5401-4b57-bdbd-67580bd05dff.png)
+
  
+----------------------------------------
 
-업데이트 설명
---------------------------
-**2022-04-10**   
-기존 클라이언트의 갱신 요청 버튼을 통해 게임 서버의 REST 통신이 이루어졌는데 해당 요청을 무한정 요청할 수 있었기에 클라이언트가 5분마다 한 번씩 갱신 요청을 하도록 Summoner 객체에 'lastRenewTimeStamp' 필드 값을 추가하고 해당 필드 값을 통해 프론트 쪽에서 자바스크립트를 통해 5분 이하면 갱신 버튼을 비활성화 시키고 5분 이상이 되어야 갱신버튼을 활성화 시키는 방향으로 수정하였다.   
+# 프로젝트 과정에서 겪은 고민들과 해결 과정
 
-![image](https://user-images.githubusercontent.com/89891704/163554119-5dbedd3b-02f2-4eef-b2dd-620fd7ddf0d5.png)   
-**전적 갱신 버튼 누르기 전/후**
+----------------------------------------
+
+**프로젝트 설계 시 외부 JSON 데이터를 바로 파싱해서 클라이언트에게 전달하지 않고 DB에 저장한 후 클라이언트에게 데이터를 제공한 이유**   
+
+1. 성능상의 이점 : REST API 통신은 외부와의 I/O 비용이 발생하기 때문에 가져와야하는 데이터가 많으면 많을수록 속도 측면에서 느리다. 그리고 매번 같은 데이터를 받아와 파싱하는 과정도 불필요하기 때문에 DB에 저장하는 방식이 더 적절하다고 판단하였다.   
+
+2. 통계 데이터(승률, 모스트챔프 등..)의 서비스 제공 가능 : 매번 REST API 요청을 파싱해서 클라이언트에게 전달할 경우 통계 관련 데이터를 제공하기 어렵다. 반면, DB에 저장하면 많은 양의 데이터를 통계낼 수 있기 때문에 정확한 서비스를 클라이언트에게 제공할 수 있다. 
+
+**갱신 버튼을 설계하여 해당 버튼을 눌러야 REST API 요청을 통해 데이터를 받아오게한 이유**
+
+1. 성능상의 이점 : 매번 클라이언트가 닉네임을 검색할 때마다 REST 통신을 한다면 외부 서버와의 I/O 비용과 DB 서버와의 I/O 비용이 발생하면서 오히려 'JSON 데이터를 바로 파싱해 클라이언트에게 제공하는 서비스' 보다 더욱 속도가 느리게 된다. 그래서 더욱 빠른 서비스를 제공하기 위해 갱신 요청을 통해서만 REST API 통신이 이루어지도록 설계하였다.   
+
+2. 구조적 문제 : 게임 회사에서 제공되는 REST API 요청 횟수는 2분 동안 최대 100회였다. 그래서 매번 클라이언트가 닉네임을 검색할 때마다 REST 통신을 한다면 많은 유저가 서비스를 이용할 수 없는 구조가 된다.   
+
+**Q. 그렇다면 악의적인 사용자가 계속 갱신 요청을 시도한다면??**   
+
+A. 충분히 발생할 수 있는 상황이다. 그래서 나는 Summoner 객체(유저 정보를 담고있는 테이블과 매핑된 Entity)의 필드 값에 '최신 갱신 요청 시간(lastRenewTimeStamp)'를 추가하여 해당 유저가 최신으로 갱신 요청한 시간이 현재 시각보다 5분 이상일 경우에만 갱신이 가능하도록 설정하였다. 그렇게 하면 브라우저가 다른 곳에서도 특정 유저에 대한 반복적인 요청은 불가능해진다. 갱신 가능 요청 시간을 5분으로 설정한 이유는 보통 한 게임의 최소시간이 5분?(게임이 '다시하기'인 경우)인 것으로 알고있다. 그래서 5분 이전에는 갱신이 반복적으로 이뤄질 필요가 없다고 판단하여서 그렇게 설정하였다.
+
+**Q. 그렇다면 존재하지 않는 닉네임을 계속 요청할 경우라면??**
+
+A. 나도 해당 문제를 계속 고민해보았다. 그래서 존재하지 않는 닉네임을 검색하면 해당 닉네임을 DB에 저장하여 2분동안 REST 통신말고 DB 데이터를 전달하는 방식을 고민하기도 했다. 하지만 매번 다른 닉네임을 요청할 수 있기 때문에 해당 IP를 차단하는 방법이 가장 베스트일 것 같다. 하지만 이 방법도 IP우회를 통하면 막을 수 없기 때문에 더 좋은 방법을 고민해봐야한다.
+
+**※해당 Q&A를 쓰면서 문득 든 생각**   
+
+현재 프로젝트의 서비스는 REST API를 DB에 저장한 후 해당 DB데이터를 가져와 클라이언트에게 제공해준다. 그런데 이 방식을 REST API를 바로 파싱하여 클라이언트에게 제공해주고 DB에 저장하는 로직은 독립적인 스레드를 통해 처리하면 클라이언트가 더욱 빠르게 응답을 받을 수 있을 것이라는 생각이 들었다. 그래서 해당 방식으로 프로젝트를 수정해야겠다.
 
 
-**2022-04-14**   
-SummonerService 클래스의 트랜잭션 처리를 스프링이 제공해주는 @transactional로 처리하였다. 이 때, 고립단계를 기본값인 1단계(READ_COMMITTED)를 사용하였다. 그래서 멀티스레드 환경에서 데이터를 입력할 때 중복 삽입이 될 수 있다는 생각에 테스트 코드(SummonerServiceTest)를 작성하여 멀티스레드로 동시에 SummonerService 메소드인 setSummoner() 메소드로 데이터 삽입을 해본 결과, 중복 삽입 예외가 발생되는 것을 확인하였다.
-```
-Hibernate: select summoner0_.id as id1_3_0_, summoner0_.account_id as account_2_3_0_, summoner0_.last_renew_time_stamp as last_ren3_3_0_, summoner0_.lastmatchid as lastmatc4_3_0_, summoner0_.name as name5_3_0_, summoner0_.profile_icon_id as profile_6_3_0_, summoner0_.puuid as puuid7_3_0_, summoner0_.revision_date as revision8_3_0_, summoner0_.summoner_level as summoner9_3_0_ from summoner summoner0_ where summoner0_.id=?
-Hibernate: select summoner0_.id as id1_3_0_, summoner0_.account_id as account_2_3_0_, summoner0_.last_renew_time_stamp as last_ren3_3_0_, summoner0_.lastmatchid as lastmatc4_3_0_, summoner0_.name as name5_3_0_, summoner0_.profile_icon_id as profile_6_3_0_, summoner0_.puuid as puuid7_3_0_, summoner0_.revision_date as revision8_3_0_, summoner0_.summoner_level as summoner9_3_0_ from summoner summoner0_ where summoner0_.id=?
-Hibernate: insert into summoner (account_id, last_renew_time_stamp, lastmatchid, name, profile_icon_id, puuid, revision_date, summoner_level, id) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
-Hibernate: insert into summoner (account_id, last_renew_time_stamp, lastmatchid, name, profile_icon_id, puuid, revision_date, summoner_level, id) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
-2022-04-14 16:10:50.028  WARN 19428 --- [      Thread-14] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 1062, SQLState: 23000
-2022-04-14 16:10:50.028 ERROR 19428 --- [      Thread-14] o.h.engine.jdbc.spi.SqlExceptionHelper   : (conn=932) Duplicate entry 'fwo2HwBhQTd5NU0Z7t3cVnRP5tfrUMAI-6DkPKDwDsXL80M' for key 'PRIMARY'
-2022-04-14 16:10:50.029  INFO 19428 --- [      Thread-14] o.h.e.j.b.internal.AbstractBatchImpl     : HHH000010: On release of batch it still contained JDBC statements
-```
-그래서 중복 삽입 예외처리를 Controller에서 처리하였다.
-```java
-try {
-	summonerdto = summonerservice.setSummoner(param.getName());    //riot 서버로부터 정보 받아옴
-}catch(DataIntegrityViolationException e) { 			       //멀티스레드에 의해 중복 삽입 발생 시 예외처리
-	summonerdto = summonerservice.findSummoner(param.getName()); 
-}
-```
+DB의 인덱스를 공부하면서 인덱스의 장점과 단점을 배웠다. 인덱스는 보통 B-TREE 혹은 B+TREE 자료구조를 사용해 컬럼들을 저장해놓는데 해당 자료구조는 정렬을 해놓기때문에 조회 시에는 빠르게 서치가 가능하지만 데이터를 삽입, 인덱스 컬럼 업데이트, 삭제에서는 큰 비용이 발생하기 때문에 조심해서 사용해야한다. 
+현재, 해당 프로젝트에서의 Summoner 테이블에서 primaryId 컬럼을 pk설정을 통해 클러스터드 인덱스로 지정하였고, id, name 컬럼을 넌클러스터드 인덱스로 설정해주었다. 그 이유는 기존 id를 pk로 두었을 때, 게임 서버로부터 Summoner 데이터를 받아올 때, 우선순위가 낮은 순으로 받는 것이 아니기 때문에 데이터를 저장할 때마다 pk값이 자동으로 우선순위 낮은 값으로 생성되어 인덱스 자료구조의 정렬 비용을 줄일 수 있다. 그리고 Summoner 테이블은 데이터(row)가 많이 생성되지 않고 조회가 많아 넌클러스터드 인덱스를 설정해도 된다고 판단하여, 비지니스 로직에서 테이블을 조회할 때 필요한 조건 컬럼(id, name)을 넌클러스터드 인덱스로 설정하였다.   
+
+Member 테이블의 pk를 복합키로 설정하고 해당 복합키의 부분키로 외래키를 설정한 이유(Match-Member 식별관계로 설정) : 두 테이블을 조인할 때, 서로의 matchid 컬럼을 통해 조인하는데 이 때, 둘 다 pk로 설정해두면 db에서 조인 시 nested loop join을 이용해 빠르게 데이터를 조회할 수 있고, 또한 pk로 인덱스 설정이 되었기 때문에(클러스터드 인덱스) random access 부하가 없어서 대용량 데이터 처리에도 좋다. 그래서 현재 Match-Member 테이블 연관 관계 및 pk 설정, 인덱스 설정 등이 최선이라고 생각한다.   
+
+기존 Match-Member 테이블 조회시 패치조인에서 batch-size로 바꾼 이유 : 비지니스 로직에서 전적을 검색할 때, 최대 100개의 Match를 가져오려하였는데 패치 조인 사용 시, 페이징 처리가 불가능하여 해당 문제를 해결하고자 batch size를 설정하여 Match 엔티티들과 Member 엔티티들을 조회하였다. 그리고 batch size를 100으로 설정해서 총 2번의 쿼리로 연관 관계 엔티티들을 다 조회하였다. 이렇게 n+1문제를 해결하였다.   
+
+
