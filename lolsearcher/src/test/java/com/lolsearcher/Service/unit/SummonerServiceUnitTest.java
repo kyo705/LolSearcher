@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.domain.Dto.command.MatchParamDto;
@@ -110,7 +110,7 @@ class SummonerServiceUnitTest {
 	
 	@Test
 	void findDbSummonerCase3() {
-		//testCase3 : DB에 특정 닉네임이 2개 이상 존재할 때 해당 실제 닉네임을 가진 유저가 DB에 존재할 때
+		//testCase3 : DB에 특정 닉네임이 2개 이상 존재하고 해당 닉네임의 진짜 소유주 유저가 DB에 존재할 때
 		//닉네임은 게임 내에서 변경이 가능하므로 
 		//DB 데이터 갱신이 안되면 닉네임 중복상황이 발생할 수 있음
 		
@@ -159,7 +159,6 @@ class SummonerServiceUnitTest {
 		assertThat(summonerDto.getProfileIconId()).isEqualTo(50);
 		
 		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		verify(summonerRepository, times(2)).saveSummoner(any(Summoner.class));
 	}
 	
 	@Test
@@ -210,7 +209,6 @@ class SummonerServiceUnitTest {
 		assertThat(summonerDto).isEqualTo(null);
 		
 		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		verify(summonerRepository, times(2)).saveSummoner(any(Summoner.class));
 	}
 	
 	@Test
@@ -257,7 +255,6 @@ class SummonerServiceUnitTest {
 		assertThat(summonerDto.getName()).isEqualTo(dbSummoner2.getName());
 		
 		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		verify(summonerRepository, times(1)).saveSummoner(apiSummoner1);
 		verify(summonerRepository, times(1)).deleteSummoner(dbSummoner1);
 	}
 	
@@ -303,7 +300,6 @@ class SummonerServiceUnitTest {
 		assertThat(summonerDto).isEqualTo(null);
 		
 		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		verify(summonerRepository, times(1)).saveSummoner(apiSummoner1);
 		verify(summonerRepository, times(1)).deleteSummoner(dbSummoner1);
 	}
 	
@@ -347,8 +343,6 @@ class SummonerServiceUnitTest {
 		when(riotRestApi.getSummonerById("id2"))
 		.thenThrow(new WebClientResponseException(429, "너무 많은 요청입니다. 잠시 후, 다시 시도해주세요", null, null, null));
 		
-		doNothing().when(em).flush();
-		
 		//when,then
 		WebClientResponseException e = assertThrows(WebClientResponseException.class,
 				()->summonerService.findDbSummoner(summonerName));
@@ -357,7 +351,6 @@ class SummonerServiceUnitTest {
 		assertThat(e.getStatusText()).isEqualTo("너무 많은 요청입니다. 잠시 후, 다시 시도해주세요");
 		
 		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		verify(summonerRepository, times(1)).saveSummoner(apiSummoner1);
 		verify(summonerRepository, times(0)).saveSummoner(apiSummoner2);
 	}
 	
@@ -379,7 +372,8 @@ class SummonerServiceUnitTest {
 		
 		when(riotRestApi.getSummonerByName(summonerName))
 		.thenReturn(summoner1);
-		
+		when(summonerRepository.findSummonerById("id1"))
+		.thenThrow(EmptyResultDataAccessException.class);
 		
 		//when
 		SummonerDto summonerDto = summonerService.setSummoner(summonerName);
@@ -468,7 +462,7 @@ class SummonerServiceUnitTest {
 		assertThat(totalRanksDto.getTeamrank().getSeasonId()).isEqualTo(22);
 		
 		verify(riotRestApi, times(1)).getLeague(anyString());
-		verify(summonerRepository, times(1)).saveLeagueEntry(any(List.class));
+		verify(summonerRepository, times(1)).saveRanks(any(List.class));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -495,7 +489,7 @@ class SummonerServiceUnitTest {
 		assertThat(e.getStatusText()).isEqualTo("많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.");
 		
 		verify(riotRestApi, times(1)).getLeague(anyString());
-		verify(summonerRepository, times(0)).saveLeagueEntry(any(List.class));
+		verify(summonerRepository, times(0)).saveRanks(any(List.class));
 	}
 	
 	
@@ -514,18 +508,18 @@ class SummonerServiceUnitTest {
 		summoner.setSummonerLevel(553);
 		
 		//Mock 객체 데이터 셋팅
-		Rank rank1 = new Rank();
-		rank1.setCk(new RankCompKey("id1", "RANKED_SOLO_5x5", 22));
-		rank1.setTier("GOLD");
-		rank1.setRank("III");
-		rank1.setWins(50);
-		rank1.setLosses(30);
+		Rank soloRank = new Rank();
+		soloRank.setCk(new RankCompKey("id1", "RANKED_SOLO_5x5", 22));
+		soloRank.setTier("GOLD");
+		soloRank.setRank("III");
+		soloRank.setWins(50);
+		soloRank.setLosses(30);
 		
-		List<Rank> ranks = new ArrayList<>();
-		ranks.add(rank1);
+		RankCompKey soloRankKey = new RankCompKey(summoner.getSummonerid(), "RANKED_SOLO_5x5", currentSeasonId);
+		RankCompKey flexRankKey = new RankCompKey(summoner.getSummonerid(), "RANKED_FLEX_SR", currentSeasonId);
 		
-		when(summonerRepository.findLeagueEntry(summoner.getSummonerid(), currentSeasonId))
-		.thenReturn(ranks);
+		when(summonerRepository.findRank(soloRankKey)).thenReturn(soloRank);
+		when(summonerRepository.findRank(flexRankKey)).thenReturn(null);
 		
 		
 		//when
@@ -535,9 +529,9 @@ class SummonerServiceUnitTest {
 		assertThat(totalRankDto.getTeamrank()).isEqualTo(null);
 		
 		assertThat(totalRankDto.getSolorank().getSummonerId())
-		.isEqualTo(rank1.getCk().getSummonerId());
-		assertThat(totalRankDto.getSolorank().getWins()).isEqualTo(rank1.getWins());
-		assertThat(totalRankDto.getSolorank().getLosses()).isEqualTo(rank1.getLosses());
+		.isEqualTo(soloRank.getCk().getSummonerId());
+		assertThat(totalRankDto.getSolorank().getWins()).isEqualTo(soloRank.getWins());
+		assertThat(totalRankDto.getSolorank().getLosses()).isEqualTo(soloRank.getLosses());
 	}
 	
 	@Test
@@ -552,18 +546,18 @@ class SummonerServiceUnitTest {
 		summoner.setSummonerLevel(553);
 		
 		//Mock 객체 데이터 셋팅
-		Rank rank1 = new Rank();
-		rank1.setCk(new RankCompKey("id1", "RANKED_TEAM_5x5", 22));
-		rank1.setTier("GOLD");
-		rank1.setRank("II");
-		rank1.setWins(70);
-		rank1.setLosses(44);
+		Rank flexRank = new Rank();
+		flexRank.setCk(new RankCompKey("id1", "RANKED_FLEX_SR", 22));
+		flexRank.setTier("GOLD");
+		flexRank.setRank("II");
+		flexRank.setWins(70);
+		flexRank.setLosses(44);
 		
-		List<Rank> ranks = new ArrayList<>();
-		ranks.add(rank1);
+		RankCompKey soloRankKey = new RankCompKey(summoner.getSummonerid(), "RANKED_SOLO_5x5", currentSeasonId);
+		RankCompKey flexRankKey = new RankCompKey(summoner.getSummonerid(), "RANKED_FLEX_SR", currentSeasonId);
 		
-		when(summonerRepository.findLeagueEntry(summoner.getSummonerid(), currentSeasonId))
-		.thenReturn(ranks);
+		when(summonerRepository.findRank(soloRankKey)).thenReturn(null);
+		when(summonerRepository.findRank(flexRankKey)).thenReturn(flexRank);
 		
 		
 		//when
@@ -573,9 +567,9 @@ class SummonerServiceUnitTest {
 		assertThat(totalRankDto.getSolorank()).isEqualTo(null);
 		
 		assertThat(totalRankDto.getTeamrank().getSummonerId())
-		.isEqualTo(rank1.getCk().getSummonerId());
-		assertThat(totalRankDto.getTeamrank().getWins()).isEqualTo(rank1.getWins());
-		assertThat(totalRankDto.getTeamrank().getLosses()).isEqualTo(rank1.getLosses());
+		.isEqualTo(flexRank.getCk().getSummonerId());
+		assertThat(totalRankDto.getTeamrank().getWins()).isEqualTo(flexRank.getWins());
+		assertThat(totalRankDto.getTeamrank().getLosses()).isEqualTo(flexRank.getLosses());
 	}
 	
 	@Test
@@ -591,26 +585,25 @@ class SummonerServiceUnitTest {
 		summoner.setSummonerLevel(553);
 		
 		//Mock 객체 데이터 셋팅
-		Rank rank1 = new Rank();
-		rank1.setCk(new RankCompKey("id1", "RANKED_SOLO_5x5", currentSeasonId));
-		rank1.setTier("GOLD");
-		rank1.setRank("III");
-		rank1.setWins(50);
-		rank1.setLosses(30);
+		Rank soloRank = new Rank();
+		soloRank.setCk(new RankCompKey("id1", "RANKED_SOLO_5x5", currentSeasonId));
+		soloRank.setTier("GOLD");
+		soloRank.setRank("III");
+		soloRank.setWins(50);
+		soloRank.setLosses(30);
 		
-		Rank rank2 = new Rank();
-		rank2.setCk(new RankCompKey("id1", "RANKED_TEAM_5x5", currentSeasonId));
-		rank2.setTier("GOLD");
-		rank2.setRank("II");
-		rank2.setWins(70);
-		rank2.setLosses(44);
+		Rank flexRank = new Rank();
+		flexRank.setCk(new RankCompKey("id1", "RANKED_FLEX_SR", currentSeasonId));
+		flexRank.setTier("GOLD");
+		flexRank.setRank("II");
+		flexRank.setWins(70);
+		flexRank.setLosses(44);
 		
-		List<Rank> ranks = new ArrayList<>();
-		ranks.add(rank1);
-		ranks.add(rank2);
+		RankCompKey soloRankKey = new RankCompKey(summoner.getSummonerid(), "RANKED_SOLO_5x5", currentSeasonId);
+		RankCompKey flexRankKey = new RankCompKey(summoner.getSummonerid(), "RANKED_FLEX_SR", currentSeasonId);
 		
-		when(summonerRepository.findLeagueEntry(summoner.getSummonerid(), currentSeasonId))
-		.thenReturn(ranks);
+		when(summonerRepository.findRank(soloRankKey)).thenReturn(soloRank);
+		when(summonerRepository.findRank(flexRankKey)).thenReturn(flexRank);
 		
 		
 		//when
@@ -618,14 +611,14 @@ class SummonerServiceUnitTest {
 		
 		//then
 		assertThat(totalRankDto.getSolorank().getSummonerId())
-		.isEqualTo(rank1.getCk().getSummonerId());
-		assertThat(totalRankDto.getSolorank().getWins()).isEqualTo(rank1.getWins());
-		assertThat(totalRankDto.getSolorank().getLosses()).isEqualTo(rank1.getLosses());
+		.isEqualTo(soloRank.getCk().getSummonerId());
+		assertThat(totalRankDto.getSolorank().getWins()).isEqualTo(soloRank.getWins());
+		assertThat(totalRankDto.getSolorank().getLosses()).isEqualTo(soloRank.getLosses());
 		
 		assertThat(totalRankDto.getTeamrank().getSummonerId())
-		.isEqualTo(rank2.getCk().getSummonerId());
-		assertThat(totalRankDto.getTeamrank().getWins()).isEqualTo(rank2.getWins());
-		assertThat(totalRankDto.getTeamrank().getLosses()).isEqualTo(rank2.getLosses());
+		.isEqualTo(flexRank.getCk().getSummonerId());
+		assertThat(totalRankDto.getTeamrank().getWins()).isEqualTo(flexRank.getWins());
+		assertThat(totalRankDto.getTeamrank().getLosses()).isEqualTo(flexRank.getLosses());
 	}
 	
 	
@@ -641,10 +634,11 @@ class SummonerServiceUnitTest {
 		summoner.setSummonerLevel(553);
 		
 		//Mock 객체 데이터 셋팅
-		List<Rank> ranks = new ArrayList<>();
+		RankCompKey soloRankKey = new RankCompKey(summoner.getSummonerid(), "RANKED_SOLO_5x5", currentSeasonId);
+		RankCompKey flexRankKey = new RankCompKey(summoner.getSummonerid(), "RANKED_FLEX_SR", currentSeasonId);
 		
-		when(summonerRepository.findLeagueEntry(summoner.getSummonerid(), currentSeasonId))
-		.thenReturn(ranks);
+		when(summonerRepository.findRank(soloRankKey)).thenReturn(null);
+		when(summonerRepository.findRank(flexRankKey)).thenReturn(null);
 		
 		
 		//when

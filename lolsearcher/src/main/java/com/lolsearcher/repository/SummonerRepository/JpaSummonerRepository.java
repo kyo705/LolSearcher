@@ -14,6 +14,7 @@ import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.rank.Rank;
+import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
 
 @Repository
 public class JpaSummonerRepository implements SummonerRepository {
@@ -28,12 +29,16 @@ public class JpaSummonerRepository implements SummonerRepository {
 	//-----------------Summoner 테이블 CRUD----------------------------------
 	@Override
 	public void saveSummoner(Summoner summoner) throws DataIntegrityViolationException {
-		em.merge(summoner);
+		em.persist(summoner);
 	}
 	
 	@Override
 	public Summoner findSummonerById(String summonerid){
-		return em.find(Summoner.class, summonerid);
+		String jpql = "SELECT s FROM Summoner s WHERE s.id = :summonerid";
+		
+		return em.createQuery(jpql, Summoner.class)
+				.setParameter("summonerid", summonerid)
+				.getSingleResult();
 	}
 	
 	@Override
@@ -58,7 +63,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	//-----------------Rank 테이블 CRUD----------------------------------
 
 	@Override
-	public void saveLeagueEntry(List<Rank> list) throws DataIntegrityViolationException {
+	public void saveRanks(List<Rank> list) throws DataIntegrityViolationException {
 		Iterator<Rank> it =  list.iterator();
 		
 		while(it.hasNext()) {
@@ -68,14 +73,8 @@ public class JpaSummonerRepository implements SummonerRepository {
 	}
 	
 	@Override
-	public List<Rank> findLeagueEntry(String id, int seasonId) {
-		String jpql = "SELECT r FROM Rank r "
-				+ "WHERE r.ck.summonerId = :id AND r.ck.seasonId = :seasonId";
-		
-		return em.createQuery(jpql, Rank.class)
-				.setParameter("id", id)
-				.setParameter("seasonId", seasonId)
-				.getResultList();
+	public Rank findRank(RankCompKey rankKey) {
+		return em.find(Rank.class, rankKey);
 	}
 
 	//-----------------Match,Member 테이블 CRUD----------------------------------
@@ -100,8 +99,9 @@ public class JpaSummonerRepository implements SummonerRepository {
 		String jpql;
 		
 		if(gametype==-1) {
-			if(champion.equals("all")) {
-				jpql = "SELECT DISTINCT m FROM Match m JOIN fetch m.members "
+			if(champion.equals("all")) {	
+				
+				jpql = "SELECT DISTINCT m FROM Match m "
 						+ "WHERE m.matchid IN "
 						+ "(SELECT DISTINCT t.ck.matchid FROM Member t WHERE t.summonerid = :summonerid) "
 						+ "ORDER BY m.gameEndTimestamp DESC";
@@ -112,7 +112,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 						.setMaxResults(count)
 						.getResultList();
 			}else {
-				jpql = "SELECT DISTINCT m FROM Match m JOIN fetch m.members "
+				jpql = "SELECT DISTINCT m FROM Match m "
 						+ "WHERE m.matchid IN "
 						+ "(SELECT DISTINCT t.ck.matchid from Member t "
 						+ "WHERE t.summonerid = :summonerid AND t.championid = :championid) "
@@ -127,7 +127,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 			}
 		}else {
 			if(champion.equals("all")) {
-				jpql = "SELECT DISTINCT m FROM Match m JOIN fetch m.members "
+				jpql = "SELECT DISTINCT m FROM Match m "
 						+ "WHERE m.queueId = :queueId AND m.matchid IN "
 						+ "(SELECT DISTINCT t.ck.matchid from Member t where t.summonerid = :summonerid) "
 						+ "ORDER BY m.gameEndTimestamp DESC";
@@ -140,7 +140,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 						.getResultList();
 				
 			}else {
-				jpql = "SELECT DISTINCT m FROM Match m JOIN fetch m.members "
+				jpql = "SELECT DISTINCT m FROM Match m "
 						+ "WHERE m.queueId = :queueId AND m.matchid IN "
 						+ "(SELECT DISTINCT t.ck.matchid from Member t "
 						+ "WHERE t.championid = :championid AND t.summonerid = :summonerid) "
@@ -249,6 +249,10 @@ public class JpaSummonerRepository implements SummonerRepository {
 			champ.setTotalgame((long)o[4] + champ.getTotalgame());
 		}
 		
+		champ.setAvgcs(champ.getAvgcs()/2);
+		champ.setAvgkill(champ.getAvgkill()/2);
+		champ.setAvgdeath(champ.getAvgdeath()/2);
+		champ.setAvgassist(champ.getAvgassist()/2);
 		
 		return champ;
 	}

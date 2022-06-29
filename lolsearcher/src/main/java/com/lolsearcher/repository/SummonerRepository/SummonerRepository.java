@@ -2,11 +2,11 @@ package com.lolsearcher.repository.SummonerRepository;
 
 import java.util.List;
 
-import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.rank.Rank;
+import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
 
 public interface SummonerRepository {
 	
@@ -20,9 +20,9 @@ public interface SummonerRepository {
 	public void deleteSummoner(Summoner summoner);
 
 	//-----------------Rank 테이블 CRUD----------------------------------
-	public void saveLeagueEntry(List<Rank> set);
+	public void saveRanks(List<Rank> set);
 	
-	public List<Rank> findLeagueEntry(String summonerid, int seasonid);
+	public Rank findRank(RankCompKey rankKey);
 	
 	//-----------------Match,Member(1:N) 테이블 CRUD----------------------------------
 	public boolean findMatchid(String matchid);

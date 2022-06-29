@@ -51,13 +51,11 @@ public class SummonerController {
 		String filteredname = unfilteredname.replaceAll(regex, "");
 		param.setName(filteredname);
 		
+		//view로 전달될 데이터(Model)
 		SummonerDto summonerdto = null;
-		
 		TotalRanksDto ranks = null;
-		
-		List<MatchDto> matches;
-		
-		List<MostChampDto> mostchamps;
+		List<MatchDto> matches = null;
+		List<MostChampDto> mostchamps =null;
 		
 		
 		try {
@@ -132,7 +130,7 @@ public class SummonerController {
 				.setChampion(param.getChampion())
 				.setSummonerid(param.getSummonerid())
 				.setGametype(param.getMatchgametype())
-				.setGametype(param.getCount())
+				.setCount(param.getCount())
 				.build();
 		
 		MostchampParamDto mostchampParamDto = new MostChampParamDtoBuilder()
@@ -145,6 +143,7 @@ public class SummonerController {
 		matches = summonerService.getMatches(matchParamDto);
 		
 		mostchamps = summonerService.getMostChamp(mostchampParamDto);
+		
 		
 		mv.addObject("params", param);
 		mv.addObject("summoner", summonerdto);
@@ -167,8 +166,8 @@ public class SummonerController {
 		String regex = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
 		String filteredname = unfilteredname.replaceAll(regex, "");
 		
+		//view로 전달될 데이터(Model)
 		InGameDto inGameDto = null;
-		
 		SummonerDto summonerDto = null;
 		
 		try {

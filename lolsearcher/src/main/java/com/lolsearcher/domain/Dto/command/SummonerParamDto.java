@@ -17,7 +17,7 @@ public class SummonerParamDto {
 		this.champion = "all";
 		this.mostgametype = -1;
 		this.matchgametype = -1;
-		this.count = 20;
+		this.count = 100;
 		this.season = 12;
 		this.renew = false;
 	}

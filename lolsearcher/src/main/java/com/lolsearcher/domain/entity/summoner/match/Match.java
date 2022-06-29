@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.BatchSize;
+
 @Entity
 @Table(name = "MATCHES")
 public class Match {
@@ -23,7 +25,8 @@ public class Match {
 	private int queueId;
 	private int season;
 	
-	@OneToMany(mappedBy = "match", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY) 
+	@BatchSize(size = 100)
+	@OneToMany(mappedBy = "match", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER) 
 	private List<Member> members = new ArrayList<>();
 	
 	

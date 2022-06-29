@@ -29,6 +29,7 @@ public class ChampionController {
 		ModelAndView mv = new ModelAndView();
 		
 		List<ChampionDto> champions = championService.getChampions(position);
+		
 		mv.addObject("champions", champions);
 		mv.setViewName("champion/champions");
 			
@@ -41,6 +42,7 @@ public class ChampionController {
 		ModelAndView mv = new ModelAndView();
 		
 		TotalChampDto totalChampDto = championService.getChampionDetail(champion);
+		
 		mv.addObject("championDetail", totalChampDto);
 		mv.setViewName("champion/champion_detail");
 		

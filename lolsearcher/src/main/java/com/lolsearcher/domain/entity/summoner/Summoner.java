@@ -1,14 +1,24 @@
 package com.lolsearcher.domain.entity.summoner;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 import com.google.gson.annotations.SerializedName;
 
 @Entity
+@Table(indexes = {
+		@Index(columnList = "id"),
+		@Index(columnList = "name")
+		})
 public class Summoner {
 
-	@Id
+	@Id 
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long primaryId;
 	@SerializedName(value = "id")
 	private String id;
 	@SerializedName(value = "accountId")
@@ -30,6 +40,13 @@ public class Summoner {
 	
 	private long lastInGameSearchTimeStamp;
 	
+	
+	public long getPrimaryId() {
+		return primaryId;
+	}
+	public void setPrimaryId(long primaryId) {
+		this.primaryId = primaryId;
+	}
 	public String getId() {
 		return id;
 	}

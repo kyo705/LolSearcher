@@ -3,7 +3,6 @@ package com.lolsearcher.Service.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -30,6 +30,7 @@ import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.match.Member;
 import com.lolsearcher.domain.entity.summoner.rank.Rank;
 import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
+import com.lolsearcher.repository.JpaTestRepository;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 import com.lolsearcher.service.SummonerService;
@@ -44,7 +45,8 @@ class SummonerServiceIntegrationTest {
 	
 	@Autowired
 	SummonerService summonerService;
-	
+	@Autowired
+	JpaTestRepository testRepository;
 	
 	@Autowired
 	SummonerRepository summonerRepository;
@@ -220,10 +222,10 @@ class SummonerServiceIntegrationTest {
 		//then
 		//기존 DB데이터가 올바른 값으로 갱신되었는지 확인
 		Summoner renewedSummoner1 = summonerRepository.findSummonerById(dbSummoner1.getId());
-		Summoner renewedSummoner2 = summonerRepository.findSummonerById(dbSummoner2.getId());
 		assertThat(renewedSummoner1.getId()).isEqualTo(dbSummoner1.getId());
 		assertThat(renewedSummoner1.getName()).isEqualTo("푸켓푸켓");
-		assertThat(renewedSummoner2).isEqualTo(null);
+		
+		assertThrows(EmptyResultDataAccessException.class, ()->summonerRepository.findSummonerById(dbSummoner2.getId()));
 		
 		//실행된 비지니스 로직으로부터 리턴받은 값(summonerDto)이 올바른 값인지 확인
 		assertThat(summonerDto.getSummonerid()).isEqualTo(renewedSummoner1.getId());
@@ -259,10 +261,10 @@ class SummonerServiceIntegrationTest {
 		//then
 		//기존 DB데이터가 올바른 값으로 갱신되었는지 확인
 		Summoner renewedSummoner1 = summonerRepository.findSummonerById(dbSummoner1.getId());
-		Summoner renewedSummoner2 = summonerRepository.findSummonerById(dbSummoner2.getId());
 		assertThat(renewedSummoner1.getId()).isEqualTo(dbSummoner1.getId());
 		assertThat(renewedSummoner1.getName()).isNotEqualTo("푸켓푸켓");
-		assertThat(renewedSummoner2).isEqualTo(null);
+		
+		assertThrows(EmptyResultDataAccessException.class, ()->summonerRepository.findSummonerById(dbSummoner2.getId()));
 		
 		//실행된 비지니스 로직으로부터 리턴받은 값(summonerDto)이 올바른 값인지 확인
 		assertThat(summonerDto).isEqualTo(null);
@@ -363,6 +365,11 @@ class SummonerServiceIntegrationTest {
 		//then
 		List<Summoner> dbSummoners = summonerRepository.findSummonerByName(summonerName);
 		assertThat(dbSummoners.size()).isEqualTo(0);
+		
+		Summoner renewedSummoner1 = summonerRepository.findSummonerById(dbSummoner1.getId());
+		Summoner renewedSummoner2 = summonerRepository.findSummonerById(dbSummoner2.getId());
+		assertThat(renewedSummoner1.getName()).isEqualTo("갓버수문장");
+		assertThat(renewedSummoner2.getName()).isEqualTo("푸켓푸켓");
 	}
 	
 	@Test
@@ -394,8 +401,10 @@ class SummonerServiceIntegrationTest {
 		//then
 		List<Summoner> dbSummoners = summonerRepository.findSummonerByName(summonerName);
 		assertThat(dbSummoners.size()).isEqualTo(0);
-		Summoner notExistedDbSummoner = summonerRepository.findSummonerById(dbSummoner1.getId());
-		assertThat(notExistedDbSummoner).isEqualTo(null);
+		
+		assertThrows(EmptyResultDataAccessException.class, ()->summonerRepository.findSummonerById(dbSummoner1.getId()));
+		Summoner renewedSummoner2 = summonerRepository.findSummonerById(dbSummoner2.getId());
+		assertThat(renewedSummoner2.getName()).isEqualTo("푸켓푸켓");
 	}
 	
 	//----------------------setSummoner() 메소드 Test Case------------------------------------
@@ -538,28 +547,21 @@ class SummonerServiceIntegrationTest {
 		em.clear();
 		
 		//then
-		//DB에 올바른 데이터가 적용됐는지 확인
-		List<Rank> dbRanks = summonerRepository.findLeagueEntry(summonerDto.getSummonerid(), currentSeasonId);
-		for(Rank dbRank : dbRanks) {
-			assertThat(dbRank.getCk().getSeasonId()).isEqualTo(currentSeasonId);
-			assertThat(dbRank.getCk().getSummonerId()).isEqualTo(summonerDto.getSummonerid());
-		}
+		List<Rank> allRank = testRepository.findAllRank();
 		
-		for(Rank dbRank : dbRanks) {
-			if(dbRank.getCk().getQueueType().equals(soloRank)) {
-				assertThat(totalRanksDto.getSolorank().getTier())
-				.isEqualTo(dbRank.getTier());
-				assertThat(totalRanksDto.getSolorank().getLeagueId())
-				.isEqualTo(dbRank.getLeagueId());
-				assertThat(totalRanksDto.getSolorank().getLeaguePoints())
-				.isEqualTo(dbRank.getLeaguePoints());
-			}else if(dbRank.getCk().getQueueType().equals(flexRank)) {
-				assertThat(totalRanksDto.getTeamrank().getTier())
-				.isEqualTo(dbRank.getTier());
-				assertThat(totalRanksDto.getTeamrank().getLeagueId())
-				.isEqualTo(dbRank.getLeagueId());
-				assertThat(totalRanksDto.getTeamrank().getLeaguePoints())
-				.isEqualTo(dbRank.getLeaguePoints());
+		for(Rank rank : allRank) {
+			//DB에 원하는 값만 저장되었는지
+			assertThat(rank.getCk().getSeasonId()).isEqualTo(currentSeasonId);
+			assertThat(rank.getCk().getSummonerId()).isEqualTo(summonerDto.getSummonerid());
+			//테스트한 메소드의 리턴값이 DB값과 일치하는지
+			if(rank.getCk().getQueueType().equals(soloRank)) {
+				assertThat(totalRanksDto.getSolorank().getTier()).isEqualTo(rank.getTier());
+				assertThat(totalRanksDto.getSolorank().getLeagueId()).isEqualTo(rank.getLeagueId());
+				assertThat(totalRanksDto.getSolorank().getLeaguePoints()).isEqualTo(rank.getLeaguePoints());
+			}else if(rank.getCk().getQueueType().equals(flexRank)) {
+				assertThat(totalRanksDto.getTeamrank().getTier()).isEqualTo(rank.getTier());
+				assertThat(totalRanksDto.getTeamrank().getLeagueId()).isEqualTo(rank.getLeagueId());
+				assertThat(totalRanksDto.getTeamrank().getLeaguePoints()).isEqualTo(rank.getLeaguePoints());
 			}
 		}
 	}
@@ -583,7 +585,7 @@ class SummonerServiceIntegrationTest {
 		dbSeason21SoloRank.setTier("DIAMOND");
 		List<Rank> dbSeason21Ranks = new ArrayList<>();
 		dbSeason21Ranks.add(dbSeason21SoloRank);
-		summonerRepository.saveLeagueEntry(dbSeason21Ranks);
+		summonerRepository.saveRanks(dbSeason21Ranks);
 		em.flush();
 		em.clear();
 		
@@ -593,28 +595,28 @@ class SummonerServiceIntegrationTest {
 		em.clear();
 		
 		//then
-		//DB에 올바른 데이터가 적용됐는지 확인
-		List<Rank> dbRanks = summonerRepository.findLeagueEntry(summonerDto.getSummonerid(), currentSeasonId);
-		for(Rank dbRank : dbRanks) {
-			assertThat(dbRank.getCk().getSeasonId()).isEqualTo(currentSeasonId);
-			assertThat(dbRank.getCk().getSummonerId()).isEqualTo(summonerDto.getSummonerid());
-		}
+		List<Rank> allRank = testRepository.findAllRank();
 		
-		for(Rank dbRank : dbRanks) {
-			if(dbRank.getCk().getQueueType().equals(soloRank)) {
-				assertThat(totalRanksDto.getSolorank().getTier())
-				.isEqualTo(dbRank.getTier());
-				assertThat(totalRanksDto.getSolorank().getLeagueId())
-				.isEqualTo(dbRank.getLeagueId());
-				assertThat(totalRanksDto.getSolorank().getLeaguePoints())
-				.isEqualTo(dbRank.getLeaguePoints());
-			}else if(dbRank.getCk().getQueueType().equals(flexRank)) {
-				assertThat(totalRanksDto.getTeamrank().getTier())
-				.isEqualTo(dbRank.getTier());
-				assertThat(totalRanksDto.getTeamrank().getLeagueId())
-				.isEqualTo(dbRank.getLeagueId());
-				assertThat(totalRanksDto.getTeamrank().getLeaguePoints())
-				.isEqualTo(dbRank.getLeaguePoints());
+		for(Rank rank : allRank) {
+			//기존 DB데이터
+			if(rank.getCk().getSeasonId()==21) {
+				assertThat(rank.getCk().getQueueType()).isEqualTo(soloRank);
+				assertThat(rank.getCk().getSummonerId()).isEqualTo(summonerDto.getSummonerid());
+				assertThat(rank.getTier()).isEqualTo("DIAMOND");
+			}else{
+				//DB에 원하는 값만 저장되었는지
+				assertThat(rank.getCk().getSeasonId()).isEqualTo(currentSeasonId);
+				assertThat(rank.getCk().getSummonerId()).isEqualTo(summonerDto.getSummonerid());
+				//테스트한 메소드의 리턴값이 DB값과 일치하는지
+				if(rank.getCk().getQueueType().equals(soloRank)) {
+					assertThat(totalRanksDto.getSolorank().getTier()).isEqualTo(rank.getTier());
+					assertThat(totalRanksDto.getSolorank().getLeagueId()).isEqualTo(rank.getLeagueId());
+					assertThat(totalRanksDto.getSolorank().getLeaguePoints()).isEqualTo(rank.getLeaguePoints());
+				}else if(rank.getCk().getQueueType().equals(flexRank)) {
+					assertThat(totalRanksDto.getTeamrank().getTier()).isEqualTo(rank.getTier());
+					assertThat(totalRanksDto.getTeamrank().getLeagueId()).isEqualTo(rank.getLeagueId());
+					assertThat(totalRanksDto.getTeamrank().getLeaguePoints()).isEqualTo(rank.getLeaguePoints());
+				}
 			}
 		}
 	}
@@ -637,7 +639,7 @@ class SummonerServiceIntegrationTest {
 				currentSeasonId));
 		List<Rank> oldRanks = new ArrayList<>();
 		oldRanks.add(dbOldSoloRank);
-		summonerRepository.saveLeagueEntry(oldRanks);
+		summonerRepository.saveRanks(oldRanks);
 		em.flush();
 		em.clear();
 		
@@ -647,32 +649,27 @@ class SummonerServiceIntegrationTest {
 		em.clear();
 		
 		//then
-		//DB에 올바른 데이터가 적용됐는지 확인
-		List<Rank> dbRenewRanks = summonerRepository.findLeagueEntry(summonerDto.getSummonerid(), currentSeasonId);
-		for(Rank dbRank : dbRenewRanks) {
-			if(dbRank.getCk().getQueueType().equals(dbOldSoloRank.getCk().getQueueType())) {
-				assertThat(dbRank.getCk().getSeasonId())
-				.isEqualTo(dbOldSoloRank.getCk().getSeasonId());
-				assertThat(dbRank.getCk().getSummonerId())
-				.isEqualTo(dbOldSoloRank.getCk().getSummonerId());
+		List<Rank> allRank = testRepository.findAllRank();
+		for(Rank rank : allRank) {
+			//기존 DB 데이터 존재하는지
+			if(rank.getCk().getQueueType().equals(dbOldSoloRank.getCk().getQueueType())) {
+				assertThat(rank.getCk().getSeasonId()).isEqualTo(dbOldSoloRank.getCk().getSeasonId());
+				assertThat(rank.getCk().getSummonerId()).isEqualTo(dbOldSoloRank.getCk().getSummonerId());
 			}
-		}
-		
-		for(Rank dbRank : dbRenewRanks) {
-			if(dbRank.getCk().getQueueType().equals(soloRank)) {
-				assertThat(totalRanksDto.getSolorank().getTier())
-				.isEqualTo(dbRank.getTier());
-				assertThat(totalRanksDto.getSolorank().getLeagueId())
-				.isEqualTo(dbRank.getLeagueId());
-				assertThat(totalRanksDto.getSolorank().getLeaguePoints())
-				.isEqualTo(dbRank.getLeaguePoints());
-			}else if(dbRank.getCk().getQueueType().equals(flexRank)) {
-				assertThat(totalRanksDto.getTeamrank().getTier())
-				.isEqualTo(dbRank.getTier());
-				assertThat(totalRanksDto.getTeamrank().getLeagueId())
-				.isEqualTo(dbRank.getLeagueId());
-				assertThat(totalRanksDto.getTeamrank().getLeaguePoints())
-				.isEqualTo(dbRank.getLeaguePoints());
+			
+			//DB에 원하는 값만 저장되었는지
+			assertThat(rank.getCk().getSeasonId()).isEqualTo(currentSeasonId);
+			assertThat(rank.getCk().getSummonerId()).isEqualTo(summonerDto.getSummonerid());
+			
+			//테스트한 메소드의 리턴값이 DB값과 일치하는지
+			if(rank.getCk().getQueueType().equals(soloRank)) {
+				assertThat(totalRanksDto.getSolorank().getTier()).isEqualTo(rank.getTier());
+				assertThat(totalRanksDto.getSolorank().getLeagueId()).isEqualTo(rank.getLeagueId());
+				assertThat(totalRanksDto.getSolorank().getLeaguePoints()).isEqualTo(rank.getLeaguePoints());
+			}else if(rank.getCk().getQueueType().equals(flexRank)) {
+				assertThat(totalRanksDto.getTeamrank().getTier()).isEqualTo(rank.getTier());
+				assertThat(totalRanksDto.getTeamrank().getLeagueId()).isEqualTo(rank.getLeagueId());
+				assertThat(totalRanksDto.getTeamrank().getLeaguePoints()).isEqualTo(rank.getLeaguePoints());
 			}
 		}
 	}
@@ -693,9 +690,8 @@ class SummonerServiceIntegrationTest {
 		assertThat(e.getStatusCode().value()).isEqualTo(400);
 		
 		//DB에 올바른 데이터가 적용됐는지 확인
-		List<Rank> dbRanks = summonerRepository
-				.findLeagueEntry(summonerDto.getSummonerid(), currentSeasonId);
-		assertThat(dbRanks.size()).isEqualTo(0);
+		List<Rank> allRank = testRepository.findAllRank();
+		assertThat(allRank.size()).isEqualTo(0);
 	}
 	
 	
@@ -721,7 +717,7 @@ class SummonerServiceIntegrationTest {
 		dbSoloRank.setLosses(30);
 		List<Rank> dbRanks = new ArrayList<>();
 		dbRanks.add(dbSoloRank);
-		summonerRepository.saveLeagueEntry(dbRanks);
+		summonerRepository.saveRanks(dbRanks);
 		em.flush();
 		em.clear();
 		
@@ -757,7 +753,7 @@ class SummonerServiceIntegrationTest {
 		dbTeamRank.setLosses(30);
 		List<Rank> dbRanks = new ArrayList<>();
 		dbRanks.add(dbTeamRank);
-		summonerRepository.saveLeagueEntry(dbRanks);
+		summonerRepository.saveRanks(dbRanks);
 		em.flush();
 		em.clear();
 		
@@ -799,7 +795,7 @@ class SummonerServiceIntegrationTest {
 		List<Rank> dbRanks = new ArrayList<>();
 		dbRanks.add(dbSoloRank);
 		dbRanks.add(dbTeamRank);
-		summonerRepository.saveLeagueEntry(dbRanks);
+		summonerRepository.saveRanks(dbRanks);
 		em.flush();
 		em.clear();
 		

@@ -11,6 +11,7 @@ import javax.persistence.EntityTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -25,6 +26,7 @@ import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
 import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.rank.Rank;
+import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 
@@ -34,11 +36,12 @@ public class SummonerService {
 	
 	private final static int seasonId = 22;
 	private static final String soloRank = "RANKED_SOLO_5x5";
+	private static final String flexRank = "RANKED_FLEX_SR";
 	
 	private final SummonerRepository summonerrepository;
 	private final RiotRestAPI riotApi;
 	private final ApplicationContext applicationContext;
-	private EntityManager em;
+	private final EntityManager em;
 	
 	@Autowired
 	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi,
@@ -65,7 +68,7 @@ public class SummonerService {
 				
 				try {
 					Summoner renew_Summoner = riotApi.getSummonerById(candi_summoner.getId());
-					summonerrepository.saveSummoner(renew_Summoner);
+					renewSummoner(candi_summoner, renew_Summoner);
 					
 					if(renew_Summoner.getName().equals(summonername)) {
 						summonerDto = new SummonerDto(renew_Summoner);
@@ -92,12 +95,11 @@ public class SummonerService {
 		for(Summoner dbSummoner : dbSummoners) {
 			try {
 				Summoner renewedSummoner = riotApi.getSummonerById(dbSummoner.getId());
-				summonerrepository.saveSummoner(renewedSummoner);
+				renewSummoner(dbSummoner, renewedSummoner);
 			}catch(WebClientResponseException e) {
 				if(e.getStatusCode().value()==400) {
 					summonerrepository.deleteSummoner(dbSummoner);
 				}else if(e.getStatusCode().value()==429) {
-					em.flush();
 					throw e;
 				}
 			}
@@ -107,10 +109,15 @@ public class SummonerService {
 	@Transactional
 	public SummonerDto setSummoner(String summonername) throws WebClientResponseException, DataIntegrityViolationException {
 		Summoner apisummoner = riotApi.getSummonerByName(summonername);
-		
-		summonerrepository.saveSummoner(apisummoner);
-		
-		SummonerDto summonerDto = new SummonerDto(apisummoner);
+		SummonerDto summonerDto = null;
+		try {
+			Summoner summoner = summonerrepository.findSummonerById(apisummoner.getId());
+			renewSummoner(summoner, apisummoner);
+			summonerDto = new SummonerDto(summoner);
+		}catch(EmptyResultDataAccessException e) {
+			summonerrepository.saveSummoner(apisummoner);
+			summonerDto = new SummonerDto(apisummoner);
+		} 
 		
 		return summonerDto;
 	}
@@ -136,7 +143,7 @@ public class SummonerService {
 			dbRanks.add(new Rank(r));
 		}
 		
-		summonerrepository.saveLeagueEntry(dbRanks);
+		summonerrepository.saveRanks(dbRanks);
 			
 		return totalRanks;
 	}
@@ -146,18 +153,18 @@ public class SummonerService {
 		
 		String summonerid = summonerdto.getSummonerid();
 		
-		List<Rank> ranks = summonerrepository.findLeagueEntry(summonerid, seasonId);
+		RankCompKey soloRankKey = new RankCompKey(summonerid, soloRank, seasonId);
+		RankCompKey flexRankKey = new RankCompKey(summonerid, flexRank, seasonId);
+		
+		Rank soloRank = summonerrepository.findRank(soloRankKey);
+		Rank flexRank = summonerrepository.findRank(flexRankKey);
 		
 		TotalRanksDto ranksDto = new TotalRanksDto();
-		
-		for(Rank r : ranks) {
-			if(r.getCk().getQueueType().equals("RANKED_SOLO_5x5")) {
-				RankDto solorank = new RankDto(r);
-				ranksDto.setSolorank(solorank);
-			}else {
-				RankDto teamrank = new RankDto(r);
-				ranksDto.setTeamrank(teamrank);
-			}
+		if(soloRank!=null) {
+			ranksDto.setSolorank(new RankDto(soloRank));
+		}
+		if(flexRank!=null) {
+			ranksDto.setTeamrank(new RankDto(flexRank));
 		}
 		
 		return ranksDto;
@@ -243,6 +250,14 @@ public class SummonerService {
 		}
 		
 		return mostchamps;
+	}
+	
+	private void renewSummoner(Summoner before, Summoner after) {
+		before.setRevisionDate(after.getRevisionDate());
+		before.setName(after.getName());
+		before.setProfileIconId(after.getProfileIconId());
+		before.setSummonerLevel(after.getSummonerLevel());
+		before.setLastRenewTimeStamp(after.getLastRenewTimeStamp());
 	}
 	
 	
