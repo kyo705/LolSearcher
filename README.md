@@ -117,7 +117,7 @@ param.setName(filteredname);
 </div>
 </details>
 
-[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L42)   
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/b8a6d89d421a19e7ec5cf6443dc3edb39fa39065/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L44)   
 
 **2.특정 유저의 인게임 데이터 제공(현재 게임 중일 경우 해당 매치 데이터 제공)**
 
@@ -154,7 +154,7 @@ param.setName(filteredname);
 </div>
 </details>
 
-[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L151)
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/b8a6d89d421a19e7ec5cf6443dc3edb39fa39065/lolsearcher/src/main/java/com/lolsearcher/controller/SummonerController.java#L161)
 
 **3. 게임 캐릭터(챔피언) 전체 통계 서비스 제공**
 
@@ -175,7 +175,7 @@ param.setName(filteredname);
 </div>
 </details>
 
-[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L27)
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/b8a6d89d421a19e7ec5cf6443dc3edb39fa39065/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L27)
 
 **4. 게임 캐릭터(챔피언) 세부 통계 서비스 제공**
 
@@ -196,7 +196,7 @@ param.setName(filteredname);
 </div>
 </details>
 
-[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/f58461b145226443b2b49292407906473116246c/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L39)
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/b8a6d89d421a19e7ec5cf6443dc3edb39fa39065/lolsearcher/src/main/java/com/lolsearcher/controller/ChampionController.java#L40)
 
 **5. REST API 서비스 제공**
 
@@ -211,6 +211,25 @@ param.setName(filteredname);
 
 </div>
 </details>
+
+<details>
+<summary>작동 과정</summary>
+<div markdown="1">
+
+> ① 클라이언트가 URI를 통해 적절한 방식으로 데이터를 요청한다. 
+> 
+> ② 서버로 전달된 파라미터들은 WAS(톰캣)에 의해 Request객체로 생성된 후 **LolsearcherFilter** 클래스를 거치며 character encoding 방식을 *UTF-8*로 설정한 후 **RestApiController**의 적절한 메소드로 전달된다.
+>
+> ③ 클라이언트의 요청에 적절한 데이터들을 DB에서 조회한다.
+>
+> ④ DB로부터 적절하지 않은 응답을 받은 경우 상황에 맞는 에러메시지를 응답코드로 설정하여 클라이언트에게 보낸다.
+>
+> ⑤ DB로 부터 적절한 응답을 받은 경우 조회된 데이터는 ResponseEntity 객체의 Body 부분에 세팅하고, header 부분에 해당 요청의 설명서(REST DOCS)를 나타내는 Link해더를 포함시켜 클라이언트로 http 응답을 보낸다.   
+
+</div>
+</details>
+
+[**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/b8a6d89d421a19e7ec5cf6443dc3edb39fa39065/lolsearcher/src/main/java/com/lolsearcher/controller/RestApiController.java#L21)
 
 DB 테이블 연관 관계
 ----------------------------------------
