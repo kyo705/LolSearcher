@@ -3,13 +3,11 @@ package com.lolsearcher.service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
+import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -40,16 +38,20 @@ public class SummonerService {
 	
 	private final SummonerRepository summonerrepository;
 	private final RiotRestAPI riotApi;
-	private final ApplicationContext applicationContext;
-	private final EntityManager em;
+	private final ExecutorService executorService;
+	private final ThreadService threadService;
 	
 	@Autowired
-	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi,
-			ApplicationContext applicationContext, EntityManager em) {
+	public SummonerService(
+			SummonerRepository summonerrepository, 
+			RiotRestAPI riotApi,
+			ExecutorService executorService,
+			ThreadService threadService
+			) {
 		this.summonerrepository = summonerrepository;
 		this.riotApi = riotApi;
-		this.applicationContext = applicationContext;
-		this.em = em;
+		this.executorService =executorService;
+		this.threadService = threadService;
 	}
 	
 	@Transactional(noRollbackFor = WebClientResponseException.class)
@@ -117,7 +119,7 @@ public class SummonerService {
 		}catch(EmptyResultDataAccessException e) {
 			summonerrepository.saveSummoner(apisummoner);
 			summonerDto = new SummonerDto(apisummoner);
-		} 
+		}
 		
 		return summonerDto;
 	}
@@ -171,7 +173,7 @@ public class SummonerService {
 	}
 	
 	@Transactional
-	public void setMatches(SummonerDto summonerdto) throws WebClientResponseException, DataIntegrityViolationException {
+	public List<MatchDto> setMatches(SummonerDto summonerdto) throws WebClientResponseException {
 		
 		String id = summonerdto.getSummonerid();
 		
@@ -180,40 +182,50 @@ public class SummonerService {
 		String puuid = summoner.getPuuid();
 		
 		//아래 코드에서 REST 통신 에러(429) 발생 가능 =>발생 시 Controller에게 예외 처리를 위임함
-		List<String> matchlist = riotApi.getAllMatchIds(puuid, lastmathid);
+		List<String> matchIds = riotApi.getAllMatchIds(puuid, lastmathid);
 		
 		
 		// 최근 경기부터 REST 통신으로 데이터 가져와 DB에 저장 -> 해당 로직 실행 중 429에러(TOO MANY REQUEST) 발생 시
 		// 스레드를 생성해서 해당 매치부터 마지막 매치까지 2분 후 요청해서 DB에 넣는 방식으로 반복
-		if(matchlist.size()!=0) {
-			summoner.setLastmatchid(matchlist.get(0));
+		List<Match> matches = new ArrayList<>();
+		List<MatchDto> matchDtos = new ArrayList<>();
+		
+		if(matchIds.size()!=0) {
+			summoner.setLastmatchid(matchIds.get(0));
 			
-			for(String matchid : matchlist) {
+			for(int i=0;i<matchIds.size();i++){
+				String matchid = matchIds.get(i);
 				if(!summonerrepository.findMatchid(matchid)) {
 					
 					try {
 						Match match = riotApi.getmatch(matchid);
-						summonerrepository.saveMatch(match);
+						matches.add(match);
+						matchDtos.add(new MatchDto(match));
 					}catch(WebClientResponseException e) {
-						System.out.println(e.getStatusCode());
 						//요청 제한 횟수를 초과한 경우
 						if(e.getStatusCode().value()==429) {
+							//기존 가져온 match를 db에 저장
+							Runnable saveMatchesToDB = makingRunnableToSaveMatches(matches);
+							executorService.submit(saveMatchesToDB);
+							
 							//남은 매치 정보 저장하는 스레드 생성
-							Thread thread = makingMatchSaveThread(matchlist, matchid);
-							thread.start();
+							Runnable runnable = makingRunnableToSaveRemainingMatches(matchIds, i);		
+							executorService.submit(runnable);
+							
+							return matchDtos;
 						}
-						
-						break; //for문 빠져나옴
 					}catch(NullPointerException e2) {
-						//riot api에서 제공해주는 데이터가 다를 경우 이전 데이터까지만 db에 반영
-						em.flush();
+						//riot api에서 제공해주는 데이터가 다를 경우(이번 버전으로 rest api 제공하기 때문에 dto가 달라서 nullpointexception날림) 이전 데이터까지만 db에 반영
 						break;
 					}
 				}
-				
 			}
-			
 		}
+		
+		Runnable saveMatchesToDB = makingRunnableToSaveMatches(matches);
+		executorService.submit(saveMatchesToDB);
+		
+		return matchDtos;
 	}
 	
 
@@ -262,21 +274,23 @@ public class SummonerService {
 	
 	
 //--------------------------------- 매치 정보 저장 스레드 관련 메소드 -------------------------------------	
-	private Thread makingMatchSaveThread(List<String> matchlist, String stoppedMatchId) {
+	private Runnable makingRunnableToSaveMatches(List<Match> matches) {
+		Runnable saveMatchesToDB = new Runnable() {
+			@Override
+			public void run() {
+				threadService.saveMatches(matches);
+			}
+		};
 		
-		Thread thread = new Thread(
-				()-> {
-				System.out.println("스레드 시작");
-				
-				int start = 0;
-				for(String matchId : matchlist) {
-					if(!matchId.equals(stoppedMatchId)) {
-						start++;
-						continue;
-					}else
-						break;
-				}
-				
+		return saveMatchesToDB;
+	}
+	
+	
+	private Runnable makingRunnableToSaveRemainingMatches(List<String> matchIds, int start_index) {
+		
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {			
 				try {
 					System.out.println("스레드 2분 정지");
 					Thread.sleep(1000*60*2 + 2000);
@@ -285,47 +299,37 @@ public class SummonerService {
 					System.out.println("인터럽트 에러 발생");
 				}
 				
-				saveRemainingMatch(start, matchlist);
-				System.out.println("매치 정보들 저장 완료");
-				System.out.println("스레드 종료");
-			}
-		);
-		
-		return thread;
-		
-	}
-	
-	private void saveRemainingMatch(int start, List<String> matchIds){
-		
-		EntityManagerFactory emf =  applicationContext.getBean(EntityManagerFactory.class);
-		EntityManager em = emf.createEntityManager();
-		
-		EntityTransaction et = em.getTransaction();
-		et.begin();
-		
-		for(int i=start; i<matchIds.size(); i++) {
-			
-			if(em.find(Match.class, matchIds.get(i))==null) {
-				try {
-					Match match2 = riotApi.getmatch(matchIds.get(i));
-					em.persist(match2);
-				}catch(WebClientResponseException e1) {
-					em.flush();
-					try {
-						System.out.println("스레드 2분 정지");
-						Thread.sleep(1000*60*2+2000);
-						System.out.println("스레드 다시 시작");
-					} catch (InterruptedException e2) {
-						e2.printStackTrace();
+				List<Match> matches = new ArrayList<>();
+				
+				for(int i=start_index; i<matchIds.size(); i++) {
+					if(threadService.readMatch(matchIds.get(i))==null) {
+						try {
+							Match match = riotApi.getmatch(matchIds.get(i));
+							matches.add(match);
+						}catch(WebClientResponseException e1) {
+							threadService.saveMatches(matches);
+							matches.clear();
+							try {
+								System.out.println("스레드 2분 정지");
+								Thread.sleep(1000*60*2+2000);
+								System.out.println("스레드 다시 시작");
+							} catch (InterruptedException e2) {
+								e2.printStackTrace();
+							}
+						}
 					}
 				}
+				
+				threadService.saveMatches(matches);
 			}
-			
-		}
+		};
 		
-		et.commit();
-		
-		em.close();
+		return runnable;
+	}
+	
+	@PreDestroy
+	public void shutdownMatchSavingThreadPool() {
+		executorService.shutdown();
 	}
 	
 }

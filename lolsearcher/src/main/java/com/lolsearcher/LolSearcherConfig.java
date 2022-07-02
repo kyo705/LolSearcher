@@ -1,5 +1,8 @@
 package com.lolsearcher;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +30,11 @@ public class LolSearcherConfig {
 	@Bean
 	public WebClient webclient() {
 		return webclientBuilder.build();
+	}
+	
+	@Bean
+	public ExecutorService matchSavingThreadPool() {
+		return Executors.newFixedThreadPool(100);
 	}
 	
 }

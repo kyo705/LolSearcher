@@ -1,5 +1,6 @@
 package com.lolsearcher.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class SummonerController {
 		//view로 전달될 데이터(Model)
 		SummonerDto summonerdto = null;
 		TotalRanksDto ranks = null;
-		List<MatchDto> matches = null;
+		List<MatchDto> matches = new ArrayList<>();
 		List<MostChampDto> mostchamps =null;
 		
 		
@@ -106,18 +107,14 @@ public class SummonerController {
 			
 			// MATCH 관련 데이터 RIOT 서버에서 데이터 받아와서 DB에 저장
 			try {
-				summonerService.setMatches(summonerdto);
+				List<MatchDto> recentMatches = summonerService.setMatches(summonerdto);
+				matches.addAll(recentMatches);
 			}catch(WebClientResponseException e) {
 				System.out.println(e.getStatusCode());
 				if(e.getStatusCode().toString().equals(error429)) {
 					mv.setViewName("error_manyreq");
 					return mv;
 				}
-			}catch(DataIntegrityViolationException e) {
-				System.out.println(e.getMessage());
-				//만약 한번 중복 저장이 발생하는 것이 아니라 여러번 발생한다면? => exception 터짐
-				//=> how to solve this problem???
-				summonerService.setMatches(summonerdto);
 			}
 		}else {
 			ranks = summonerService.getLeague(summonerdto);
@@ -139,8 +136,8 @@ public class SummonerController {
 				.setSummonerid(param.getSummonerid())
 				.build();
 		
-		
-		matches = summonerService.getMatches(matchParamDto);
+		List<MatchDto> oldMatches = summonerService.getMatches(matchParamDto);
+		matches.addAll(oldMatches);
 		
 		mostchamps = summonerService.getMostChamp(mostchampParamDto);
 		
@@ -154,7 +151,6 @@ public class SummonerController {
 		mv.setViewName("summoner");
 		
 		return mv;
-		
 	}
 	
 	@GetMapping(path = "/ingame")

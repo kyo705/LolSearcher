@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import javax.persistence.EntityManager;
 
@@ -37,6 +38,7 @@ import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 import com.lolsearcher.service.SummonerService;
+import com.lolsearcher.service.ThreadService;
 
 @ExtendWith(MockitoExtension.class)
 class SummonerServiceUnitTest {
@@ -51,10 +53,14 @@ class SummonerServiceUnitTest {
 	ApplicationContext applicationContext;
 	@Mock
 	EntityManager em;
+	@Mock
+	ExecutorService executorService;
+	@Mock
+	ThreadService threadService;
 	
 	@BeforeEach
 	void upset() {
-		summonerService = new SummonerService(summonerRepository, riotRestApi, applicationContext, em);
+		summonerService = new SummonerService(summonerRepository, riotRestApi, executorService, threadService);
 	}
 
 	//----------------------findDbSummoner() 메소드 Test Case------------------------------------
