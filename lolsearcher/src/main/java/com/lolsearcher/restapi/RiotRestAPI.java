@@ -17,7 +17,9 @@ public interface RiotRestAPI {
 	
 	public List<String> getMatchIds(String puuid, int queue, String type, int start, int count, String lastmatchid);
 	
-	public Match getmatch(String matchid);
+	public Match getOneMatch(String matchId);
+	
+	public List<Match> getMatches(List<String> matchIds);
 	
 	public List<RankDto> getLeague(String summonerid);
 	

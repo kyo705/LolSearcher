@@ -65,3 +65,16 @@ function timeFormat(startTimeStamp){
 	
 	target.textContent = h +" : "+s;
 }
+
+function allocateTeam(){
+	var child_divs = document.querySelectorAll(".curParticipant_row");
+	for(i in child_divs){
+		if(i<5){
+			var div = document.querySelector(".team1");
+			div.appendChild(child_divs[i]);
+		}else{
+			var div = document.querySelector(".team2");
+			div.appendChild(child_divs[i]);
+		}
+	}
+}

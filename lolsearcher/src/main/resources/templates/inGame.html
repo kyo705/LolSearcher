@@ -31,6 +31,12 @@
 			</div>
 		</div>
 		<div>
+			<div>
+				<form name="SummonerId" action ="/summoner"  method="POST">
+					<input type="hidden" name="name" th:value="${summoner.name}">
+					<button class = "renewbotton" type="submit">전적 보기</button>
+				</form>
+			</div>
 			<div class="same_row">
 				<div th:text="${ingame.gameId}"/>
 				<div th:text="${ingame.gameType}"/>
@@ -51,6 +57,8 @@
 				<div th:if="${ingame.gameQueueConfigId} == '450'">무작위 총력전</div>
 				<div th:if="${ingame.gameQueueConfigId} == '1400'">궁극기 모드</div>
 			</div>
+			<div class="team1"></div>
+			<div class="team2"></div>
 			<div class="curParticipant_row" th:each="participant2,index : ${ingame.participants}">
 				<script th:inline="javascript">
 				    /*<![CDATA[*/
@@ -68,6 +76,7 @@
 				<div class="spell_column"></div>
 				<div th:text="${participant2.summonerName}"></div>
 			</div>
+			<script>allocateTeam();</script>
 		</div>
 	</body>
 </html>

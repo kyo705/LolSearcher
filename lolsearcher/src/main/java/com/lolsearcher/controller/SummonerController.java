@@ -138,6 +138,14 @@ public class SummonerController {
 		
 		List<MatchDto> oldMatches = summonerService.getMatches(matchParamDto);
 		matches.addAll(oldMatches);
+		//matchid가 큰 순으로 정렬
+		matches.sort((a,b)->{
+			if(a.getGameEndTimestamp()-b.getGameEndTimestamp()>0){
+				return -1;
+			}else {
+				return 1;
+			}
+		});
 		
 		mostchamps = summonerService.getMostChamp(mostchampParamDto);
 		

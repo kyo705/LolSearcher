@@ -7,7 +7,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -42,7 +41,7 @@ public class InGame {
 	@OneToMany(mappedBy = "ingame", cascade = CascadeType.ALL)
 	private List<BannedChampion> bannedChampions = new ArrayList<>();
 	
-	@OrderColumn(name="numb")
+	
 	@Fetch(FetchMode.SUBSELECT)
 	@OneToMany(mappedBy = "ingame", cascade = CascadeType.ALL)
 	private List<CurrentGameParticipant> participants = new ArrayList<>();

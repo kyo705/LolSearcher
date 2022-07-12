@@ -29,6 +29,12 @@
 				<div style="font-size:large;" th:text="'Level : '+ ${summoner.summonerLevel}"></div>
 			</div>
 		</div>
+		<div>
+			<form name="SummonerId" action ="/summoner"  method="POST">
+				<input type="hidden" name="name" th:value="${summoner.name}">
+				<button class = "renewbotton" type="submit">전적 보기</button>
+			</form>
+		</div>
 		<div th:text="${summoner.name} + '는 현재 게임 중이 아닙니다.'">
 	</body>
 </html>

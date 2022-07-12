@@ -60,7 +60,7 @@ class SummonerServiceUnitTest {
 	
 	@BeforeEach
 	void upset() {
-		summonerService = new SummonerService(summonerRepository, riotRestApi, executorService, threadService);
+		summonerService = new SummonerService(summonerRepository, riotRestApi);
 	}
 
 	//----------------------findDbSummoner() 메소드 Test Case------------------------------------
@@ -76,17 +76,14 @@ class SummonerServiceUnitTest {
 		Summoner summoner = new Summoner();
 		summoner.setId("id");
 		summoner.setName(summonerName);
-		
 		List<Summoner> dbSummoners = new ArrayList<>();
 		dbSummoners.add(summoner);
 		
 		when(summonerRepository.findSummonerByName(summonerName))
 		.thenReturn(dbSummoners);
 		
-		
 		//when
 		SummonerDto summonerDto = summonerService.findDbSummoner(summonerName);
-		
 		
 		//then
 		assertThat(summonerDto.getName()).isEqualTo(summonerName);
@@ -110,7 +107,6 @@ class SummonerServiceUnitTest {
 		
 		//then
 		assertThat(summonerDto).isEqualTo(null);
-		
 		verify(riotRestApi, times(0)).getSummonerById(anyString());
 	}
 	
@@ -125,46 +121,48 @@ class SummonerServiceUnitTest {
 		String summonerName = "푸켓푸켓";
 		
 		//Mock 객체 데이터 셋팅
-		Summoner summoner1 = new Summoner();
-		summoner1.setId("id1");
-		summoner1.setName(summonerName);
+		Summoner dbSummoner1 = new Summoner();
+		dbSummoner1.setPrimaryId(1);
+		dbSummoner1.setId("id1");
+		dbSummoner1.setName(summonerName);
 		
-		Summoner summoner2 = new Summoner();
-		summoner2.setId("id2");
-		summoner2.setName(summonerName);
+		Summoner dbSummoner2 = new Summoner();
+		dbSummoner2.setPrimaryId(2);
+		dbSummoner2.setId("id2");
+		dbSummoner2.setName(summonerName);
 		
 		List<Summoner> dbSummoners = new ArrayList<>();
-		dbSummoners.add(summoner1);
-		dbSummoners.add(summoner2);
+		dbSummoners.add(dbSummoner1);
+		dbSummoners.add(dbSummoner2);
 		
 		when(summonerRepository.findSummonerByName(summonerName))
 		.thenReturn(dbSummoners);
 		
-		Summoner summoner3 = new Summoner();
-		summoner3.setId("id1");
-		summoner3.setName(summonerName);
-		summoner3.setProfileIconId(50);
-		
-		Summoner summoner4 = new Summoner();
-		summoner4.setId("id2");
-		summoner4.setName("갓버수문장");
-		
+		Summoner apiSummoner1 = new Summoner();
+		apiSummoner1.setId("id1");
+		apiSummoner1.setName(summonerName);
+		apiSummoner1.setProfileIconId(50);
 		when(riotRestApi.getSummonerById("id1"))
-		.thenReturn(summoner3);
+		.thenReturn(apiSummoner1);
 		
+		Summoner apiSummoner2 = new Summoner();
+		apiSummoner2.setId("id2");
+		apiSummoner2.setName("갓버수문장");
 		when(riotRestApi.getSummonerById("id2"))
-		.thenReturn(summoner4);
+		.thenReturn(apiSummoner2);
 		
 		
 		//when
 		SummonerDto summonerDto = summonerService.findDbSummoner(summonerName);
 		
 		//then
-		assertThat(summonerDto.getSummonerid()).isEqualTo(summoner3.getId());
+		assertThat(summonerDto.getSummonerid()).isEqualTo(apiSummoner1.getId());
 		assertThat(summonerDto.getName()).isEqualTo("푸켓푸켓");
 		assertThat(summonerDto.getProfileIconId()).isEqualTo(50);
 		
 		verify(riotRestApi, times(2)).getSummonerById(anyString());
+		assertThat(dbSummoner1.getName()).isEqualTo(apiSummoner1.getName());
+		assertThat(dbSummoner2.getName()).isEqualTo(apiSummoner2.getName());
 	}
 	
 	@Test
@@ -178,10 +176,12 @@ class SummonerServiceUnitTest {
 		
 		//Mock 객체 데이터 셋팅
 		Summoner dbSummoner1 = new Summoner();
+		dbSummoner1.setPrimaryId(1);
 		dbSummoner1.setId("id1");
 		dbSummoner1.setName(summonerName);
 		
 		Summoner dbSummoner2 = new Summoner();
+		dbSummoner2.setPrimaryId(2);
 		dbSummoner2.setId("id2");
 		dbSummoner2.setName(summonerName);
 		
@@ -196,14 +196,12 @@ class SummonerServiceUnitTest {
 		apiSummoner1.setId("id1");
 		apiSummoner1.setName("페이커");
 		apiSummoner1.setProfileIconId(50);
+		when(riotRestApi.getSummonerById("id1"))
+		.thenReturn(apiSummoner1);
 		
 		Summoner apiSummoner2 = new Summoner();
 		apiSummoner2.setId("id2");
 		apiSummoner2.setName("갓버수문장");
-		
-		when(riotRestApi.getSummonerById("id1"))
-		.thenReturn(apiSummoner1);
-		
 		when(riotRestApi.getSummonerById("id2"))
 		.thenReturn(apiSummoner2);
 		
@@ -215,6 +213,8 @@ class SummonerServiceUnitTest {
 		assertThat(summonerDto).isEqualTo(null);
 		
 		verify(riotRestApi, times(2)).getSummonerById(anyString());
+		assertThat(dbSummoner1.getName()).isEqualTo(apiSummoner1.getName());
+		assertThat(dbSummoner2.getName()).isEqualTo(apiSummoner2.getName());
 	}
 	
 	@Test
@@ -227,13 +227,16 @@ class SummonerServiceUnitTest {
 		String summonerName = "푸켓푸켓";
 		//Mock 객체 데이터 셋팅
 		Summoner dbSummoner1 = new Summoner();
+		dbSummoner1.setPrimaryId(1);
 		dbSummoner1.setId("id1");
 		dbSummoner1.setName(summonerName);
 		
 		Summoner dbSummoner2 = new Summoner();
+		dbSummoner2.setPrimaryId(2);
 		dbSummoner2.setId("id2");
 		dbSummoner2.setName(summonerName);
-		dbSummoner2.setLastmatchid("match1");
+		dbSummoner2.setLastRenewTimeStamp(1000);
+		dbSummoner2.setLastmatchid("matchId1");
 		
 		List<Summoner> dbSummoners = new ArrayList<>();
 		dbSummoners.add(dbSummoner1);
@@ -248,7 +251,7 @@ class SummonerServiceUnitTest {
 		Summoner apiSummoner1 = new Summoner();
 		apiSummoner1.setId("id2");
 		apiSummoner1.setName(summonerName);
-		apiSummoner1.setLastmatchid("match3");
+		apiSummoner1.setLastRenewTimeStamp(2000);
 		
 		when(riotRestApi.getSummonerById("id2"))
 		.thenReturn(apiSummoner1);
@@ -262,6 +265,12 @@ class SummonerServiceUnitTest {
 		
 		verify(riotRestApi, times(2)).getSummonerById(anyString());
 		verify(summonerRepository, times(1)).deleteSummoner(dbSummoner1);
+		assertThat(dbSummoner2.getName()).isEqualTo(apiSummoner1.getName());
+		assertThat(dbSummoner2.getLastRenewTimeStamp()).isEqualTo(apiSummoner1.getLastRenewTimeStamp());
+		assertThat(dbSummoner2.getLastRenewTimeStamp()).isEqualTo(2000);
+		//lastmatchid는 갱신되지 않음
+		assertThat(dbSummoner2.getLastmatchid()).isNotEqualTo(apiSummoner1.getLastmatchid());
+		assertThat(dbSummoner2.getLastmatchid()).isEqualTo("matchId1");
 	}
 	
 	@Test
@@ -275,10 +284,12 @@ class SummonerServiceUnitTest {
 		
 		//Mock 객체 데이터 셋팅
 		Summoner dbSummoner1 = new Summoner();
+		dbSummoner1.setPrimaryId(1);
 		dbSummoner1.setId("id1");
 		dbSummoner1.setName(summonerName);
 		
 		Summoner dbSummoner2 = new Summoner();
+		dbSummoner2.setPrimaryId(2);
 		dbSummoner2.setId("id2");
 		dbSummoner2.setName(summonerName);
 		
@@ -295,7 +306,6 @@ class SummonerServiceUnitTest {
 		Summoner apiSummoner1 = new Summoner();
 		apiSummoner1.setId("id2");
 		apiSummoner1.setName("페이커");
-		
 		when(riotRestApi.getSummonerById("id2"))
 		.thenReturn(apiSummoner1);
 		
@@ -307,6 +317,8 @@ class SummonerServiceUnitTest {
 		
 		verify(riotRestApi, times(2)).getSummonerById(anyString());
 		verify(summonerRepository, times(1)).deleteSummoner(dbSummoner1);
+		assertThat(dbSummoner2.getName()).isEqualTo(apiSummoner1.getName());
+		assertThat(dbSummoner2.getName()).isEqualTo("페이커");
 	}
 	
 	@Test
@@ -338,14 +350,12 @@ class SummonerServiceUnitTest {
 		Summoner apiSummoner1 = new Summoner();
 		apiSummoner1.setId("id1");
 		apiSummoner1.setName("페이커");
+		when(riotRestApi.getSummonerById("id1"))
+		.thenReturn(apiSummoner1);
 		
 		Summoner apiSummoner2 = new Summoner();
 		apiSummoner2.setId("id2");
 		apiSummoner2.setName("갓버수문장");
-		
-		when(riotRestApi.getSummonerById("id1"))
-		.thenReturn(apiSummoner1);
-		
 		when(riotRestApi.getSummonerById("id2"))
 		.thenThrow(new WebClientResponseException(429, "너무 많은 요청입니다. 잠시 후, 다시 시도해주세요", null, null, null));
 		
@@ -360,11 +370,210 @@ class SummonerServiceUnitTest {
 		verify(summonerRepository, times(0)).saveSummoner(apiSummoner2);
 	}
 	
+	
+	//----------------------updateDbSummoner() 메소드 Test Case------------------------------------
+	
+	@Test
+	public void updateDbSummonerCase1() {
+		//test Case 1 : DB에서 특정 닉네임을 가진 유저들 모두 실제 존재하는 유저일 경우(닉네임은 특정 닉네임과 일치하지 않음)
+		
+		//given
+		//테스트할 메소드 파라미터 값
+		String summonerName = "푸켓푸켓";
+		
+		//Mock 객체 데이터 셋팅
+		Summoner dbSummoner1 = new Summoner();
+		dbSummoner1.setId("id1");
+		dbSummoner1.setName(summonerName);
+		dbSummoner1.setSummonerLevel(333);
+		
+		Summoner dbSummoner2 = new Summoner();
+		dbSummoner2.setId("id2");
+		dbSummoner2.setName(summonerName);
+		dbSummoner2.setSummonerLevel(400);
+		
+		List<Summoner> dbSummoners = new ArrayList<>();
+		dbSummoners.add(dbSummoner1);
+		dbSummoners.add(dbSummoner2);
+		
+		when(summonerRepository.findSummonerByName(summonerName))
+		.thenReturn(dbSummoners);
+		
+		Summoner renew_summoner1 = new Summoner();
+		renew_summoner1.setId("id1");
+		renew_summoner1.setName("갓버수문장");
+		renew_summoner1.setSummonerLevel(340);
+		
+		when(riotRestApi.getSummonerById(dbSummoner1.getId()))
+		.thenReturn(renew_summoner1);
+		
+		Summoner renew_summoner2 = new Summoner();
+		renew_summoner2.setId("id2");
+		renew_summoner2.setName("페이커");
+		renew_summoner2.setSummonerLevel(410);
+		
+		when(riotRestApi.getSummonerById(dbSummoner2.getId()))
+		.thenReturn(renew_summoner2);
+		
+		//when
+		summonerService.updateDbSummoner(summonerName);
+		
+		//then
+		assertThat(dbSummoner1.getName()).isEqualTo("갓버수문장");
+		assertThat(dbSummoner1.getSummonerLevel()).isEqualTo(340);
+		
+		assertThat(dbSummoner2.getName()).isEqualTo("페이커");
+		assertThat(dbSummoner2.getSummonerLevel()).isEqualTo(410);
+		
+		verify(riotRestApi, times(2)).getSummonerById(anyString());
+	}
+	
+	
+	@Test
+	public void updateDbSummonerCase2() {
+		//test Case 2 : DB에서 특정 닉네임을 가진 유저들 중 적어도 한 명 이상 실제론 존재하지 않는 유저일 경우
+		//(WebClientResponseException 400 error 발생할 경우)
+		
+		//given
+		//테스트할 메소드 파라미터 값
+		String summonerName = "푸켓푸켓";
+		
+		//Mock 객체 데이터 셋팅
+		Summoner dbSummoner1 = new Summoner();
+		dbSummoner1.setId("id1");
+		dbSummoner1.setName(summonerName);
+		dbSummoner1.setSummonerLevel(333);
+		
+		Summoner dbSummoner2 = new Summoner();
+		dbSummoner2.setId("id2");
+		dbSummoner2.setName(summonerName);
+		dbSummoner2.setSummonerLevel(400);
+		
+		List<Summoner> dbSummoners = new ArrayList<>();
+		dbSummoners.add(dbSummoner1);
+		dbSummoners.add(dbSummoner2);
+		
+		when(summonerRepository.findSummonerByName(summonerName))
+		.thenReturn(dbSummoners);
+		
+		Summoner renew_summoner1 = new Summoner();
+		renew_summoner1.setId("id1");
+		renew_summoner1.setName("갓버수문장");
+		renew_summoner1.setSummonerLevel(340);
+		
+		when(riotRestApi.getSummonerById(dbSummoner1.getId()))
+		.thenReturn(renew_summoner1);
+		
+		when(riotRestApi.getSummonerById(dbSummoner2.getId()))
+		.thenThrow(new WebClientResponseException(400, "bad request", null, null, null));
+		
+		//then
+		summonerService.updateDbSummoner(summonerName);
+		
+		//when
+		assertThat(dbSummoner1.getName()).isEqualTo("갓버수문장");
+		assertThat(dbSummoner1.getSummonerLevel()).isEqualTo(340);
+		verify(summonerRepository, times(1)).deleteSummoner(dbSummoner2);
+		
+		verify(riotRestApi, times(2)).getSummonerById(anyString());
+	}
+	
+	@Test
+	public void updateDbSummonerCase3() {
+		//test Case 3 : REST 통신 중 최대 요청 횟수를 초과한 경우(429 ERROR 발생할 경우)
+		
+		//given
+		//테스트할 메소드 파라미터 값
+		String summonerName = "푸켓푸켓";
+		
+		//Mock 객체 데이터 셋팅
+		Summoner dbSummoner1 = new Summoner();
+		dbSummoner1.setId("id1");
+		dbSummoner1.setName(summonerName);
+		dbSummoner1.setSummonerLevel(333);
+		
+		Summoner dbSummoner2 = new Summoner();
+		dbSummoner2.setId("id2");
+		dbSummoner2.setName(summonerName);
+		dbSummoner2.setSummonerLevel(400);
+		
+		List<Summoner> dbSummoners = new ArrayList<>();
+		dbSummoners.add(dbSummoner1);
+		dbSummoners.add(dbSummoner2);
+		
+		when(summonerRepository.findSummonerByName(summonerName))
+		.thenReturn(dbSummoners);
+		
+		Summoner renew_summoner1 = new Summoner();
+		renew_summoner1.setId("id1");
+		renew_summoner1.setName("갓버수문장");
+		renew_summoner1.setSummonerLevel(340);
+		
+		when(riotRestApi.getSummonerById(dbSummoner1.getId()))
+		.thenReturn(renew_summoner1);
+		
+		when(riotRestApi.getSummonerById(dbSummoner2.getId()))
+		.thenThrow(new WebClientResponseException(429, "too many request", null, null, null));
+		
+		//when & then
+		WebClientResponseException e = assertThrows(WebClientResponseException.class,
+				()->summonerService.updateDbSummoner(summonerName));
+		
+		assertThat(e.getStatusCode().value()).isEqualTo(429);
+		assertThat(e.getStatusText()).isEqualTo("too many request");
+		
+		assertThat(dbSummoner1.getName()).isEqualTo("갓버수문장");
+		assertThat(dbSummoner1.getSummonerLevel()).isEqualTo(340);
+		
+		verify(riotRestApi, times(2)).getSummonerById(anyString());
+	}
+	
+	
 	//----------------------setSummoner() 메소드 Test Case------------------------------------
 	
 	@Test
 	public void setSummonerCase1() {
-		//test Case 1 : 게임 플랫폼에 특정 닉네임을 가진 유저가 존재할 때
+		//test Case 1 : 게임 플랫폼에 특정 닉네임을 가진 유저가 존재하고 DB에도 해당 유저가 존재할 경우
+		
+		//given
+		//테스트할 메소드 파라미터 값
+		String summonerName = "푸켓푸켓";
+		
+		//Mock 객체 데이터 셋팅
+		Summoner api_summoner1 = new Summoner();
+		api_summoner1.setId("id1");
+		api_summoner1.setName(summonerName);
+		api_summoner1.setSummonerLevel(333);
+		
+		when(riotRestApi.getSummonerByName(summonerName))
+		.thenReturn(api_summoner1);
+		
+		Summoner db_summoner1 = new Summoner();
+		db_summoner1.setId("id1");
+		db_summoner1.setName("갓버수문장");
+		db_summoner1.setSummonerLevel(320);
+		
+		when(summonerRepository.findSummonerById("id1"))
+		.thenReturn(db_summoner1);
+		
+		//when
+		SummonerDto summonerDto = summonerService.setSummoner(summonerName);
+		
+		//then
+		assertThat(db_summoner1.getId()).isEqualTo("id1");
+		assertThat(db_summoner1.getName()).isEqualTo("푸켓푸켓");
+		assertThat(db_summoner1.getSummonerLevel()).isEqualTo(333);
+		
+		assertThat(summonerDto.getSummonerid()).isEqualTo(db_summoner1.getId());
+		assertThat(summonerDto.getName()).isEqualTo(db_summoner1.getName());
+		assertThat(summonerDto.getSummonerLevel()).isEqualTo(db_summoner1.getSummonerLevel());
+		
+		verify(summonerRepository, times(0)).saveSummoner(api_summoner1);
+	}
+	
+	@Test
+	public void setSummonerCase2() {
+		//test Case 2 : 게임 플랫폼에 특정 닉네임을 가진 유저가 존재하지만 DB에는 해당 유저가 없을 경우
 		
 		//given
 		//테스트할 메소드 파라미터 값
@@ -384,7 +593,6 @@ class SummonerServiceUnitTest {
 		//when
 		SummonerDto summonerDto = summonerService.setSummoner(summonerName);
 		
-		
 		//then
 		assertThat(summonerDto.getSummonerid()).isEqualTo(summoner1.getId());
 		assertThat(summonerDto.getName()).isEqualTo(summoner1.getName());
@@ -394,8 +602,8 @@ class SummonerServiceUnitTest {
 	}
 	
 	@Test
-	public void setSummonerCase2() {
-		//test Case 2 : REST 통신이 실패한 경우(EX. 해당 닉네임을 가진 유저가 존재하지 않을 경우)
+	public void setSummonerCase3() {
+		//test Case 3 : REST 통신이 실패한 경우(EX. 해당 닉네임을 가진 유저가 존재하지 않을 경우)
 		
 		//given
 		//테스트할 메소드 파라미터 값
@@ -688,43 +896,48 @@ class SummonerServiceUnitTest {
 		
 		when(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid()))
 		.thenReturn(matchIds);
+		
 		when(summonerRepository.findMatchid("matchId5")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId4")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId3")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId2")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId1")).thenReturn(false);
-		Match match1 = new Match();
-		Match match2 = new Match();
-		Match match3 = new Match();
-		Match match4 = new Match();
-		Match match5 = new Match();
-		when(riotRestApi.getmatch("matchId1")).thenReturn(match1);
-		when(riotRestApi.getmatch("matchId2")).thenReturn(match2);
-		when(riotRestApi.getmatch("matchId3")).thenReturn(match3);
-		when(riotRestApi.getmatch("matchId4")).thenReturn(match4);
-		when(riotRestApi.getmatch("matchId5")).thenReturn(match5);
 		
+		List<String> recent_match_ids = new ArrayList<>();
+		recent_match_ids.addAll(matchIds);
+		
+		Match match1 = new Match();
+		match1.setMatchId("matchId1");
+		Match match2 = new Match();
+		match2.setMatchId("matchId2");
+		Match match3 = new Match();
+		match3.setMatchId("matchId3");
+		Match match4 = new Match();
+		match4.setMatchId("matchId4");
+		Match match5 = new Match();
+		match5.setMatchId("matchId5");
+		
+		List<Match> recent_match = new ArrayList<>();
+		recent_match.add(match5);
+		recent_match.add(match4);
+		recent_match.add(match3);
+		recent_match.add(match2);
+		recent_match.add(match1);
+		
+		when(riotRestApi.getMatches(recent_match_ids)).thenReturn(recent_match);
 		
 		//when
-		summonerService.setMatches(summonerDto);
+		List<MatchDto> recent_match_dtos = summonerService.setMatches(summonerDto);
 		
 		//then
-		assertThat(summoner.getLastmatchid()).isEqualTo("matchId5");
+		assertThat(summoner.getLastmatchid()).isEqualTo("matchId5");	
 		
-		verify(summonerRepository, times(matchIds.size())).findMatchid(anyString());
-		verify(summonerRepository, times(1)).findMatchid("matchId1");
-		verify(summonerRepository, times(1)).findMatchid("matchId2");
-		verify(summonerRepository, times(1)).findMatchid("matchId3");
-		verify(summonerRepository, times(1)).findMatchid("matchId4");
-		verify(summonerRepository, times(1)).findMatchid("matchId5");
-		
-		verify(summonerRepository, times(matchIds.size())).saveMatch(any(Match.class));
-		verify(summonerRepository, times(1)).saveMatch(match1);
-		verify(summonerRepository, times(1)).saveMatch(match2);
-		verify(summonerRepository, times(1)).saveMatch(match3);
-		verify(summonerRepository, times(1)).saveMatch(match4);
-		verify(summonerRepository, times(1)).saveMatch(match5);
-		
+		assertThat(recent_match_dtos.size()).isEqualTo(5);
+		assertThat(recent_match_dtos.get(0).getMatchid()).isEqualTo("matchId5");
+		assertThat(recent_match_dtos.get(1).getMatchid()).isEqualTo("matchId4");
+		assertThat(recent_match_dtos.get(2).getMatchid()).isEqualTo("matchId3");
+		assertThat(recent_match_dtos.get(3).getMatchid()).isEqualTo("matchId2");
+		assertThat(recent_match_dtos.get(4).getMatchid()).isEqualTo("matchId1");
 	}
 	
 	@Test
@@ -757,35 +970,42 @@ class SummonerServiceUnitTest {
 		
 		when(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid()))
 		.thenReturn(matchIds);
+		
 		when(summonerRepository.findMatchid("matchId5")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId4")).thenReturn(true); //이미 저장된 매치 정보
 		when(summonerRepository.findMatchid("matchId3")).thenReturn(false);
 		when(summonerRepository.findMatchid("matchId2")).thenReturn(true); //이미 저장된 매치 정보
 		when(summonerRepository.findMatchid("matchId1")).thenReturn(false);
+		
+		List<String> recent_match_ids = new ArrayList<>();
+		recent_match_ids.add("matchId5");
+		recent_match_ids.add("matchId3");
+		recent_match_ids.add("matchId1");
+		
 		Match match1 = new Match();
+		match1.setMatchId("matchId1");
 		Match match3 = new Match();
+		match3.setMatchId("matchId3");
 		Match match5 = new Match();
-		when(riotRestApi.getmatch("matchId1")).thenReturn(match1);
-		when(riotRestApi.getmatch("matchId3")).thenReturn(match3);
-		when(riotRestApi.getmatch("matchId5")).thenReturn(match5);
+		match5.setMatchId("matchId5");
+		
+		List<Match> recent_matches = new ArrayList<>();
+		recent_matches.add(match5);
+		recent_matches.add(match3);
+		recent_matches.add(match1);
+		
+		when(riotRestApi.getMatches(recent_match_ids)).thenReturn(recent_matches);
 		
 		//when
-		summonerService.setMatches(summonerDto);
+		List<MatchDto> recent_match_dtos = summonerService.setMatches(summonerDto);
 		
 		//then
 		assertThat(summoner.getLastmatchid()).isEqualTo("matchId5");
 		
-		verify(summonerRepository, times(matchIds.size())).findMatchid(anyString());
-		verify(summonerRepository, times(1)).findMatchid("matchId1");
-		verify(summonerRepository, times(1)).findMatchid("matchId2");
-		verify(summonerRepository, times(1)).findMatchid("matchId3");
-		verify(summonerRepository, times(1)).findMatchid("matchId4");
-		verify(summonerRepository, times(1)).findMatchid("matchId5");
-		
-		verify(summonerRepository, times(3)).saveMatch(any(Match.class));
-		verify(summonerRepository, times(1)).saveMatch(match1);
-		verify(summonerRepository, times(1)).saveMatch(match3);
-		verify(summonerRepository, times(1)).saveMatch(match5);
+		assertThat(recent_match_dtos.size()).isEqualTo(3);
+		assertThat(recent_match_dtos.get(0).getMatchid()).isEqualTo("matchId5");
+		assertThat(recent_match_dtos.get(1).getMatchid()).isEqualTo("matchId3");
+		assertThat(recent_match_dtos.get(2).getMatchid()).isEqualTo("matchId1");
 	}
 	
 	@Test
@@ -815,12 +1035,12 @@ class SummonerServiceUnitTest {
 		.thenReturn(matchIds);
 		
 		//when
-		summonerService.setMatches(summonerDto);
+		List<MatchDto> recent_match_dtos = summonerService.setMatches(summonerDto);
 		
 		//then
+		assertThat(recent_match_dtos.size()).isEqualTo(0);
 		assertThat(summoner.getLastmatchid()).isEqualTo("");
-		
-		verify(summonerRepository, times(matchIds.size())).findMatchid(anyString());
+		verify(summonerRepository, times(0)).findMatchid(anyString());
 	}
 	
 	@Test

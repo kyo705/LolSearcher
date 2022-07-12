@@ -26,7 +26,7 @@ public class Match {
 	private int season;
 	
 	@BatchSize(size = 100)
-	@OneToMany(mappedBy = "match", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER) 
+	@OneToMany(mappedBy = "match", cascade = CascadeType.ALL, fetch = FetchType.EAGER) 
 	private List<Member> members = new ArrayList<>();
 	
 	

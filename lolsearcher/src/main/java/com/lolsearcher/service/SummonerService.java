@@ -3,10 +3,9 @@ package com.lolsearcher.service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
-import javax.annotation.PreDestroy;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -32,26 +31,19 @@ import com.lolsearcher.restapi.RiotRestAPI;
 @Service
 public class SummonerService {
 	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	private final static int seasonId = 22;
 	private static final String soloRank = "RANKED_SOLO_5x5";
 	private static final String flexRank = "RANKED_FLEX_SR";
 	
 	private final SummonerRepository summonerrepository;
 	private final RiotRestAPI riotApi;
-	private final ExecutorService executorService;
-	private final ThreadService threadService;
 	
 	@Autowired
-	public SummonerService(
-			SummonerRepository summonerrepository, 
-			RiotRestAPI riotApi,
-			ExecutorService executorService,
-			ThreadService threadService
-			) {
+	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi) {
 		this.summonerrepository = summonerrepository;
 		this.riotApi = riotApi;
-		this.executorService =executorService;
-		this.threadService = threadService;
 	}
 	
 	@Transactional(noRollbackFor = WebClientResponseException.class)
@@ -79,7 +71,6 @@ public class SummonerService {
 					if(e.getStatusCode().value() == 400) { //아이디가 삭제되었을 경우
 						summonerrepository.deleteSummoner(candi_summoner);
 					}else if(e.getStatusCode().value() == 429) {
-						System.out.println("예외");
 						//요청 제한 횟수를 초과한 경우 controller에게 예외 처리 넘겨줌
 						throw e;
 					}
@@ -178,54 +169,32 @@ public class SummonerService {
 		String id = summonerdto.getSummonerid();
 		
 		Summoner summoner = summonerrepository.findSummonerById(id);
-		String lastmathid = summoner.getLastmatchid();
+		String lastmathid = summoner.getLastmatchid(); //dto에 없는 값이기 때문에 entity를 가져와야함
 		String puuid = summoner.getPuuid();
 		
 		//아래 코드에서 REST 통신 에러(429) 발생 가능 =>발생 시 Controller에게 예외 처리를 위임함
 		List<String> matchIds = riotApi.getAllMatchIds(puuid, lastmathid);
 		
-		
-		// 최근 경기부터 REST 통신으로 데이터 가져와 DB에 저장 -> 해당 로직 실행 중 429에러(TOO MANY REQUEST) 발생 시
-		// 스레드를 생성해서 해당 매치부터 마지막 매치까지 2분 후 요청해서 DB에 넣는 방식으로 반복
-		List<Match> matches = new ArrayList<>();
-		List<MatchDto> matchDtos = new ArrayList<>();
-		
 		if(matchIds.size()!=0) {
 			summoner.setLastmatchid(matchIds.get(0));
-			
-			for(int i=0;i<matchIds.size();i++){
-				String matchid = matchIds.get(i);
-				if(!summonerrepository.findMatchid(matchid)) {
-					
-					try {
-						Match match = riotApi.getmatch(matchid);
-						matches.add(match);
-						matchDtos.add(new MatchDto(match));
-					}catch(WebClientResponseException e) {
-						//요청 제한 횟수를 초과한 경우
-						if(e.getStatusCode().value()==429) {
-							//기존 가져온 match를 db에 저장
-							Runnable saveMatchesToDB = makingRunnableToSaveMatches(matches);
-							executorService.submit(saveMatchesToDB);
-							
-							//남은 매치 정보 저장하는 스레드 생성
-							Runnable runnable = makingRunnableToSaveRemainingMatches(matchIds, i);		
-							executorService.submit(runnable);
-							
-							return matchDtos;
-						}
-					}catch(NullPointerException e2) {
-						//riot api에서 제공해주는 데이터가 다를 경우(이번 버전으로 rest api 제공하기 때문에 dto가 달라서 nullpointexception날림) 이전 데이터까지만 db에 반영
-						break;
-					}
-				}
+		}
+		
+		List<String> recent_match_ids = new ArrayList<>();
+		
+		for(String matchId : matchIds) {
+			if(!summonerrepository.findMatchid(matchId)) {
+				recent_match_ids.add(matchId);
 			}
 		}
 		
-		Runnable saveMatchesToDB = makingRunnableToSaveMatches(matches);
-		executorService.submit(saveMatchesToDB);
+		List<MatchDto> recent_match_dtos = new ArrayList<>();
 		
-		return matchDtos;
+		List<Match> recent_matches = riotApi.getMatches(recent_match_ids);
+		for(Match recent_match : recent_matches) {
+			recent_match_dtos.add(new MatchDto(recent_match));
+		}
+		
+		return recent_match_dtos;
 	}
 	
 
@@ -271,65 +240,4 @@ public class SummonerService {
 		before.setSummonerLevel(after.getSummonerLevel());
 		before.setLastRenewTimeStamp(after.getLastRenewTimeStamp());
 	}
-	
-	
-//--------------------------------- 매치 정보 저장 스레드 관련 메소드 -------------------------------------	
-	private Runnable makingRunnableToSaveMatches(List<Match> matches) {
-		Runnable saveMatchesToDB = new Runnable() {
-			@Override
-			public void run() {
-				threadService.saveMatches(matches);
-			}
-		};
-		
-		return saveMatchesToDB;
-	}
-	
-	
-	private Runnable makingRunnableToSaveRemainingMatches(List<String> matchIds, int start_index) {
-		
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {			
-				try {
-					System.out.println("스레드 2분 정지");
-					Thread.sleep(1000*60*2 + 2000);
-					System.out.println("스레드 다시 시작");
-				} catch (InterruptedException e2) {
-					System.out.println("인터럽트 에러 발생");
-				}
-				
-				List<Match> matches = new ArrayList<>();
-				
-				for(int i=start_index; i<matchIds.size(); i++) {
-					if(threadService.readMatch(matchIds.get(i))==null) {
-						try {
-							Match match = riotApi.getmatch(matchIds.get(i));
-							matches.add(match);
-						}catch(WebClientResponseException e1) {
-							threadService.saveMatches(matches);
-							matches.clear();
-							try {
-								System.out.println("스레드 2분 정지");
-								Thread.sleep(1000*60*2+2000);
-								System.out.println("스레드 다시 시작");
-							} catch (InterruptedException e2) {
-								e2.printStackTrace();
-							}
-						}
-					}
-				}
-				
-				threadService.saveMatches(matches);
-			}
-		};
-		
-		return runnable;
-	}
-	
-	@PreDestroy
-	public void shutdownMatchSavingThreadPool() {
-		executorService.shutdown();
-	}
-	
 }
