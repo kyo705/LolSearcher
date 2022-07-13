@@ -291,4 +291,73 @@ Member 테이블의 pk를 복합키로 설정하고 해당 복합키의 부분�
 
 **외부 서버와의 통신 속도에 관한 문제와 해결 과정**
 
-기존 프로젝트에서 REST API 통신 속도가 굉장히 느렸다. 기존 프로젝트는 외부 서버로 부터 REST API 데이터를 받아올 때, blocking 형태로 데이터를 받아올 때까지 기다리는 구조였다. 그런데 클라이언트의 요청에 Match 관련 데이터를 최대 100번까지 받아와야 했다. 그래서 해당 프로젝트의 REST API를 받아오는데 많은 시간이 걸렸었다. 그래서 더 빠르게 데이터를 받아오고 처리할 수 있는 방법을 고민하던 중 WebClient의 non-blocking 방식으로 많은 Match 데이터들을 한 번에 처리하면 속도를 향상시킬 수 있을 것이라 판단하였다. 그러나 해당 방식으로 프로젝트를 변경하던 중 문제점이 발생했다. Non-blocking 방식으로 처리하면 몇 번째부터 429에러(too many request)가 발생했는지 모르기 때문에 처리하지 못한 데이터들을 다시 REST API 요청하는 로직을 처리할 수 없었다. 그래서 최신 데이터로부터 최대 20개만 REST API 통신으로 non-blocking 방식으로 데이터를 가져오고 나머지 데이터들은 다른 스레드를 통해 블로킹 방식으로 데이터를 가져오는 방식으로 프로젝트를 수정했다. 다른 스레드를 통해 처리하는 데이터를 블로킹 방식으로 처리해도 괜찮은 이유는 클라이언트의 요청에 대한 응답과 무관한 데이터이기 때문이다. 그래서 클라이언트 응답 속도에 영향을 주지 않는다. 그리고 블로킹 방식을 하면 안정적으로 429에러를 처리할 수 있다는 장점이 있다. 
+기존 프로젝트는 외부 서버로 부터 REST API 데이터를 받아올 때, blocking 형태로 데이터를 받아올 때까지 기다리는 구조였다. 그런데 클라이언트의 요청에 Match 관련 데이터를 최대 100번까지 받아와야 했다. 그래서 해당 프로젝트의 REST API를 받아오는데 많은 시간이 걸렸었다. 그래서 더 빠르게 데이터를 받아오고 처리할 수 있는 방법을 고민하던 중 WebClient의 non-blocking 방식으로 많은 Match 데이터들을 한 번에 처리하면 속도를 향상시킬 수 있을 것이라 판단하였다. 그러나 해당 방식으로 프로젝트를 변경하던 중 문제점이 발생했다. Non-blocking 방식으로 처리하면 몇 번째부터 429에러(too many request)가 발생했는지 모르기 때문에 처리하지 못한 데이터들을 다시 REST API 요청하는 로직을 처리할 수 없었다. 그렇다고 모든 데이터(최대 100개의 요청)를 에러 발생 여부와 관계 없이 모두 응답받는 방식으로 설계하면 속도 측면에서 비효율적이게 된다. 그래서 결론적으로 말하면, Blocking 방식과 non-blocking 방식 두가지를 다 활용하여 해당 프로젝트를 만들었다. 최신 데이터로부터 최대 20개만 REST API 통신으로 non-blocking 방식으로 데이터를 가져와 속도 측면에서 향상시켰고, 나머지 처리되지 않은 데이터들은 다른 스레드를 통해 블로킹 방식으로 외부 데이터를 가져와 DB에 저장하는 방식으로 프로젝트를 수정했다.   
+blocking 방식의 장점은 아래 코드처럼 안정적으로 429에러를 처리할 수 있다. 하지만 성능적으론 속도가 느리다는 단점이 있다. 그래서 해당 방식은 클라이언트 요청 스레드에서 파생된 독립적인 스레드로 Match 데이터를 가져오는데 사용하여 클라이언트 체감 속도에는 무관하게 설계하였다.  
+
+```java
+//webClient blocking 방식
+for(int i=start_index; i<matchIds.size(); ) {
+	String matchId = matchIds.get(i);
+
+	try {
+		Map json = webclient.get().uri("https://asia.api.riotgames.com"
+				+ "/lol/match/v5/matches/"+matchId+"?api_key="+key)
+				.retrieve()
+				.bodyToMono(Map.class)
+				.block();
+
+		Match match = parsingMatchJson(json);
+		matches.add(match);
+		i++;
+	}catch(WebClientResponseException e1) {
+		if(e1.getStatusCode().value()==429) {
+			threadService.saveMatches(matches);
+			matches.clear();
+
+			try {
+				System.out.println("스레드 2분 정지");
+				Thread.sleep(1000*60*2+2000);
+				System.out.println("스레드 다시 시작");
+			} catch (InterruptedException e2) {
+				e2.printStackTrace();
+			}
+		}
+	}catch(Exception e2) {
+		break;
+	}
+}
+```
+
+반면, non-blocking 방식은 처리 속도는 매우 빠르나, blocking방식처럼 안정적으로 예외 처리를 할 수 없다. 여기서 *안정적인 예외처리*는 아래의 코드에서처럼 논블로킹 방식의 경우 matchId에 해당하는 Match 데이터를 webClient로 요청하는데 이에 대한 응답이 순서대로 온다는 보장이 없어 어느 시점부터 429에러가 발생하는지 알 수 없다. 따라서, 요청하는 matchids의 단위를 20개로 제한하여 발생하는 에러 matchId 들은 따로 List에 저장하고 나중에 다시 실패한 matchId 목록들을 처리하도록 로직을 설계하였다.
+
+```java
+//webClient non-blocking 방식
+int count = 0;
+for(String matchId : matchIds) {
+	if(count>=20)
+		break;
+
+	webclient.get().uri("https://asia.api.riotgames.com"+ 
+	"/lol/match/v5/matches/"+matchId+"?api_key="+key)
+	.retrieve()
+	.bodyToMono(Map.class)
+	.onErrorResume(e -> {
+		if(e instanceof WebClientResponseException) {
+			if(((WebClientResponseException) e).getStatusCode().value() == 429) {
+				fail_matchIds.add(matchId);
+			}
+		}
+
+		return Mono.just(null);
+	})
+	.subscribe(result->{
+		if(result!=null) {
+			Match match = parsingMatchJson(result);
+			matches.add(match);
+		}
+	});
+
+	count++;
+}
+
+```
