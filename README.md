@@ -312,12 +312,12 @@ for(int i=start_index; i<matchIds.size(); ) {
 	}catch(WebClientResponseException e1) {
 		if(e1.getStatusCode().value()==429) {
 			threadService.saveMatches(matches);
-			matches.clear();
-
+			
 			try {
 				System.out.println("스레드 2분 정지");
 				Thread.sleep(1000*60*2+2000);
 				System.out.println("스레드 다시 시작");
+				matches.clear();
 			} catch (InterruptedException e2) {
 				e2.printStackTrace();
 			}
