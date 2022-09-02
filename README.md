@@ -5,15 +5,15 @@
 롤 전적 검색 사이트란??
 -----------------------------------------
 
-롤(League Of Legend) 게임 서버에서 REST API로 제공되는 유저의 게임 데이터들(랭킹 점수, 게임 횟수, 상세 게임 정보 등)을 수집하고 활용하여 클라이언트에게 제공하는 사이트입니다.
+롤(League Of Legend) 게임 서버에서 OPEN API로 제공되는 유저의 게임 데이터들(랭킹 점수, 게임 횟수, 상세 게임 정보 등)을 수집하고 가공하여 클라이언트에게 제공하는 사이트입니다.
 
 프로젝트 내 적용 기술
 -----------------------------------------
 > - 백 앤드
 >   - 언어 : Java
->   - 프레임 워크 : SpringBoot, Spring MVC
->   -  빌드 관리 툴 : Gradle
->   - REST API통신 : WebClient
+>   - 프레임 워크 : SpringBoot, Spring MVC, Spring Security
+>   - 빌드 관리 툴 : Gradle
+>   - REST API 수집 : WebClient
 >   - ORM : JPA(Hibernate)
 >   -  DBMS :
 >      - 실제 서버 환경 : MariaDB
