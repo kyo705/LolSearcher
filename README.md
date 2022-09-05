@@ -23,7 +23,8 @@
 
 프로젝트 서버 구조
 -----------------------------------------
-![ServerStructure](https://user-images.githubusercontent.com/89891704/157023264-e4c10e2a-0a37-4e50-b181-962c45dcca82.png)
+![image](https://user-images.githubusercontent.com/89891704/188450211-fba3f0e7-4893-4f0f-8d4c-1292738ba046.png)
+
 
 프로젝트 코드 내 용어 설명
 -----------------------------------------
