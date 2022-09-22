@@ -3,7 +3,10 @@ package com.lolsearcher.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.NoResultException;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
@@ -24,7 +27,7 @@ public class RestApiService {
 		this.restRepository = restRepository;
 	}
 
-	public SummonerDto getSummonerById(String id) {
+	public SummonerDto getSummonerById(String id) throws NoResultException {
 		
 		Summoner summoner = restRepository.getSummonerById(id);
 		
@@ -33,7 +36,7 @@ public class RestApiService {
 		return summonerDto;
 	}
 
-	public SummonerDto getSummonerByName(String name) {
+	public SummonerDto getSummonerByName(String name) throws NoResultException {
 		
 		Summoner summoner = restRepository.getSummonerByName(name);
 		
@@ -76,6 +79,21 @@ public class RestApiService {
 		MatchDto matchDto = new MatchDto(match);
 		
 		return matchDto;
+	}
+
+	@Transactional(isolation = Isolation.SERIALIZABLE)
+	public void setMatches(List<Match> matches) {
+		for(Match match : matches) {
+			if(restRepository.getMatch(match.getMatchId())==null) {
+				restRepository.setMatch(match);
+			}
+		}
+	}
+
+	public void setOneMatch(Match match) {
+		if(restRepository.getMatch(match.getMatchId())==null) {
+			restRepository.setMatch(match);
+		}
 	}
 
 }

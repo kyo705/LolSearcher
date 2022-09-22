@@ -20,4 +20,6 @@ public interface RestRepository {
 
 	public Match getMatch(String matchId);
 
+	public void setMatch(Match match);
+
 }

@@ -207,11 +207,16 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		executorService.submit(saveMatchesToDB);
 		
 		//429로 인해 match 데이터 조회 실패한 로직 다시 실행
-		Runnable saveRemainingMatches1 = makingRunnableToSaveRemainingMatches(fail_matchIds, 0);
-		executorService.submit(saveRemainingMatches1);
+		if(fail_matchIds.size()!=0) {
+			Runnable saveRemainingMatches1 = makingRunnableToSaveRemainingMatches(fail_matchIds, 0);
+			executorService.submit(saveRemainingMatches1);
+		}
 		
-		Runnable saveRemainingMatches2 = makingRunnableToSaveRemainingMatches(matchIds, count);
-		executorService.submit(saveRemainingMatches2);
+		if(matchIds.size()!=count) {
+			Runnable saveRemainingMatches2 = makingRunnableToSaveRemainingMatches(matchIds, count);
+			executorService.submit(saveRemainingMatches2);
+		}
+		
 		
 		return matches;
 	}
@@ -243,8 +248,6 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		
 		return currentGame;
 	}
-	
-	
 	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -335,7 +338,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		Runnable runnable = new Runnable() {
 			@SuppressWarnings("rawtypes")
 			@Override
-			public void run() {			
+			public void run() {	
 				try {
 					System.out.println("스레드 2분 정지");
 					Thread.sleep(1000*60*2 + 2000);
@@ -362,12 +365,12 @@ public class RiotRestApiv2 implements RiotRestAPI{
 					}catch(WebClientResponseException e1) {
 						if(e1.getStatusCode().value()==429) {
 							threadService.saveMatches(matches);
-							matches.clear();
 							
 							try {
 								System.out.println("스레드 2분 정지");
 								Thread.sleep(1000*60*2+2000);
 								System.out.println("스레드 다시 시작");
+								matches.clear();
 							} catch (InterruptedException e2) {
 								e2.printStackTrace();
 							}

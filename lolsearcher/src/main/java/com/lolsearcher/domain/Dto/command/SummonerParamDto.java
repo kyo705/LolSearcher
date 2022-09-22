@@ -24,7 +24,6 @@ public class SummonerParamDto {
 	
 	public SummonerParamDto(String name, String summonerid, String champion, int mostgametype,
 			int matchgametype, int count, int season, boolean renew) {
-		
 		this.name = name;
 		this.summonerid = summonerid;
 		this.champion = champion;

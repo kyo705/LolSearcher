@@ -52,30 +52,13 @@ public class SummonerService {
 		
 		List<Summoner> dbSummoner = summonerrepository.findSummonerByName(summonername);
 		
-		if(dbSummoner.size()==1) {
+		if(dbSummoner.size()==0) {
+			return null;
+		}else if(dbSummoner.size()==1) {
 			summonerDto =  new SummonerDto(dbSummoner.get(0));
 		}else {
-			Iterator<Summoner> summonerIter = dbSummoner.iterator();
-			
-			while(summonerIter.hasNext()) {
-				Summoner candi_summoner = summonerIter.next();
-				
-				try {
-					Summoner renew_Summoner = riotApi.getSummonerById(candi_summoner.getId());
-					renewSummoner(candi_summoner, renew_Summoner);
-					
-					if(renew_Summoner.getName().equals(summonername)) {
-						summonerDto = new SummonerDto(renew_Summoner);
-					}
-				}catch (WebClientResponseException e) {
-					if(e.getStatusCode().value() == 400) { //아이디가 삭제되었을 경우
-						summonerrepository.deleteSummoner(candi_summoner);
-					}else if(e.getStatusCode().value() == 429) {
-						//요청 제한 횟수를 초과한 경우 controller에게 예외 처리 넘겨줌
-						throw e;
-					}
-				}
-			}
+			this.updateDbSummoner(summonername);
+			summonerDto = this.findDbSummoner(summonername);
 		}
 		
 		return summonerDto;
@@ -92,8 +75,6 @@ public class SummonerService {
 			}catch(WebClientResponseException e) {
 				if(e.getStatusCode().value()==400) {
 					summonerrepository.deleteSummoner(dbSummoner);
-				}else if(e.getStatusCode().value()==429) {
-					throw e;
 				}
 			}
 		}
@@ -163,7 +144,7 @@ public class SummonerService {
 		return ranksDto;
 	}
 	
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<MatchDto> setMatches(SummonerDto summonerdto) throws WebClientResponseException {
 		
 		String id = summonerdto.getSummonerid();

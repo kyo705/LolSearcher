@@ -3,6 +3,7 @@ package com.lolsearcher.repository.restapirepository;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -25,11 +26,15 @@ public class JpaRestRepository implements RestRepository {
 	@Override
 	public Summoner getSummonerById(String id) {
 		
-		return em.find(Summoner.class, id);
+		String jpql = "SELECT s FROM Summoner s WHERE s.id = :id";
+		
+		return em.createQuery(jpql, Summoner.class)
+				.setParameter("id", id)
+				.getSingleResult();
 	}
 
 	@Override
-	public Summoner getSummonerByName(String name) {
+	public Summoner getSummonerByName(String name) throws NoResultException {
 		
 		String jpql = "SELECT s FROM Summoner s WHERE s.name = :name";
 		
@@ -74,9 +79,18 @@ public class JpaRestRepository implements RestRepository {
 		String jpql = "SELECT DISTINCT m FROM Match m JOIN FETCH m.members "
 				+ "WHERE m.matchid = :matchId";
 		
-		return em.createQuery(jpql, Match.class)
+		try{
+			return em.createQuery(jpql, Match.class)
 				.setParameter("matchId", matchId)
 				.getSingleResult();
+		}catch(NoResultException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public void setMatch(Match match) {
+		em.persist(match);
 	}
 
 }

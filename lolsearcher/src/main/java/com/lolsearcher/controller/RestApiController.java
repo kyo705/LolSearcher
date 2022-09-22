@@ -1,12 +1,18 @@
 package com.lolsearcher.controller;
 
+import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.RankDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
+import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.service.RestApiService;
 
 @RestController
@@ -30,6 +37,8 @@ public class RestApiController {
 		this.restApiService = restApiService;
 	}
 
+	//-------------------------------- Retrieve Method ----------------------------------
+	
 	@GetMapping("/summoner/id/{id}")
 	ResponseEntity<SummonerDto> getOneSummonerById(@PathVariable("id") String id){
 		
@@ -129,5 +138,59 @@ public class RestApiController {
 				.status(HttpStatus.OK)
 				.headers(headers)
 				.body(match);
+	}
+	
+	//---------------------------------- Create Method ----------------------------------
+	
+	@PostMapping("/match")
+	ResponseEntity<Map<String, String>> setMatches(@RequestParam List<Match> matches){
+		
+		restApiService.setMatches(matches);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Link", "http://localhost:8080/docs/match.html; rel=\"profile\"");
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("request", "success");
+		
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.headers(headers)
+				.body(body);
+	}
+	
+	@PostMapping("/match/{matchid}")
+	ResponseEntity<Map<String, String>> setOneMatch(@PathVariable("matchid") String matchId,
+													@RequestParam Match match){
+		
+		restApiService.setOneMatch(match);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Link", "http://localhost:8080/docs/match.html; rel=\"profile\"");
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("request", "success");
+		
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.headers(headers)
+				.body(body);
+	}
+	
+	//---------------------------------- Update Method ----------------------------------
+	
+	
+	//---------------------------------- Delete Method ----------------------------------
+	
+	@GetMapping(path = "/error/forbidden")
+	public void ForbiddenHandler(){
+		String errorMessage = "no authority";
+		
+		throw new AccessDeniedException(errorMessage);
+	}
+	
+	@GetMapping("/**")
+	public void getUrlException() throws MalformedURLException {
+		throw new MalformedURLException("bad url request");
 	}
 }
