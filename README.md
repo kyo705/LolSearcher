@@ -342,6 +342,7 @@ for(String matchId : matchIds) {
 	.bodyToMono(Map.class)
 	.onErrorResume(e -> {
 		if(e instanceof WebClientResponseException) {
+			System.out.print(e.getMessage());
 			if(((WebClientResponseException) e).getStatusCode().value() == 429) {
 				fail_matchIds.add(matchId);
 			}
@@ -357,6 +358,15 @@ for(String matchId : matchIds) {
 	});
 
 	count++;
+}
+
+//webclient의 요청에 대한 응답을 다 받을때까지 기다리는 로직
+while(matches.size()+fail_matchIds.size()!=count) {
+	try {
+		Thread.sleep(100);
+	} catch (InterruptedException e) {
+		e.printStackTrace();
+	}
 }
 
 ```
