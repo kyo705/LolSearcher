@@ -232,13 +232,6 @@ param.setName(filteredname);
 
 [**소스 코드로 보기**](https://github.com/kyo705/LolSearcher/blob/b8a6d89d421a19e7ec5cf6443dc3edb39fa39065/lolsearcher/src/main/java/com/lolsearcher/controller/RestApiController.java#L21)
 
-DB 테이블 연관 관계
-----------------------------------------
-![image](https://user-images.githubusercontent.com/89891704/176092307-c32640d6-c883-4c10-a33e-285975b536c8.png)
-
-![image](https://user-images.githubusercontent.com/89891704/176094789-83380d09-fe55-48d9-a6cd-1eeed82670cc.png)
-
-![image](https://user-images.githubusercontent.com/89891704/176096311-9710fe8a-5401-4b57-bdbd-67580bd05dff.png)
 
  
 ----------------------------------------
