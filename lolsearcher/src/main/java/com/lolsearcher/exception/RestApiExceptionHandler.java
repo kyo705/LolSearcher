@@ -49,7 +49,7 @@ public class RestApiExceptionHandler {
 		System.out.println(e.getLocalizedMessage());
 		Map<String, String> map = new HashMap<>();
 		map.put("error code", "403");
-		map.put("error message", "forbidden");
+		map.put("error message", "unauthorized");
 		
 		return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.headers(headers)

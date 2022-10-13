@@ -182,6 +182,9 @@ public class RestApiController {
 	
 	//---------------------------------- Delete Method ----------------------------------
 	
+	
+	
+	//---------------------------------- Error Controller ----------------------------------
 	@GetMapping(path = "/error/forbidden")
 	public void ForbiddenHandler(){
 		String errorMessage = "no authority";

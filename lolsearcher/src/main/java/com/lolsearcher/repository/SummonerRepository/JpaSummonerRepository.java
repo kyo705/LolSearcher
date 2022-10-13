@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +20,6 @@ public class JpaSummonerRepository implements SummonerRepository {
 
 	private final EntityManager em;
 	
-	@Autowired
 	public JpaSummonerRepository(EntityManager em) {
 		this.em = em;
 	}
@@ -80,6 +78,11 @@ public class JpaSummonerRepository implements SummonerRepository {
 	//-----------------Match,Member 테이블 CRUD----------------------------------
 	
 	@Override
+	public Match findMatchById(String matchId) {
+		return em.find(Match.class, matchId);
+	}
+	
+	@Override
 	public boolean findMatchid(String matchid) {
 		if(em.find(Match.class, matchid)==null) {
 			return false;
@@ -89,7 +92,9 @@ public class JpaSummonerRepository implements SummonerRepository {
 	
 	@Override
 	public void saveMatch(Match match) throws DataIntegrityViolationException {
-		em.persist(match);
+		if(em.find(Match.class, match.getMatchId())==null) {
+			em.persist(match);
+		}
 	}
 
 	

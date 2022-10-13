@@ -61,9 +61,10 @@ public class BannedChampion {
 	}
 
 	public void setIngame(InGame ingame) {
-		
+		if(this.ingame != null) {
+			this.ingame.getBannedChampions().remove(this);
+		}
 		this.ingame = ingame;
-
-		
+		ingame.addBannedChampion(this);
 	}
 }

@@ -62,6 +62,13 @@ public class Member {
 	@JoinColumn(name = "MATCH_ID")
 	private Match match;
 	
+	public void removeMatchId() {
+		if(match!=null) {
+			match.removeMember(this);
+			match = null;
+		}
+	}
+	
 	public MemberCompKey getCk() {
 		return ck;
 	}

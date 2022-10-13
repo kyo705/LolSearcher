@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -28,17 +30,16 @@ import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
 import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
+import com.lolsearcher.exception.SameNameExistException;
 import com.lolsearcher.filter.IpBanFilter;
 import com.lolsearcher.service.InGameService;
 import com.lolsearcher.service.SummonerService;
 
 @Controller
 public class SummonerController {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private Map<String, Integer> banCount;
-	
-	private static final String error404 = "404 NOT_FOUND";
-	private static final String error429 = "429 TOO_MANY_REQUESTS";
 	
 	private final SummonerService summonerService;
 	
@@ -54,6 +55,7 @@ public class SummonerController {
 		this.appContext = appContext;
 	}
 	
+	
 	@PostMapping(path = "/summoner")
 	public ModelAndView summonerdefault(@ModelAttribute SummonerParamDto param, @RequestAttribute String filteredName) {
 		
@@ -66,7 +68,13 @@ public class SummonerController {
 		List<MatchDto> matches = new ArrayList<>();
 		List<MostChampDto> mostchamps = null;
 		
-		summonerdto = summonerService.findDbSummoner(filteredName);
+		try {
+			summonerdto = summonerService.findDbSummoner(filteredName);
+		}catch (SameNameExistException e) {
+			summonerService.updateDbSummoner(filteredName);
+			summonerdto = summonerService.findDbSummoner(filteredName);
+		}
+		
 		
 		//DB에서 소환사 정보가 없는 경우 || 클라이언트에서 전적 갱신 버튼을 통해 갱신 요청이 들어오는 경우
 		if(summonerdto==null||
@@ -91,7 +99,7 @@ public class SummonerController {
 			
 			
 			// MATCH 관련 데이터 RIOT 서버에서 데이터 받아와서 DB에 저장 setMatches를 isolation
-			List<MatchDto> recentMatches = summonerService.setMatches(summonerdto);
+			List<MatchDto> recentMatches = summonerService.getRenewMatches(summonerdto);
 			matches.addAll(recentMatches);
 			
 		}else {
@@ -101,21 +109,22 @@ public class SummonerController {
 		param.setSummonerid(summonerdto.getSummonerid());
 		
 		MatchParamDto matchParamDto = new MatchParamDtoBuilder()
-				.setName(param.getName())
-				.setChampion(param.getChampion())
-				.setSummonerid(param.getSummonerid())
-				.setGametype(param.getMatchgametype())
-				.setCount(param.getCount())
-				.build();
+										.setName(param.getName())
+										.setChampion(param.getChampion())
+										.setSummonerid(param.getSummonerid())
+										.setGametype(param.getMatchgametype())
+										.setCount(param.getCount())
+										.build();
 		
 		MostchampParamDto mostchampParamDto = new MostChampParamDtoBuilder()
-				.setSeason(param.getSeason())
-				.setGameQueue(param.getMostgametype())
-				.setSummonerid(param.getSummonerid())
-				.build();
+												.setSeason(param.getSeason())
+												.setGameQueue(param.getMostgametype())
+												.setSummonerid(param.getSummonerid())
+												.build();
 		
-		List<MatchDto> oldMatches = summonerService.getMatches(matchParamDto);
+		List<MatchDto> oldMatches = summonerService.getOldMatches(matchParamDto);
 		matches.addAll(oldMatches);
+		
 		//matchid가 큰 순으로 정렬
 		matches.sort((a,b)->{
 			if(a.getGameEndTimestamp()-b.getGameEndTimestamp()>0){
@@ -140,61 +149,31 @@ public class SummonerController {
 	}
 	
 	@GetMapping(path = "/ingame")
-	public ModelAndView inGame(String name) {
+	public ModelAndView inGame(String filteredname) {
 		ModelAndView mv = new ModelAndView();
-		
-		//사용자 요청 필터링(xxs 방지)
-		String unfilteredname = name;
-		String regex = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
-		String filteredname = unfilteredname.replaceAll(regex, "");
 		
 		//view로 전달될 데이터(Model)
 		InGameDto inGameDto = null;
 		SummonerDto summonerDto = null;
 		
-		try {
-			summonerDto = summonerService.findDbSummoner(filteredname);
-		}catch(WebClientResponseException e) {
-			if(e.getStatusCode().toString().equals(error429)) {
-				mv.setViewName("error_manyreq");
-				return mv;
-			}else if(e.getStatusCode().toString().equals(error404)) {
-				mv.addObject("name", filteredname);
-				mv.setViewName("error_name");
-				return mv;
-			}
-		}
+		summonerDto = summonerService.findDbSummoner(filteredname);
+		inGameDto = inGameService.getInGame(summonerDto);
 		
-		try {
-			inGameDto = inGameService.getInGame(summonerDto);
-		}catch(WebClientResponseException e) {
-			if(e.getStatusCode().toString().equals(error404)) {
-				inGameService.removeDirtyInGame(summonerDto.getSummonerid(), -1);
-				mv.addObject("summoner", summonerDto);
-				mv.setViewName("error_ingame");
-				return mv;
-			}else if(e.getStatusCode().toString().equals(error429)) {
-				mv.setViewName("error_manyreq");
-				return mv;
-			}
-		}
 		
 		if(inGameDto == null) {
 			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), -1);
 			
 			mv.addObject("summoner", summonerDto);
 			mv.setViewName("error_ingame");
-			
-			return mv;
 		}else {
 			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), inGameDto.getGameId());
 			
 			mv.addObject("summoner", summonerDto);
 			mv.addObject("ingame", inGameDto);
 			mv.setViewName("inGame");
-			
-			return mv;
 		}
+		
+		return mv;
 	}
 	
 	@GetMapping(path = "/rejected")
@@ -203,10 +182,45 @@ public class SummonerController {
 		mv.setViewName("/rejected_ip");
 		return mv;
 	}
+
 	
+	//------------------해당 컨트롤러 예외 상황 처리------------------------------
+	
+	@ExceptionHandler(SameNameExistException.class)
+    public ModelAndView getSameSummonerExistError(SameNameExistException e, ServletRequest req) {
+		//로그 기록
+		logger.error(e.getMessage());
+		
+		ModelAndView mv = new ModelAndView();
+		
+		mv.setViewName("server_error");
+		
+		return mv;
+	}
+	
+		
 	@ExceptionHandler(WebClientResponseException.class)
     public ModelAndView getResponseError(WebClientResponseException e, ServletRequest req) {
 		ModelAndView mv = new ModelAndView();
+		
+		logger.error("'{}' error occurred by 'Riot' game server", e.getStatusCode());
+		
+		if(e.getStatusCode().equals(HttpStatus.NOT_FOUND)||
+				e.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+			mv.setViewName("error_name");
+			
+		}else if(e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
+			mv.setViewName("error_manyreq");
+			
+		}else if(e.getStatusCode().equals(HttpStatus.BAD_GATEWAY)||
+				e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)||
+				e.getStatusCode().equals(HttpStatus.SERVICE_UNAVAILABLE)||
+				e.getStatusCode().equals(HttpStatus.GATEWAY_TIMEOUT)) {
+			//500번대 에러
+			mv.setViewName("error_game_server");
+			
+			return mv;
+		}
 		
 		String user_ip = req.getRemoteAddr();
 		
@@ -216,21 +230,13 @@ public class SummonerController {
 			IpBanFilter banFilter = appContext.getBean(IpBanFilter.class);
 			banFilter.addBanList(user_ip);
 			
+			logger.error(" ip : '{}' user is banned because of too many bad request", user_ip);
 			mv.setViewName("rejected_ip");
 			banCount.remove(user_ip);
 			
 			return mv;
 		}
 		
-		
-		if(e.getStatusCode().equals(HttpStatus.NOT_FOUND)||
-				e.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
-			mv.setViewName("error_name");
-			
-			//ip주소 카운트 후 특정 카운트 이상이 된 경우 ip 차단
-		}else if(e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
-			mv.setViewName("error_manyreq");
-		}
 		
         return mv;
     }

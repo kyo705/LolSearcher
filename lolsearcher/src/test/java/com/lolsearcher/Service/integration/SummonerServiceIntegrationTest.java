@@ -867,7 +867,7 @@ class SummonerServiceIntegrationTest {
 		em.clear();
 		
 		//when
-		List<MatchDto> recent_match_dtos = summonerService.setMatches(summonerDto);
+		List<MatchDto> recent_match_dtos = summonerService.getRenewMatches(summonerDto);
 		
 		//then
 		assertThat(recent_match_dtos.size()).isEqualTo(5);
@@ -911,7 +911,7 @@ class SummonerServiceIntegrationTest {
 		//DB 데이터 셋팅
 		List<String> matchList = riotRestApi.getMatchIds(summonerDto.getPuuid(), allType, allChamp, startIndex, defaultCount, "");
 		String matchId1 = matchList.get(1);
-		Match match1 = riotRestApi.getOneMatch(matchId1);
+		Match match1 = riotRestApi.getOneMatchByBlocking(matchId1);
 		summonerRepository.saveMatch(match1);
 		
 		Summoner summoner = new Summoner();
@@ -925,7 +925,7 @@ class SummonerServiceIntegrationTest {
 		em.clear();
 		
 		//when
-		List<MatchDto> rencent_match_dtos = summonerService.setMatches(summonerDto);
+		List<MatchDto> rencent_match_dtos = summonerService.getRenewMatches(summonerDto);
 		
 		//then
 		assertThat(rencent_match_dtos.size()).isEqualTo(4);
@@ -979,7 +979,7 @@ class SummonerServiceIntegrationTest {
 		em.clear();
 		
 		//when
-		List<MatchDto> recent_match_dtos = summonerService.setMatches(summonerDto);
+		List<MatchDto> recent_match_dtos = summonerService.getRenewMatches(summonerDto);
 		
 		//then
 		assertThat(recent_match_dtos.size()).isEqualTo(0);
@@ -1013,7 +1013,7 @@ class SummonerServiceIntegrationTest {
 		
 		//when & then
 		WebClientResponseException e = assertThrows(WebClientResponseException.class,
-				()->summonerService.setMatches(summonerDto));
+				()->summonerService.getRenewMatches(summonerDto));
 		assertThat(e.getStatusCode().value()).isEqualTo(400);
 		
 		int allType = -1;
@@ -1046,9 +1046,9 @@ class SummonerServiceIntegrationTest {
 		
 		//DB 데이터 셋팅
 		List<String> matchList = riotRestApi.getMatchIds(puuId, allType, allChamp, startIndex, defaultCount, "");
-		Match match1 = riotRestApi.getOneMatch(matchList.get(0));
-		Match match2 = riotRestApi.getOneMatch(matchList.get(1));
-		Match match3 = riotRestApi.getOneMatch(matchList.get(2));
+		Match match1 = riotRestApi.getOneMatchByBlocking(matchList.get(0));
+		Match match2 = riotRestApi.getOneMatchByBlocking(matchList.get(1));
+		Match match3 = riotRestApi.getOneMatchByBlocking(matchList.get(2));
 		summonerRepository.saveMatch(match1);
 		summonerRepository.saveMatch(match2);
 		summonerRepository.saveMatch(match3);
@@ -1056,7 +1056,7 @@ class SummonerServiceIntegrationTest {
 		em.clear();
 		
 		//when
-		List<MatchDto> matchListDto = summonerService.getMatches(matchparam);
+		List<MatchDto> matchListDto = summonerService.getOldMatches(matchparam);
 		em.flush();
 		em.clear();
 		
@@ -1090,9 +1090,9 @@ class SummonerServiceIntegrationTest {
 		
 		//DB 데이터 셋팅 =>솔로랭크 게임 데이터 가져와 DB에 저장
 		List<String> matchList = riotRestApi.getMatchIds(puuId, soloRankType, allChamp, startIndex, defaultCount, ""); 
-		Match match1 = riotRestApi.getOneMatch(matchList.get(0));
-		Match match2 = riotRestApi.getOneMatch(matchList.get(1));
-		Match match3 = riotRestApi.getOneMatch(matchList.get(2));
+		Match match1 = riotRestApi.getOneMatchByBlocking(matchList.get(0));
+		Match match2 = riotRestApi.getOneMatchByBlocking(matchList.get(1));
+		Match match3 = riotRestApi.getOneMatchByBlocking(matchList.get(2));
 		summonerRepository.saveMatch(match1);
 		summonerRepository.saveMatch(match2);
 		summonerRepository.saveMatch(match3);
@@ -1100,8 +1100,8 @@ class SummonerServiceIntegrationTest {
 		em.clear();
 		
 		//when
-		List<MatchDto> matchListDto1 = summonerService.getMatches(matchparam1); // 팀랭크 게임 조회 => 0
-		List<MatchDto> matchListDto2 = summonerService.getMatches(matchparam2); // 모든 게임 조회 => 3
+		List<MatchDto> matchListDto1 = summonerService.getOldMatches(matchparam1); // 팀랭크 게임 조회 => 0
+		List<MatchDto> matchListDto2 = summonerService.getOldMatches(matchparam2); // 모든 게임 조회 => 3
 		em.flush();
 		em.clear();
 		
@@ -1137,11 +1137,11 @@ class SummonerServiceIntegrationTest {
 		
 		//DB 데이터 셋팅
 		List<String> matchList = riotRestApi.getMatchIds(puuId, allType, allChamp, startIndex, defaultCount, "");
-		Match match1 = riotRestApi.getOneMatch(matchList.get(0))
+		Match match1 = riotRestApi.getOneMatchByBlocking(matchList.get(0))
 				
 				;
-		Match match2 = riotRestApi.getOneMatch(matchList.get(1));
-		Match match3 = riotRestApi.getOneMatch(matchList.get(2));
+		Match match2 = riotRestApi.getOneMatchByBlocking(matchList.get(1));
+		Match match3 = riotRestApi.getOneMatchByBlocking(matchList.get(2));
 		summonerRepository.saveMatch(match1);
 		summonerRepository.saveMatch(match2);
 		summonerRepository.saveMatch(match3);

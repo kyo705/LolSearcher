@@ -27,6 +27,8 @@ public interface SummonerRepository {
 	//-----------------Match,Member(1:N) 테이블 CRUD----------------------------------
 	public boolean findMatchid(String matchid);
 	
+	public Match findMatchById(String matchId);
+	
 	public void saveMatch(Match match);
 	
 	public List<Match> findMatchList(String summonerid, int gametype, String champion, int count);
@@ -34,5 +36,9 @@ public interface SummonerRepository {
 	public List<String> findMostchampids(String summonerid, int queue, int season);
 
 	public MostChampDto findChamp(String summonerid, String champid, int queue, int season);
+
+	
+
+	
 	
 }

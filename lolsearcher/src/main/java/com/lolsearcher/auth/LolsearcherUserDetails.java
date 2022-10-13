@@ -133,14 +133,12 @@ public class LolsearcherUserDetails implements UserDetails, OAuth2User {
 
 	@Override
 	public Map<String, Object> getAttributes() {
-		// TODO Auto-generated method stub
 		return this.attributes;
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return (String)this.attributes.get("sub");
 	}
 
 	

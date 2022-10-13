@@ -35,7 +35,7 @@ public class IpBanFilter implements Filter {
 		String request_ip = request.getRemoteAddr();
 		
 		String uri = ((HttpServletRequest)request).getRequestURI();
-		System.out.println(uri);
+		
 		if(uri.equals("/rejected")) {
 			chain.doFilter(request, response);
 		}else {

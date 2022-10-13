@@ -19,9 +19,7 @@ public class LolSearcherUser {
 	private String email;
 	private long lastLoginTimeStamp;
 	
-	public LolSearcherUser() {
-		
-	}
+	public LolSearcherUser() {}
 	
 	public LolSearcherUser(String username, String password, String role, String email, long lastLoginTimeStamp) {
 		this.username = username;

@@ -1,7 +1,6 @@
 package com.lolsearcher.service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,30 +17,35 @@ import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.Dto.summoner.RankDto;
+import com.lolsearcher.domain.Dto.summoner.RecentMatchesDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
 import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
 import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.rank.Rank;
 import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
+import com.lolsearcher.exception.SameNameExistException;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 
 
 @Service
-public class SummonerService {
-	
+public class SummonerService {	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private final static int seasonId = 22;
+	private static final int seasonId = 22;
 	private static final String soloRank = "RANKED_SOLO_5x5";
 	private static final String flexRank = "RANKED_FLEX_SR";
 	
 	private final SummonerRepository summonerrepository;
 	private final RiotRestAPI riotApi;
-	
+	private final ThreadService threadService;
 	@Autowired
-	public SummonerService(SummonerRepository summonerrepository, RiotRestAPI riotApi) {
+	public SummonerService(
+			ThreadService threadService,
+			SummonerRepository summonerrepository, 
+			RiotRestAPI riotApi) {
+		this.threadService = threadService;
 		this.summonerrepository = summonerrepository;
 		this.riotApi = riotApi;
 	}
@@ -50,15 +54,15 @@ public class SummonerService {
 	public SummonerDto findDbSummoner(String summonername) throws WebClientResponseException {
 		SummonerDto summonerDto = null;
 		
-		List<Summoner> dbSummoner = summonerrepository.findSummonerByName(summonername);
+		List<Summoner> dbSummoners = summonerrepository.findSummonerByName(summonername);
 		
-		if(dbSummoner.size()==0) {
+		if(dbSummoners.size()==0) {
 			return null;
-		}else if(dbSummoner.size()==1) {
-			summonerDto =  new SummonerDto(dbSummoner.get(0));
+		}else if(dbSummoners.size()==1) {
+			summonerDto =  new SummonerDto(dbSummoners.get(0));
 		}else {
-			this.updateDbSummoner(summonername);
-			summonerDto = this.findDbSummoner(summonername);
+			logger.error("'{}' 닉네임에 해당하는 유저가 둘 이상 존재",summonername);
+			throw new SameNameExistException();
 		}
 		
 		return summonerDto;
@@ -71,10 +75,15 @@ public class SummonerService {
 		for(Summoner dbSummoner : dbSummoners) {
 			try {
 				Summoner renewedSummoner = riotApi.getSummonerById(dbSummoner.getId());
+				logger.info("유저 '{}'의 닉네임이 '{}'->'{}'로 변경",
+						renewedSummoner.getId(), name, renewedSummoner.getName());
 				renewSummoner(dbSummoner, renewedSummoner);
 			}catch(WebClientResponseException e) {
 				if(e.getStatusCode().value()==400) {
+					logger.info("'{}' 닉네임에 해당하는 유저는 현재 없음", name);
 					summonerrepository.deleteSummoner(dbSummoner);
+				}else {
+					throw e;
 				}
 			}
 		}
@@ -144,8 +153,8 @@ public class SummonerService {
 		return ranksDto;
 	}
 	
-	@Transactional(readOnly = true)
-	public List<MatchDto> setMatches(SummonerDto summonerdto) throws WebClientResponseException {
+	@Transactional
+	public List<MatchDto> getRenewMatches(SummonerDto summonerdto) throws WebClientResponseException {
 		
 		String id = summonerdto.getSummonerid();
 		
@@ -163,14 +172,21 @@ public class SummonerService {
 		List<String> recent_match_ids = new ArrayList<>();
 		
 		for(String matchId : matchIds) {
-			if(!summonerrepository.findMatchid(matchId)) {
+			if(summonerrepository.findMatchById(matchId)==null) {
 				recent_match_ids.add(matchId);
 			}
 		}
 		
-		List<MatchDto> recent_match_dtos = new ArrayList<>();
 		
-		List<Match> recent_matches = riotApi.getMatches(recent_match_ids);
+		RecentMatchesDto recentMatchesInfo = riotApi.getMatchesByNonBlocking(recent_match_ids);
+		
+		List<Match> recent_matches = recentMatchesInfo.getMatches();
+		List<String> failMatchIds = recentMatchesInfo.getFailMatchIds();
+		
+		threadService.runSavingMatches(recent_matches);
+		threadService.runRemainingMatches(failMatchIds);
+		
+		List<MatchDto> recent_match_dtos = new ArrayList<>();
 		for(Match recent_match : recent_matches) {
 			recent_match_dtos.add(new MatchDto(recent_match));
 		}
@@ -180,7 +196,7 @@ public class SummonerService {
 	
 
 	@Transactional(readOnly = true)
-	public List<MatchDto> getMatches(MatchParamDto matchdto){
+	public List<MatchDto> getOldMatches(MatchParamDto matchdto){
 		String champion = matchdto.getChampion();
 		int gametype = matchdto.getGametype();
 		String summonerid = matchdto.getSummonerid();
@@ -221,4 +237,6 @@ public class SummonerService {
 		before.setSummonerLevel(after.getSummonerLevel());
 		before.setLastRenewTimeStamp(after.getLastRenewTimeStamp());
 	}
+	
+	
 }

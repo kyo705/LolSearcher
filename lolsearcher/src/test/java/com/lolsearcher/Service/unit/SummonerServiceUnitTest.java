@@ -29,12 +29,14 @@ import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.Dto.summoner.RankDto;
+import com.lolsearcher.domain.Dto.summoner.RecentMatchesDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
 import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
 import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.rank.Rank;
 import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
+import com.lolsearcher.exception.SameNameExistException;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.restapi.RiotRestAPI;
 import com.lolsearcher.service.SummonerService;
@@ -60,7 +62,7 @@ class SummonerServiceUnitTest {
 	
 	@BeforeEach
 	void upset() {
-		summonerService = new SummonerService(summonerRepository, riotRestApi);
+		summonerService = new SummonerService(threadService, summonerRepository, riotRestApi);
 	}
 
 	//----------------------findDbSummoner() 메소드 Test Case------------------------------------
@@ -138,236 +140,11 @@ class SummonerServiceUnitTest {
 		when(summonerRepository.findSummonerByName(summonerName))
 		.thenReturn(dbSummoners);
 		
-		Summoner apiSummoner1 = new Summoner();
-		apiSummoner1.setId("id1");
-		apiSummoner1.setName(summonerName);
-		apiSummoner1.setProfileIconId(50);
-		when(riotRestApi.getSummonerById("id1"))
-		.thenReturn(apiSummoner1);
-		
-		Summoner apiSummoner2 = new Summoner();
-		apiSummoner2.setId("id2");
-		apiSummoner2.setName("갓버수문장");
-		when(riotRestApi.getSummonerById("id2"))
-		.thenReturn(apiSummoner2);
-		
-		
 		//when
-		SummonerDto summonerDto = summonerService.findDbSummoner(summonerName);
-		
-		//then
-		assertThat(summonerDto.getSummonerid()).isEqualTo(apiSummoner1.getId());
-		assertThat(summonerDto.getName()).isEqualTo("푸켓푸켓");
-		assertThat(summonerDto.getProfileIconId()).isEqualTo(50);
-		
-		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		assertThat(dbSummoner1.getName()).isEqualTo(apiSummoner1.getName());
-		assertThat(dbSummoner2.getName()).isEqualTo(apiSummoner2.getName());
-	}
-	
-	@Test
-	void findDbSummonerCase4() {
-		//testCase4 : DB에 특정 닉네임이 2개 이상 존재할 때 
-		//해당 실제 닉네임을 가진 유저가 DB에 존재하지 않을 때
-		
-		//given
-		//테스트할 메소드 파라미터 값
-		String summonerName = "푸켓푸켓";
-		
-		//Mock 객체 데이터 셋팅
-		Summoner dbSummoner1 = new Summoner();
-		dbSummoner1.setPrimaryId(1);
-		dbSummoner1.setId("id1");
-		dbSummoner1.setName(summonerName);
-		
-		Summoner dbSummoner2 = new Summoner();
-		dbSummoner2.setPrimaryId(2);
-		dbSummoner2.setId("id2");
-		dbSummoner2.setName(summonerName);
-		
-		List<Summoner> dbSummoners = new ArrayList<>();
-		dbSummoners.add(dbSummoner1);
-		dbSummoners.add(dbSummoner2);
-		
-		when(summonerRepository.findSummonerByName(summonerName))
-		.thenReturn(dbSummoners);
-		
-		Summoner apiSummoner1 = new Summoner();
-		apiSummoner1.setId("id1");
-		apiSummoner1.setName("페이커");
-		apiSummoner1.setProfileIconId(50);
-		when(riotRestApi.getSummonerById("id1"))
-		.thenReturn(apiSummoner1);
-		
-		Summoner apiSummoner2 = new Summoner();
-		apiSummoner2.setId("id2");
-		apiSummoner2.setName("갓버수문장");
-		when(riotRestApi.getSummonerById("id2"))
-		.thenReturn(apiSummoner2);
-		
-		
-		//when
-		SummonerDto summonerDto = summonerService.findDbSummoner(summonerName);
-		
-		//then
-		assertThat(summonerDto).isEqualTo(null);
-		
-		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		assertThat(dbSummoner1.getName()).isEqualTo(apiSummoner1.getName());
-		assertThat(dbSummoner2.getName()).isEqualTo(apiSummoner2.getName());
-	}
-	
-	@Test
-	void findDbSummonerCase5() {
-		//testCase5 : DB에 특정 닉네임이 2개 이상 존재할 때 
-		//해당 리스트 중 유저 중 삭제된 인원이 있고, 해당 닉네임을 가진 유저 존재할 때
-		
-		//given
-		//테스트할 메소드 파라미터 값
-		String summonerName = "푸켓푸켓";
-		//Mock 객체 데이터 셋팅
-		Summoner dbSummoner1 = new Summoner();
-		dbSummoner1.setPrimaryId(1);
-		dbSummoner1.setId("id1");
-		dbSummoner1.setName(summonerName);
-		
-		Summoner dbSummoner2 = new Summoner();
-		dbSummoner2.setPrimaryId(2);
-		dbSummoner2.setId("id2");
-		dbSummoner2.setName(summonerName);
-		dbSummoner2.setLastRenewTimeStamp(1000);
-		dbSummoner2.setLastmatchid("matchId1");
-		
-		List<Summoner> dbSummoners = new ArrayList<>();
-		dbSummoners.add(dbSummoner1);
-		dbSummoners.add(dbSummoner2);
-		
-		when(summonerRepository.findSummonerByName(summonerName))
-		.thenReturn(dbSummoners);
-		
-		when(riotRestApi.getSummonerById("id1"))
-		.thenThrow(new WebClientResponseException(400, "존재하지 않는 유저입니다", null, null, null));
-		
-		Summoner apiSummoner1 = new Summoner();
-		apiSummoner1.setId("id2");
-		apiSummoner1.setName(summonerName);
-		apiSummoner1.setLastRenewTimeStamp(2000);
-		
-		when(riotRestApi.getSummonerById("id2"))
-		.thenReturn(apiSummoner1);
-		
-		//when
-		SummonerDto summonerDto = summonerService.findDbSummoner(summonerName);
-		
-		//then
-		assertThat(summonerDto.getSummonerid()).isEqualTo(dbSummoner2.getId());
-		assertThat(summonerDto.getName()).isEqualTo(dbSummoner2.getName());
-		
-		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		verify(summonerRepository, times(1)).deleteSummoner(dbSummoner1);
-		assertThat(dbSummoner2.getName()).isEqualTo(apiSummoner1.getName());
-		assertThat(dbSummoner2.getLastRenewTimeStamp()).isEqualTo(apiSummoner1.getLastRenewTimeStamp());
-		assertThat(dbSummoner2.getLastRenewTimeStamp()).isEqualTo(2000);
-		//lastmatchid는 갱신되지 않음
-		assertThat(dbSummoner2.getLastmatchid()).isNotEqualTo(apiSummoner1.getLastmatchid());
-		assertThat(dbSummoner2.getLastmatchid()).isEqualTo("matchId1");
-	}
-	
-	@Test
-	void findDbSummonerCase6() {
-		//testCase6 : DB에 닉네임이 2개 이상 존재할 때 
-		//해당 리스트 중 유저 중 삭제된 인원이 있고, 해당 닉네임을 가진 유저 존재하지 않을 때
-		
-		//given
-		//테스트할 메소드 파라미터 값
-		String summonerName = "푸퀫푸켓";
-		
-		//Mock 객체 데이터 셋팅
-		Summoner dbSummoner1 = new Summoner();
-		dbSummoner1.setPrimaryId(1);
-		dbSummoner1.setId("id1");
-		dbSummoner1.setName(summonerName);
-		
-		Summoner dbSummoner2 = new Summoner();
-		dbSummoner2.setPrimaryId(2);
-		dbSummoner2.setId("id2");
-		dbSummoner2.setName(summonerName);
-		
-		List<Summoner> dbSummoners = new ArrayList<>();
-		dbSummoners.add(dbSummoner1);
-		dbSummoners.add(dbSummoner2);
-		
-		when(summonerRepository.findSummonerByName(summonerName))
-		.thenReturn(dbSummoners);
-		
-		when(riotRestApi.getSummonerById("id1"))
-		.thenThrow(new WebClientResponseException(400, "존재하지 않는 유저입니다", null, null, null));
-		
-		Summoner apiSummoner1 = new Summoner();
-		apiSummoner1.setId("id2");
-		apiSummoner1.setName("페이커");
-		when(riotRestApi.getSummonerById("id2"))
-		.thenReturn(apiSummoner1);
-		
-		//when
-		SummonerDto summonerDto = summonerService.findDbSummoner(summonerName);
-		
-		//then
-		assertThat(summonerDto).isEqualTo(null);
-		
-		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		verify(summonerRepository, times(1)).deleteSummoner(dbSummoner1);
-		assertThat(dbSummoner2.getName()).isEqualTo(apiSummoner1.getName());
-		assertThat(dbSummoner2.getName()).isEqualTo("페이커");
-	}
-	
-	@Test
-	void findDbSummonerCase7() {
-		//testCase7 : DB에 닉네임이 2개 이상 존재할 때 
-		//해당 리스트 중 유저 정보를 갱신하고 있는 중 rest api 요청 제한 횟수를 초과한 경우
-		//예외 발생 전, 수행 된 DB쿼리를 롤백할지 커밋할지 결정해야함(@tranactional(noRollbackFor=?)을 이용해)
-		
-		//given
-		//테스트할 메소드 파라미터 값
-		String summonerName = "푸켓푸켓";
-		
-		//Mock 객체 데이터 셋팅
-		Summoner dbSummoner1 = new Summoner();
-		dbSummoner1.setId("id1");
-		dbSummoner1.setName(summonerName);
-		
-		Summoner dbSummoner2 = new Summoner();
-		dbSummoner2.setId("id2");
-		dbSummoner2.setName(summonerName);
-		
-		List<Summoner> dbSummoners = new ArrayList<>();
-		dbSummoners.add(dbSummoner1);
-		dbSummoners.add(dbSummoner2);
-		
-		when(summonerRepository.findSummonerByName(summonerName))
-		.thenReturn(dbSummoners);
-		
-		Summoner apiSummoner1 = new Summoner();
-		apiSummoner1.setId("id1");
-		apiSummoner1.setName("페이커");
-		when(riotRestApi.getSummonerById("id1"))
-		.thenReturn(apiSummoner1);
-		
-		Summoner apiSummoner2 = new Summoner();
-		apiSummoner2.setId("id2");
-		apiSummoner2.setName("갓버수문장");
-		when(riotRestApi.getSummonerById("id2"))
-		.thenThrow(new WebClientResponseException(429, "너무 많은 요청입니다. 잠시 후, 다시 시도해주세요", null, null, null));
-		
-		//when,then
-		WebClientResponseException e = assertThrows(WebClientResponseException.class,
-				()->summonerService.findDbSummoner(summonerName));
-		
-		assertThat(e.getStatusCode().value()).isEqualTo(429);
-		assertThat(e.getStatusText()).isEqualTo("너무 많은 요청입니다. 잠시 후, 다시 시도해주세요");
-		
-		verify(riotRestApi, times(2)).getSummonerById(anyString());
-		verify(summonerRepository, times(0)).saveSummoner(apiSummoner2);
+		Exception e = assertThrows(SameNameExistException.class, ()->{
+			summonerService.findDbSummoner(summonerName);
+		});
+		assertThat(e.getClass()).isEqualTo(SameNameExistException.class);
 	}
 	
 	
@@ -867,7 +644,7 @@ class SummonerServiceUnitTest {
 	//----------------------setMatches() 메소드 Test Case------------------------------------
 	
 	@Test
-	void setMatchesCase1() {
+	void getRenewMatchesCase1() {
 		//test Case 1 : REST API 통신으로 matchIdList를 가져오는데 성공하고				
 		//				가져온 모든 matchId에 해당하는 match 데이터들이 DB에 없는 경우
 		
@@ -897,11 +674,11 @@ class SummonerServiceUnitTest {
 		when(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid()))
 		.thenReturn(matchIds);
 		
-		when(summonerRepository.findMatchid("matchId5")).thenReturn(false);
-		when(summonerRepository.findMatchid("matchId4")).thenReturn(false);
-		when(summonerRepository.findMatchid("matchId3")).thenReturn(false);
-		when(summonerRepository.findMatchid("matchId2")).thenReturn(false);
-		when(summonerRepository.findMatchid("matchId1")).thenReturn(false);
+		when(summonerRepository.findMatchById("matchId5")).thenReturn(null);
+		when(summonerRepository.findMatchById("matchId4")).thenReturn(null);
+		when(summonerRepository.findMatchById("matchId3")).thenReturn(null);
+		when(summonerRepository.findMatchById("matchId2")).thenReturn(null);
+		when(summonerRepository.findMatchById("matchId1")).thenReturn(null);
 		
 		List<String> recent_match_ids = new ArrayList<>();
 		recent_match_ids.addAll(matchIds);
@@ -924,10 +701,12 @@ class SummonerServiceUnitTest {
 		recent_match.add(match2);
 		recent_match.add(match1);
 		
-		when(riotRestApi.getMatches(recent_match_ids)).thenReturn(recent_match);
+		RecentMatchesDto recentMatchesDto = new RecentMatchesDto(recent_match, null);
+		
+		when(riotRestApi.getMatchesByNonBlocking(recent_match_ids)).thenReturn(recentMatchesDto);
 		
 		//when
-		List<MatchDto> recent_match_dtos = summonerService.setMatches(summonerDto);
+		List<MatchDto> recent_match_dtos = summonerService.getRenewMatches(summonerDto);
 		
 		//then
 		assertThat(summoner.getLastmatchid()).isEqualTo("matchId5");	
@@ -941,7 +720,7 @@ class SummonerServiceUnitTest {
 	}
 	
 	@Test
-	void setMatchesCase2() {
+	void getRenewMatchesCase2() {
 		//test Case 2 : REST API 통신으로 matchIdList를 가져오는데 성공하고				
 		//				가져온 matchIdList에 일부 match정보가 DB에 저장되어있는 경우
 		
@@ -971,11 +750,11 @@ class SummonerServiceUnitTest {
 		when(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastmatchid()))
 		.thenReturn(matchIds);
 		
-		when(summonerRepository.findMatchid("matchId5")).thenReturn(false);
-		when(summonerRepository.findMatchid("matchId4")).thenReturn(true); //이미 저장된 매치 정보
-		when(summonerRepository.findMatchid("matchId3")).thenReturn(false);
-		when(summonerRepository.findMatchid("matchId2")).thenReturn(true); //이미 저장된 매치 정보
-		when(summonerRepository.findMatchid("matchId1")).thenReturn(false);
+		when(summonerRepository.findMatchById("matchId5")).thenReturn(null);
+		when(summonerRepository.findMatchById("matchId4")).thenReturn(new Match()); //이미 저장된 매치 정보
+		when(summonerRepository.findMatchById("matchId3")).thenReturn(null);
+		when(summonerRepository.findMatchById("matchId2")).thenReturn(new Match()); //이미 저장된 매치 정보
+		when(summonerRepository.findMatchById("matchId1")).thenReturn(null);
 		
 		List<String> recent_match_ids = new ArrayList<>();
 		recent_match_ids.add("matchId5");
@@ -994,10 +773,12 @@ class SummonerServiceUnitTest {
 		recent_matches.add(match3);
 		recent_matches.add(match1);
 		
-		when(riotRestApi.getMatches(recent_match_ids)).thenReturn(recent_matches);
+		RecentMatchesDto recentMatchesDto = new RecentMatchesDto(recent_matches, null);
+		
+		when(riotRestApi.getMatchesByNonBlocking(recent_match_ids)).thenReturn(recentMatchesDto);
 		
 		//when
-		List<MatchDto> recent_match_dtos = summonerService.setMatches(summonerDto);
+		List<MatchDto> recent_match_dtos = summonerService.getRenewMatches(summonerDto);
 		
 		//then
 		assertThat(summoner.getLastmatchid()).isEqualTo("matchId5");
@@ -1009,7 +790,7 @@ class SummonerServiceUnitTest {
 	}
 	
 	@Test
-	void setMatchesCase3() {
+	void getRenewMatchesCase3() {
 		//test Case 3 : REST API 통신으로 matchIdList를 가져오는데 성공하고				
 		//				가져온 matchIdList의 size()가 0인 경우
 		
@@ -1034,8 +815,11 @@ class SummonerServiceUnitTest {
 		when(riotRestApi.getAllMatchIds(summoner.getPuuid(),summoner.getLastmatchid()))
 		.thenReturn(matchIds);
 		
+		RecentMatchesDto recentMatchesDto = new RecentMatchesDto(new ArrayList<>(), new ArrayList<>());
+		when(riotRestApi.getMatchesByNonBlocking(matchIds)).thenReturn(recentMatchesDto);
+		
 		//when
-		List<MatchDto> recent_match_dtos = summonerService.setMatches(summonerDto);
+		List<MatchDto> recent_match_dtos = summonerService.getRenewMatches(summonerDto);
 		
 		//then
 		assertThat(recent_match_dtos.size()).isEqualTo(0);
@@ -1044,7 +828,7 @@ class SummonerServiceUnitTest {
 	}
 	
 	@Test
-	void setMatchesCase4() {
+	void getRenewMatchesCase4() {
 		//test Case 4 : REST API 통신으로 matchIdList를 가져오는데 실패한 경우(EX. 요청 제한 횟수를 초과한 경우)
 		
 		//given
@@ -1068,7 +852,7 @@ class SummonerServiceUnitTest {
 		
 		//when & then
 		WebClientResponseException e = assertThrows(WebClientResponseException.class,
-				()->summonerService.setMatches(summonerDto));
+				()->summonerService.getRenewMatches(summonerDto));
 		assertThat(e.getStatusCode().value()).isEqualTo(429);
 		assertThat(e.getStatusText()).isEqualTo("많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.");
 		
@@ -1081,7 +865,7 @@ class SummonerServiceUnitTest {
 	//----------------------getMatches() 메소드 Test Case------------------------------------
 	
 	@Test
-	void getMatchesCase1() {
+	void getOldMatchesCase1() {
 		//test Case 1 : parameter로 전달 받은 조건들을 이용해 DB에서 적절한 matchList를 반환하는 상황
 		
 		//given
@@ -1116,7 +900,7 @@ class SummonerServiceUnitTest {
 		.thenReturn(matchList);
 		
 		//when
-		List<MatchDto> matchListDto = summonerService.getMatches(matchparam);
+		List<MatchDto> matchListDto = summonerService.getOldMatches(matchparam);
 		
 		//then
 		assertThat(matchListDto.size()).isEqualTo(matchList.size());
@@ -1127,7 +911,7 @@ class SummonerServiceUnitTest {
 	}
 	
 	@Test
-	void getMatchesCase2() {
+	void getOldMatchesCase2() {
 		//test Case 2 : parameter로 전달 받은 조건에 만족하는 matchList가 없는 경우
 		
 		//given
@@ -1149,7 +933,7 @@ class SummonerServiceUnitTest {
 		.thenReturn(matchList);
 		
 		//when
-		List<MatchDto> matchListDto = summonerService.getMatches(matchparam);
+		List<MatchDto> matchListDto = summonerService.getOldMatches(matchparam);
 		
 		//then
 		assertThat(matchListDto.size()).isEqualTo(matchList.size());

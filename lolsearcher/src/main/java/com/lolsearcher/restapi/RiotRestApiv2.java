@@ -3,19 +3,17 @@ package com.lolsearcher.restapi;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.domain.Dto.ingame.CurrentGameParticipantDto;
 import com.lolsearcher.domain.Dto.ingame.InGameDto;
 import com.lolsearcher.domain.Dto.summoner.RankDto;
+import com.lolsearcher.domain.Dto.summoner.RecentMatchesDto;
 import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.match.Member;
 import com.lolsearcher.domain.entity.summoner.match.MemberCompKey;
-import com.lolsearcher.service.ThreadService;
 
 import reactor.core.publisher.Mono;
 
@@ -24,25 +22,20 @@ public class RiotRestApiv2 implements RiotRestAPI{
 	private static final String key = "RGAPI-2a0ac3ef-7f65-4854-97d4-54e2c7b3dbab";
 	
 	private WebClient webclient;
-	private final ExecutorService executorService;
-	private final ThreadService threadService;
 	
-	public RiotRestApiv2(
-			WebClient webclient,
-			ExecutorService executorService,
-			ThreadService threadService
-			) {
+	public RiotRestApiv2(WebClient webclient) {
 		this.webclient = webclient;
-		this.executorService =executorService;
-		this.threadService = threadService;
 	}
 
 	@Override
 	public Summoner getSummonerById(String id) throws WebClientResponseException {
 		
-		Summoner summoner = webclient.get().uri("https://kr.api.riotgames.com"
+		Summoner summoner = webclient.get()
+				.uri("https://kr.api.riotgames.com"
 				+ "/lol/summoner/v4/summoners/"+id+"?api_key="+key)
-				.retrieve().bodyToMono(Summoner.class).block();
+				.retrieve()
+				.bodyToMono(Summoner.class)
+				.block();
 		
 		summoner.setLastmatchid("");
         summoner.setLastRenewTimeStamp(System.currentTimeMillis());
@@ -54,9 +47,12 @@ public class RiotRestApiv2 implements RiotRestAPI{
 	@Override
 	public Summoner getSummonerByName(String summonername) throws WebClientResponseException {
 		
-		Summoner summoner = webclient.get().uri("https://kr.api.riotgames.com"
+		Summoner summoner = webclient.get()
+				.uri("https://kr.api.riotgames.com"
 				+ "/lol/summoner/v4/summoners/by-name/"+summonername+"?api_key="+key)
-				.retrieve().bodyToMono(Summoner.class).block();
+				.retrieve()
+				.bodyToMono(Summoner.class)
+				.block();
 		
 		summoner.setLastmatchid("");
         summoner.setLastRenewTimeStamp(System.currentTimeMillis());
@@ -150,18 +146,20 @@ public class RiotRestApiv2 implements RiotRestAPI{
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public Match getOneMatch(String matchId){
+	public Match getOneMatchByBlocking(String matchId){
 		
 		Map json = webclient.get().uri("https://asia.api.riotgames.com"
 				+ "/lol/match/v5/matches/"+matchId+"?api_key="+key)
-				.retrieve().bodyToMono(Map.class).block();
+				.retrieve()
+				.bodyToMono(Map.class)
+				.block();
 		
 		Match match = parsingMatchJson(json);
 		
 		return match;
 	}
 	
-	public List<Match> getMatches(List<String> matchIds) throws WebClientResponseException{
+	public RecentMatchesDto getMatchesByNonBlocking(List<String> matchIds) throws WebClientResponseException{
 		List<Match> matches = new ArrayList<>();
 		List<String> fail_matchIds = new ArrayList<>();
 		
@@ -176,6 +174,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
 			.bodyToMono(Map.class)
 			.onErrorResume(e -> {
 				if(e instanceof WebClientResponseException) {
+					System.out.print(e.getMessage());
 					if(((WebClientResponseException) e).getStatusCode().value() == 429) {
 						fail_matchIds.add(matchId);
 					}
@@ -202,32 +201,27 @@ public class RiotRestApiv2 implements RiotRestAPI{
 			}
 		}
 		
-		//matches를 DB에 저장하는 스레드 생성 및 실행
-		Runnable saveMatchesToDB = makingRunnableToSaveMatches(matches);
-		executorService.submit(saveMatchesToDB);
-		
-		//429로 인해 match 데이터 조회 실패한 로직 다시 실행
-		if(fail_matchIds.size()!=0) {
-			Runnable saveRemainingMatches1 = makingRunnableToSaveRemainingMatches(fail_matchIds, 0);
-			executorService.submit(saveRemainingMatches1);
-		}
-		
 		if(matchIds.size()!=count) {
-			Runnable saveRemainingMatches2 = makingRunnableToSaveRemainingMatches(matchIds, count);
-			executorService.submit(saveRemainingMatches2);
+			fail_matchIds.addAll(matchIds.subList(count, matchIds.size()));
 		}
 		
+		RecentMatchesDto recentMatchesDto = new RecentMatchesDto(matches, fail_matchIds);
 		
-		return matches;
+		
+		return recentMatchesDto;
 	}
 
 
 	@Override
 	public List<RankDto> getLeague(String summonerid) throws WebClientResponseException {
 		
-		List<RankDto> ranks = webclient.get().uri("https://kr.api.riotgames.com"
+		List<RankDto> ranks = webclient.get()
+				.uri("https://kr.api.riotgames.com"
 				+ "/lol/league/v4/entries/by-summoner/"+summonerid+"?api_key="+key)
-		.retrieve().bodyToFlux(RankDto.class).collectList().block();
+				.retrieve()
+				.bodyToFlux(RankDto.class)
+				.collectList()
+				.block();
 		
 		return ranks;
 	}
@@ -236,10 +230,13 @@ public class RiotRestApiv2 implements RiotRestAPI{
 	@Override
 	public InGameDto getInGameBySummonerId(String summonerid) throws WebClientResponseException {
 		
-		InGameDto currentGame = webclient.get().uri("https://kr.api.riotgames.com"
+		InGameDto currentGame = webclient.get()
+				.uri("https://kr.api.riotgames.com"
 				+ "/lol/spectator/v4/active-games/by-summoner/"
 				+summonerid+"?api_key="+key)
-				.retrieve().bodyToMono(InGameDto.class).block();
+				.retrieve()
+				.bodyToMono(InGameDto.class)
+				.block();
 		
 		List<CurrentGameParticipantDto> curParticipants = currentGame.getParticipants();
 		for(int i=0;i<10;i++) {
@@ -315,76 +312,11 @@ public class RiotRestApiv2 implements RiotRestAPI{
         	member.setItem4((int)participant.get("item4"));
         	member.setItem5((int)participant.get("item5"));
         	member.setItem6((int)participant.get("item6"));	
-        	
         }
 		
 		return match;
 	}
 	
-	private Runnable makingRunnableToSaveMatches(List<Match> matches) {
-		Runnable saveMatchesToDB = new Runnable() {
-			@Override
-			public void run() {
-				threadService.saveMatches(matches);
-			}
-		};
-		
-		return saveMatchesToDB;
-	}
 	
-	
-	private Runnable makingRunnableToSaveRemainingMatches(List<String> matchIds, int start_index) {
-		
-		Runnable runnable = new Runnable() {
-			@SuppressWarnings("rawtypes")
-			@Override
-			public void run() {	
-				try {
-					System.out.println("스레드 2분 정지");
-					Thread.sleep(1000*60*2 + 2000);
-					System.out.println("스레드 다시 시작");
-				} catch (InterruptedException e2) {
-					System.out.println("인터럽트 에러 발생");
-				}
-				
-				List<Match> matches = new ArrayList<>();
-				
-				for(int i=start_index; i<matchIds.size();) {
-					String matchId = matchIds.get(i);
-					
-					try {
-						Map json = webclient.get().uri("https://asia.api.riotgames.com"
-								+ "/lol/match/v5/matches/"+matchId+"?api_key="+key)
-								.retrieve()
-								.bodyToMono(Map.class)
-								.block();
-						
-						Match match = parsingMatchJson(json);
-						matches.add(match);
-						i++;
-					}catch(WebClientResponseException e1) {
-						if(e1.getStatusCode().value()==429) {
-							threadService.saveMatches(matches);
-							
-							try {
-								System.out.println("스레드 2분 정지");
-								Thread.sleep(1000*60*2+2000);
-								System.out.println("스레드 다시 시작");
-								matches.clear();
-							} catch (InterruptedException e2) {
-								e2.printStackTrace();
-							}
-						}
-					}catch(Exception e2) {
-						break;
-					}
-				}
-				
-				threadService.saveMatches(matches);
-			}
-		};
-		
-		return runnable;
-	}
 
 }

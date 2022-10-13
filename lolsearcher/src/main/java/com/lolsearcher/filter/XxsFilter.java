@@ -9,7 +9,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 
-@WebFilter(urlPatterns = "/summoner")
+@WebFilter(urlPatterns = "/*")
 public class XxsFilter implements Filter {
 
 	@Override
@@ -17,10 +17,13 @@ public class XxsFilter implements Filter {
 			throws IOException, ServletException {
 		
 		String unfiltered_name = request.getParameter("name");
-		String regex = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
-		String filtered_name = unfiltered_name.replaceAll(regex, "");
 		
-		request.setAttribute("filteredName", filtered_name);
+		if(unfiltered_name!=null) {
+			String regex = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
+			String filtered_name = unfiltered_name.replaceAll(regex, "");
+			
+			request.setAttribute("filteredName", filtered_name);
+		}
 		
 		chain.doFilter(request, response);
 	}

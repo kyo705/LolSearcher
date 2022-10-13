@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -26,7 +25,7 @@ public class Match {
 	private int season;
 	
 	@BatchSize(size = 100)
-	@OneToMany(mappedBy = "match", cascade = CascadeType.ALL, fetch = FetchType.EAGER) 
+	@OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
 	private List<Member> members = new ArrayList<>();
 	
 	

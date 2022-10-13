@@ -61,13 +61,13 @@ public class InGame {
 		this.bannedChampions = new ArrayList<>();
 		for(BannedChampionDto bannedchampDto : ingameDto.getBannedChampions()) {
 			BannedChampion bannedchamp = new BannedChampion(bannedchampDto, ingameDto.getGameId());
-			addBannedChampion(bannedchamp);
+			bannedchamp.setIngame(this);
 		}
 		
 		this.participants = new ArrayList<>();
 		for(CurrentGameParticipantDto participantDto : ingameDto.getParticipants()) {
 			CurrentGameParticipant participant = new CurrentGameParticipant(participantDto, ingameDto.getGameId());
-			addCurrentGameParticipant(participant);
+			participant.setIngame(this);
 		}
 	}
 	
@@ -136,11 +136,9 @@ public class InGame {
 	
 	public void addBannedChampion(BannedChampion bannedChamp) {
 		this.bannedChampions.add(bannedChamp);
-		bannedChamp.setIngame(this);
 	}
 	
 	public void addCurrentGameParticipant(CurrentGameParticipant participant) {
 		this.participants.add(participant);
-		participant.setIngame(this);
 	}
 }

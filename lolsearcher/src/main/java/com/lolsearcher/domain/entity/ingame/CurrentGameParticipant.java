@@ -137,7 +137,12 @@ public class CurrentGameParticipant {
 	}
 
 	public void setIngame(InGame ingame) {
+		if(this.ingame!=null) {
+			this.ingame.getParticipants().remove(this);
+		}
+		
 		this.ingame = ingame;
+		ingame.addCurrentGameParticipant(this);
 	}
 
 	public long getMainPerk1() {
