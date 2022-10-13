@@ -80,15 +80,7 @@ public class SummonerController {
 		if(summonerdto==null||
 				(param.isRenew()&&System.currentTimeMillis()-summonerdto.getLastRenewTimeStamp()>=5*60*1000)) {
 			
-			
 			summonerdto = summonerService.setSummoner(filteredName);
-			/*try {
-				summonerdto = summonerService.setSummoner(filteredName);
-			}catch(DataIntegrityViolationException e) {
-				//멀티 스레드 환경이기 때문에 DB에 중복 저장에 대한 예외 처리
-				summonerdto = summonerService.findDbSummoner(filteredName);
-			}*/
-			
 			
 			// RANK 관련 데이터 RIOT 서버에서 데이터 받아와서 DB에 저장
 			try {
