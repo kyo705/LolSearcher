@@ -15,6 +15,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.lolsearcher.aop.TimeTraceAop;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.restapi.RiotRestAPI;
 import com.lolsearcher.restapi.RiotRestApiv2;
@@ -29,6 +30,11 @@ public class LolSearcherConfig {
 	public LolSearcherConfig(WebClient.Builder webclientBuilder) {
 		this.webclientBuilder = webclientBuilder;
 	}
+	
+	/*@Bean
+	public TimeTraceAop timeTraceAop() {
+		return new TimeTraceAop();
+	}*/
 	
 	@Bean
 	public WebClient webclient() {
