@@ -3,6 +3,10 @@ package com.lolsearcher.service;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import javax.annotation.PreDestroy;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaProducerException;
 import org.springframework.kafka.core.KafkaSendCallback;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -14,6 +18,7 @@ import com.lolsearcher.domain.entity.summoner.match.Match;
 
 @Service
 public class ThreadService {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final ExecutorService executorService;
 	private final KafkaTemplate<String, Match> MatchesKafkaTemplate;
@@ -27,6 +32,12 @@ public class ThreadService {
 		this.executorService = executorService;
 		this.MatchesKafkaTemplate = MatchesKafkaTemplate;
 		this.failMatchIdsKafkaTemplate = failMatchIdsKafkaTemplate;
+	}
+	
+	@PreDestroy
+	public void preDestroyThreadPool() {
+		logger.info("{} shut down", this.executorService.toString());
+		executorService.shutdown();
 	}
 
 	public void runSavingMatches(List<Match> matches) {
