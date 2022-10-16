@@ -35,7 +35,7 @@ public class ThreadService {
 	}
 	
 	@PreDestroy
-	public void preDestroyThreadPool() {
+	private void preDestroyThreadPool() {
 		logger.info("{} shut down", this.executorService.toString());
 		executorService.shutdown();
 	}
