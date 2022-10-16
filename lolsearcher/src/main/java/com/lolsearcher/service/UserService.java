@@ -46,6 +46,7 @@ public class UserService implements UserDetailsService {
 	@Transactional
 	public void joinUser(LolSearcherUser user) {
 		String rawPassword = user.getPassword();
+		
 		String secretPassword = bCryptPasswordEncoder.encode(rawPassword);
 		user.setPassword(secretPassword);
 		
