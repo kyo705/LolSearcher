@@ -4,13 +4,16 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.lolsearcher.domain.entity.ingame.InGame;
 
 @Repository
 public class jpaIngameRepository implements IngameRepository {
-
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	private final EntityManager em;
 	
 	
@@ -30,10 +33,9 @@ public class jpaIngameRepository implements IngameRepository {
 	public List<InGame> getIngame(String summonerid) {
 		//onetomany관계가 2개 존재하기 때문에 패치조인 사용 불가 => @fetch(FetchMode.SUBSELECT) 사용 (WHERE IN 절 사용)
 		
-		//where절의 in절에 서브쿼리를 넣게 되면 느려짐 => 하지만 인게임 데이터는 주기적으로 데이터를 삭제하기때문에 성능에 큰 차이는 없음.
 		String jpql = "SELECT i FROM InGame i WHERE i.gameId IN "
 				+ "(SELECT p.ck.gameId FROM CurrentGameParticipant p WHERE p.ck.summonerId = :summonerId) "
-				+ "ORDER BY i.gameStartTime DESC";
+				+ "ORDER BY i.gameId DESC";
 		
 		 List<InGame> ingames = em.createQuery(jpql, InGame.class)
 				 .setParameter("summonerId", summonerid)
@@ -46,18 +48,14 @@ public class jpaIngameRepository implements IngameRepository {
 	@Override
 	public void deleteIngameBySummonerId(String summonerid) {
 		String jpql = "DELETE FROM InGame i WHERE i.gameId IN "
-				+ "(SELECT p.ck.gameId FROM CurrentGameParticipant p WHERE p.ck.summonerId = :summonerId";
+				+ "(SELECT p.ck.gameId FROM CurrentGameParticipant p WHERE p.ck.summonerId = :summonerId)";
 		
-		int count = 0;
-		try {
-			count = em.createQuery(jpql, InGame.class)
-					.setParameter("summonerId", summonerid)
-					.executeUpdate();
-		}catch(Exception e) {
-			
-		}
+		int count = em.createQuery(jpql, InGame.class)
+				.setParameter("summonerId", summonerid)
+				.executeUpdate();
 		
-		System.out.println(count + " 개 entity 제거");
+		
+		logger.info("'{}'개 InGame Entity 제거", count);
 	}
 
 	@Override

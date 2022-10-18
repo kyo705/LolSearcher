@@ -38,7 +38,6 @@ public class InGameDto {
 			bannedChampions.add(new BannedChampionDto(bannedChampion));
 		}
 		
-		System.out.println(ingame.getParticipants());
 		for(CurrentGameParticipant participant : ingame.getParticipants()) {
 			
 			participants.add(new CurrentGameParticipantDto(participant));

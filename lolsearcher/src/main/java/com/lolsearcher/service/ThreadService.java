@@ -14,6 +14,8 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
 
+import com.lolsearcher.domain.Dto.ingame.InGameDto;
+import com.lolsearcher.domain.entity.ingame.InGame;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 
 @Service
@@ -21,15 +23,18 @@ public class ThreadService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final ExecutorService executorService;
+	private final InGameService inGameService;
 	private final KafkaTemplate<String, Match> MatchesKafkaTemplate;
 	private final KafkaTemplate<String, String> failMatchIdsKafkaTemplate;
 	
 	public ThreadService(
 			ExecutorService executorService,
+			InGameService inGameService,
 			KafkaTemplate<String, Match> MatchesKafkaTemplate,
 			KafkaTemplate<String, String> failMatchIdsKafkaTemplate) {
 		
 		this.executorService = executorService;
+		this.inGameService = inGameService;
 		this.MatchesKafkaTemplate = MatchesKafkaTemplate;
 		this.failMatchIdsKafkaTemplate = failMatchIdsKafkaTemplate;
 	}
@@ -50,6 +55,22 @@ public class ThreadService {
 		executorService.submit(saveRemainingMatches);
 	}
 
+	public void runSavingInGame(InGameDto inGameDto) {
+		executorService.submit(()->{
+			InGame inGame = new InGame(inGameDto);
+			inGameService.saveNewInGame(inGame);
+		});
+	}
+	
+	public void runRemovingDirtyInGame(String summonerId) {
+		runRemovingDirtyInGame(summonerId, -1);
+	}
+
+	public void runRemovingDirtyInGame(String summonerId, long gameId) {
+		executorService.submit(()->{
+			inGameService.removeDirtyInGame(summonerId, gameId);
+		});
+	}
 	
 	
 	private Runnable makingRunnableToSaveMatches(List<Match> matches) {
@@ -217,4 +238,5 @@ public class ThreadService {
 		
 		return runnable;*/
 	}
+
 }

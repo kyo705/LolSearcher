@@ -1,7 +1,6 @@
 package com.lolsearcher.Service.unit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -224,16 +223,32 @@ public class InGameServiceUnitTest {
 		when(riotRestApi.getInGameBySummonerId(anyString()))
 		.thenThrow(new WebClientResponseException(404, "해당 조건에 맞는 정보가 없습니다.", null, null, null));
 		
-		//when & then
-		WebClientResponseException e = assertThrows(WebClientResponseException.class,
-				()->inGameService.getInGame(summonerDto));
-		assertThat(e.getStatusCode().value()).isEqualTo(404);
-		assertThat(e.getStatusText()).isEqualTo("해당 조건에 맞는 정보가 없습니다.");
+		//when
+		InGameDto ingameDto = inGameService.getInGame(summonerDto);
 		
+		//then
+		assertThat(ingameDto).isEqualTo(null);
 		verify(riotRestApi, times(1)).getInGameBySummonerId(summoner.getId()); //REST API 통신 1회 일어나야함
 		verify(inGameRepository, times(0)).getIngame(anyString());  //인게임 정보 DB에 조회하면 안됌
 	}
 	
+	
+	//----------------------saveNewInGame() 메소드 Test Case------------------------------------
+	
+	@Test
+	void saveNewInGameCase1() {
+		//test Case 1 : 인게임 객체를 db에 저장하는 경우
+		
+		//given
+		InGame ingame = new InGame();
+		ingame.setGameId(1);
+		
+		//when
+		inGameService.saveNewInGame(ingame);
+		
+		//then
+		verify(inGameRepository, times(1)).saveIngame(ingame);
+	}
 	
 	//----------------------removeDirtyInGame() 메소드 Test Case------------------------------------
 	

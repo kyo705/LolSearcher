@@ -2,7 +2,10 @@ package com.lolsearcher.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -18,6 +21,7 @@ import com.lolsearcher.restapi.RiotRestAPI;
 @Service
 @Transactional
 public class InGameService {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final RiotRestAPI riotApi;
 	private final IngameRepository ingameRepository;
@@ -40,22 +44,33 @@ public class InGameService {
 		Summoner summoner = summonerRepository.findSummonerById(summonerDto.getSummonerid());
 		
 		if(System.currentTimeMillis() - summoner.getLastInGameSearchTimeStamp() > 1000*60*2L) {
+			logger.info("InGame 데이터 갱신");
 			summoner.setLastInGameSearchTimeStamp(System.currentTimeMillis());
 			
-			ingameDto = riotApi.getInGameBySummonerId(summoner.getId());
-			
-			InGame ingame = new InGame(ingameDto);
-			
-			ingameRepository.saveIngame(ingame);
+			try {
+				ingameDto = riotApi.getInGameBySummonerId(summoner.getId());
+			}catch (WebClientResponseException e) {
+				if(e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+					ingameDto = null;
+				}
+			}
 		}else {
+			logger.info("InGame 기존 데이터 조회");
 			List<InGame> ingames = ingameRepository.getIngame(summoner.getId());
+			
 			if(ingames.size()>0)
 				ingameDto = new InGameDto(ingames.get(0));
 		}
 		
 		return ingameDto;
 	}
+	
+	
+	public void saveNewInGame(InGame ingame) {
+		ingameRepository.saveIngame(ingame);
+	}
 
+	
 	public void removeDirtyInGame(String summonerid, long gameId) {
 		
 		List<InGame> ingames = ingameRepository.getIngame(summonerid);
@@ -65,7 +80,7 @@ public class InGameService {
 				try {
 					ingameRepository.deleteIngame(ingame);
 				}catch(Exception e) {
-					System.out.println("없는 데이터 삭제 에러");
+					logger.error("GameId : '{}' 삭제 에러", ingame.getGameId());
 					continue;
 				}
 			}

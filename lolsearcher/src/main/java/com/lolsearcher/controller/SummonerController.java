@@ -25,14 +25,12 @@ import com.lolsearcher.domain.Dto.command.MatchParamDtoBuilder;
 import com.lolsearcher.domain.Dto.command.MostChampParamDtoBuilder;
 import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.Dto.command.SummonerParamDto;
-import com.lolsearcher.domain.Dto.ingame.InGameDto;
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
 import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
 import com.lolsearcher.exception.SameNameExistException;
 import com.lolsearcher.filter.IpBanFilter;
-import com.lolsearcher.service.InGameService;
 import com.lolsearcher.service.SummonerService;
 
 @Controller
@@ -43,15 +41,13 @@ public class SummonerController {
 	
 	private final SummonerService summonerService;
 	
-	private final InGameService inGameService;
-	
 	private final ApplicationContext appContext;
 	
-	public SummonerController(SummonerService summonerService, InGameService inGameService
-			,ApplicationContext appContext) {
+	public SummonerController(SummonerService summonerService
+								,ApplicationContext appContext) {
+		
 		banCount = new ConcurrentHashMap<String, Integer>();
 		this.summonerService = summonerService;
-		this.inGameService = inGameService;
 		this.appContext = appContext;
 	}
 	
@@ -140,33 +136,7 @@ public class SummonerController {
 		return mv;
 	}
 	
-	@GetMapping(path = "/ingame")
-	public ModelAndView inGame(String filteredname) {
-		ModelAndView mv = new ModelAndView();
-		
-		//view로 전달될 데이터(Model)
-		InGameDto inGameDto = null;
-		SummonerDto summonerDto = null;
-		
-		summonerDto = summonerService.findDbSummoner(filteredname);
-		inGameDto = inGameService.getInGame(summonerDto);
-		
-		
-		if(inGameDto == null) {
-			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), -1);
-			
-			mv.addObject("summoner", summonerDto);
-			mv.setViewName("error_ingame");
-		}else {
-			inGameService.removeDirtyInGame(summonerDto.getSummonerid(), inGameDto.getGameId());
-			
-			mv.addObject("summoner", summonerDto);
-			mv.addObject("ingame", inGameDto);
-			mv.setViewName("inGame");
-		}
-		
-		return mv;
-	}
+	
 	
 	@GetMapping(path = "/rejected")
 	public ModelAndView rejected() {
