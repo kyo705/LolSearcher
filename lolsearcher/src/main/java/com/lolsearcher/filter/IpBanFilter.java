@@ -21,10 +21,10 @@ import org.springframework.stereotype.Component;
 public class IpBanFilter implements Filter {
 
 	private Map<String, Long> banList;
+	private static final long banDuration = 24*60*60*1000l;
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		Filter.super.init(filterConfig);
 		banList = new ConcurrentHashMap<>();
 	}
 	
@@ -43,7 +43,7 @@ public class IpBanFilter implements Filter {
 				chain.doFilter(request, response);
 			}else {
 				long ban_time = banList.get(request_ip);
-				if(System.currentTimeMillis() - ban_time >= 24*60*60*1000) {
+				if(System.currentTimeMillis() - ban_time >= banDuration) {
 					banList.remove(request_ip);
 					chain.doFilter(request, response);
 				}else {
@@ -52,8 +52,6 @@ public class IpBanFilter implements Filter {
 				}
 			}
 		}
-		
-		
 	}
 	
 	public void addBanList(String ip) {

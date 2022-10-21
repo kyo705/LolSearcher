@@ -56,7 +56,7 @@ public class InGameService {
 			}
 		}else {
 			logger.info("InGame 기존 데이터 조회");
-			List<InGame> ingames = ingameRepository.getIngame(summoner.getId());
+			List<InGame> ingames = ingameRepository.getInGamesBySummonerId(summoner.getId());
 			
 			if(ingames.size()>0)
 				ingameDto = new InGameDto(ingames.get(0));
@@ -73,7 +73,7 @@ public class InGameService {
 	
 	public void removeDirtyInGame(String summonerid, long gameId) {
 		
-		List<InGame> ingames = ingameRepository.getIngame(summonerid);
+		List<InGame> ingames = ingameRepository.getInGamesBySummonerId(summonerid);
 		
 		for(InGame ingame : ingames) {
 			if(ingame.getGameId()!=gameId) {

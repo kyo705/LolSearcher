@@ -8,7 +8,9 @@ public interface IngameRepository {
 
 	void saveIngame(InGame ingame);
 	
-	List<InGame> getIngame(String summonerid);
+	InGame getInGame(long gameId);
+	
+	List<InGame> getInGamesBySummonerId(String summonerid);
 	
 	void deleteIngameBySummonerId(String summonerid);
 

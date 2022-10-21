@@ -17,11 +17,10 @@ public class TimeTraceAop {
 			+ "&& !target(com.lolsearcher.configuration.LolSearcherConfig) "
 			+ "&& !target(com.lolsearcher.configuration.SecurityConfig) "
 			+ "&& !target(com.lolsearcher.filter.IpBanFilter) "
-			+ "&& !target(com.lolsearcher.filter.LolsearcherFilter) "
-			+ "&& !target(com.lolsearcher.filter.XxsFilter))")
+			+ "&& !target(com.lolsearcher.filter.LolsearcherFilter))")
 	public Object execute(ProceedingJoinPoint joinpoint) throws Throwable {
 		long start = System.currentTimeMillis();
-		log.info("START : '{}'", joinpoint.toString());
+		log.info("START : '{}'", joinpoint.toShortString());
 		
 		try {
 			return joinpoint.proceed();
@@ -29,8 +28,7 @@ public class TimeTraceAop {
 			long end = System.currentTimeMillis();
 			long total_time = end - start;
 			
-			log.info("RUNNING TIME '{}' : {} ms", joinpoint.toString(), total_time);
-			log.info("END : '{}'", joinpoint.toString());
+			log.info("END : '{}' {} ms", joinpoint.toShortString(), total_time);
 		}
 	}
 }

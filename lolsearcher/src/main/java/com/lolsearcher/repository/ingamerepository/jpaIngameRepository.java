@@ -30,7 +30,13 @@ public class jpaIngameRepository implements IngameRepository {
 	}
 
 	@Override
-	public List<InGame> getIngame(String summonerid) {
+	public InGame getInGame(long gameId) {
+		return em.find(InGame.class, gameId);
+	}
+
+	
+	@Override
+	public List<InGame> getInGamesBySummonerId(String summonerid) {
 		//onetomany관계가 2개 존재하기 때문에 패치조인 사용 불가 => @fetch(FetchMode.SUBSELECT) 사용 (WHERE IN 절 사용)
 		
 		String jpql = "SELECT i FROM InGame i WHERE i.gameId IN "
@@ -62,5 +68,4 @@ public class jpaIngameRepository implements IngameRepository {
 	public void deleteIngame(InGame ingame) {
 		em.remove(ingame);
 	}
-
 }

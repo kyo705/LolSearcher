@@ -53,10 +53,11 @@ public class SummonerController {
 	
 	
 	@PostMapping(path = "/summoner")
-	public ModelAndView summonerdefault(@ModelAttribute SummonerParamDto param, @RequestAttribute String filteredName) {
+	public ModelAndView summonerdefault(@ModelAttribute SummonerParamDto param, @RequestAttribute String name) {
 		
+		System.out.println("파라미터 : "+name);
 		ModelAndView mv = new ModelAndView();
-		param.setName(filteredName);
+		param.setName(name);
 		
 		//view로 전달될 데이터(Model)
 		SummonerDto summonerdto = null;
@@ -65,10 +66,10 @@ public class SummonerController {
 		List<MostChampDto> mostchamps = null;
 		
 		try {
-			summonerdto = summonerService.findDbSummoner(filteredName);
+			summonerdto = summonerService.findDbSummoner(name);
 		}catch (SameNameExistException e) {
-			summonerService.updateDbSummoner(filteredName);
-			summonerdto = summonerService.findDbSummoner(filteredName);
+			summonerService.updateDbSummoner(name);
+			summonerdto = summonerService.findDbSummoner(name);
 		}
 		
 		
@@ -76,7 +77,7 @@ public class SummonerController {
 		if(summonerdto==null||
 				(param.isRenew()&&System.currentTimeMillis()-summonerdto.getLastRenewTimeStamp()>=5*60*1000)) {
 			
-			summonerdto = summonerService.setSummoner(filteredName);
+			summonerdto = summonerService.setSummoner(name);
 			
 			// RANK 관련 데이터 RIOT 서버에서 데이터 받아와서 DB에 저장
 			try {
@@ -160,7 +161,6 @@ public class SummonerController {
 		return mv;
 	}
 	
-		
 	@ExceptionHandler(WebClientResponseException.class)
     public ModelAndView getResponseError(WebClientResponseException e, ServletRequest req) {
 		ModelAndView mv = new ModelAndView();

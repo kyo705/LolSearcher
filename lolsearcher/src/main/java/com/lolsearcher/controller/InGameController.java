@@ -3,7 +3,8 @@ package com.lolsearcher.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.lolsearcher.domain.Dto.ingame.InGameDto;
@@ -30,28 +31,28 @@ public class InGameController {
 		this.threadService = threadService;
 	}
 	
-	@GetMapping(path = "/ingame")
-	public ModelAndView inGame(String filteredname) {
+	@PostMapping(path = "/ingame")
+	public ModelAndView inGame(@RequestAttribute String name) {
 		ModelAndView mv = new ModelAndView();
 		
 		//view로 전달될 데이터(Model)
 		InGameDto inGameDto = null;
 		SummonerDto summonerDto = null;
 		
-		summonerDto = summonerService.findDbSummoner(filteredname);
+		summonerDto = summonerService.findDbSummoner(name);
 		String summonerId = summonerDto.getSummonerid();
 		
 		inGameDto = inGameService.getInGame(summonerDto);
 		
 		
 		if(inGameDto==null) {
-			logger.info("'{}' is not in game", filteredname);
+			logger.info("'{}' is not in game", name);
 			threadService.runRemovingDirtyInGame(summonerId);
 			
 			mv.addObject("summoner", summonerDto);
 			mv.setViewName("error_ingame");
 		}else {
-			logger.info("'{}' is in game '{}'", filteredname, inGameDto.getGameId());
+			logger.info("'{}' is in game '{}'", name, inGameDto.getGameId());
 			threadService.runSavingInGame(inGameDto);
 			threadService.runRemovingDirtyInGame(summonerId, inGameDto.getGameId());
 			
