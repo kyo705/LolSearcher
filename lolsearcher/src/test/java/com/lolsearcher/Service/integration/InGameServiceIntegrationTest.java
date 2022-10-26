@@ -383,7 +383,7 @@ public class InGameServiceIntegrationTest {
 		.isEqualTo(true); //summoner 객체의 최신 인게임조회 타임스탬프 값을 갱신했는지 확인
 		
 		verify(riotRestApi, times(1)).getInGameBySummonerId(summoner.getId()); //REST API 통신 1회 일어나야함
-		verify(inGameRepository, times(0)).getIngame(anyString());  //인게임 정보 DB에 조회하면 안됌
+		verify(inGameRepository, times(0)).getInGamesBySummonerId(anyString());  //인게임 정보 DB에 조회하면 안됌
 	}
 	
 	@Test
@@ -416,7 +416,7 @@ public class InGameServiceIntegrationTest {
 		assertThat(e.getStatusText()).isEqualTo("해당 조건에 맞는 정보가 없습니다.");
 		
 		verify(riotRestApi, times(1)).getInGameBySummonerId(summoner.getId()); //REST API 통신 1회 일어나야함
-		verify(inGameRepository, times(0)).getIngame(anyString());  //인게임 정보 DB에 조회하면 안됌
+		verify(inGameRepository, times(0)).getInGamesBySummonerId(anyString());  //인게임 정보 DB에 조회하면 안됌
 	}
 	
 	
@@ -444,7 +444,7 @@ public class InGameServiceIntegrationTest {
 		inGames.add(ingame2);
 		inGames.add(ingame1);
 		
-		when(inGameRepository.getIngame(summonerId))
+		when(inGameRepository.getInGamesBySummonerId(summonerId))
 		.thenReturn(inGames);
 		
 		//when
@@ -477,7 +477,7 @@ public class InGameServiceIntegrationTest {
 		inGames.add(ingame2);
 		inGames.add(ingame1);
 		
-		when(inGameRepository.getIngame(summonerId))
+		when(inGameRepository.getInGamesBySummonerId(summonerId))
 		.thenReturn(inGames);
 		
 		//when
@@ -549,7 +549,7 @@ public class InGameServiceIntegrationTest {
 			e.printStackTrace();
 		}		
 		//then
-		List<InGame> ingames = inGameRepository.getIngame(summonerId);
+		List<InGame> ingames = inGameRepository.getInGamesBySummonerId(summonerId);
 		assertThat(ingames.size()).isEqualTo(1);
 		assertThat(ingames.get(0).getGameId()).isEqualTo(2);
 	}

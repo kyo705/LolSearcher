@@ -73,7 +73,7 @@ public class InGameServiceUnitTest {
 		List<InGame> ingames = new ArrayList<>();
 		ingames.add(ingame1);
 		
-		when(inGameRepository.getIngame(summoner.getId()))
+		when(inGameRepository.getInGamesBySummonerId(summoner.getId()))
 		.thenReturn(ingames);
 		
 		//when
@@ -83,7 +83,7 @@ public class InGameServiceUnitTest {
 		assertThat(ingameDto.getGameId()).isEqualTo(ingame1.getGameId());
 		
 		verify(riotRestApi, times(0)).getSummonerById(anyString()); //REST API 통신 일어나면 안됌
-		verify(inGameRepository, times(1)).getIngame(anyString());  //인게임 정보 DB에 조회 1번 수행해야함
+		verify(inGameRepository, times(1)).getInGamesBySummonerId(anyString());  //인게임 정보 DB에 조회 1번 수행해야함
 	}
 	
 	@Test
@@ -115,7 +115,7 @@ public class InGameServiceUnitTest {
 		ingames.add(ingame2);
 		ingames.add(ingame1);
 		
-		when(inGameRepository.getIngame(summoner.getId()))
+		when(inGameRepository.getInGamesBySummonerId(summoner.getId()))
 		.thenReturn(ingames);
 		
 		//when
@@ -125,7 +125,7 @@ public class InGameServiceUnitTest {
 		assertThat(ingameDto.getGameId()).isEqualTo(ingame2.getGameId()); //최신 데이터 가져옴(리스트의 첫번째 값)
 		
 		verify(riotRestApi, times(0)).getSummonerById(anyString()); //REST API 통신 일어나면 안됌
-		verify(inGameRepository, times(1)).getIngame(anyString());  //인게임 정보 DB에 조회 1번 수행해야함
+		verify(inGameRepository, times(1)).getInGamesBySummonerId(anyString());  //인게임 정보 DB에 조회 1번 수행해야함
 	}
 	
 	@Test
@@ -150,7 +150,7 @@ public class InGameServiceUnitTest {
 		
 		List<InGame> ingames = new ArrayList<>();
 		
-		when(inGameRepository.getIngame(summoner.getId()))
+		when(inGameRepository.getInGamesBySummonerId(summoner.getId()))
 		.thenReturn(ingames);
 		
 		//when
@@ -160,7 +160,7 @@ public class InGameServiceUnitTest {
 		assertThat(ingameDto).isEqualTo(null);  //DB로부터 조회된 데이터 없음
 		
 		verify(riotRestApi, times(0)).getSummonerById(anyString()); //REST API 통신 일어나면 안됌
-		verify(inGameRepository, times(1)).getIngame(anyString());  //인게임 정보 DB에 조회 1번 수행해야함
+		verify(inGameRepository, times(1)).getInGamesBySummonerId(anyString());  //인게임 정보 DB에 조회 1번 수행해야함
 	}
 	
 	@Test
@@ -197,7 +197,7 @@ public class InGameServiceUnitTest {
 		.isEqualTo(true); //summoner 객체의 최신 인게임조회 타임스탬프 값을 갱신했는지 확인
 		
 		verify(riotRestApi, times(1)).getInGameBySummonerId(summoner.getId()); //REST API 통신 1회 일어나야함
-		verify(inGameRepository, times(0)).getIngame(anyString());  //인게임 정보 DB에 조회하면 안됌
+		verify(inGameRepository, times(0)).getInGamesBySummonerId(anyString());  //인게임 정보 DB에 조회하면 안됌
 	}
 	
 	@Test
@@ -229,7 +229,7 @@ public class InGameServiceUnitTest {
 		//then
 		assertThat(ingameDto).isEqualTo(null);
 		verify(riotRestApi, times(1)).getInGameBySummonerId(summoner.getId()); //REST API 통신 1회 일어나야함
-		verify(inGameRepository, times(0)).getIngame(anyString());  //인게임 정보 DB에 조회하면 안됌
+		verify(inGameRepository, times(0)).getInGamesBySummonerId(anyString());  //인게임 정보 DB에 조회하면 안됌
 	}
 	
 	
@@ -274,7 +274,7 @@ public class InGameServiceUnitTest {
 		inGames.add(ingame2);
 		inGames.add(ingame1);
 		
-		when(inGameRepository.getIngame(summonerId))
+		when(inGameRepository.getInGamesBySummonerId(summonerId))
 		.thenReturn(inGames);
 		
 		//when
@@ -307,7 +307,7 @@ public class InGameServiceUnitTest {
 		inGames.add(ingame2);
 		inGames.add(ingame1);
 		
-		when(inGameRepository.getIngame(summonerId))
+		when(inGameRepository.getInGamesBySummonerId(summonerId))
 		.thenReturn(inGames);
 		
 		//when
@@ -340,7 +340,7 @@ public class InGameServiceUnitTest {
 		inGames.add(ingame2);
 		inGames.add(ingame1);
 		
-		when(inGameRepository.getIngame(summonerId))
+		when(inGameRepository.getInGamesBySummonerId(summonerId))
 		.thenReturn(inGames);
 		
 		//Mock 객체 리턴 값 2
