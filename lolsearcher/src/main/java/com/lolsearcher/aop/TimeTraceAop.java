@@ -17,7 +17,7 @@ public class TimeTraceAop {
 			+ "&& !target(com.lolsearcher.configuration.LolSearcherConfig) "
 			+ "&& !target(com.lolsearcher.configuration.SecurityConfig) "
 			+ "&& !target(com.lolsearcher.filter.IpBanFilter) "
-			+ "&& !target(com.lolsearcher.filter.LolsearcherFilter))")
+			+ "&& !target(com.lolsearcher.filter.EncodingFilter))")
 	public Object execute(ProceedingJoinPoint joinpoint) throws Throwable {
 		long start = System.currentTimeMillis();
 		log.info("START : '{}'", joinpoint.toShortString());

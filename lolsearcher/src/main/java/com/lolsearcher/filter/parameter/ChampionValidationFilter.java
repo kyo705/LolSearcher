@@ -22,14 +22,20 @@ public class ChampionValidationFilter implements Filter {
 	private Set<String> champions;
 	
 	@Value("${filter.champion.url}")
-	private String dirUrl;
+	private String championsDirUrl;
+	
+	@Value("${filter.champion.param}")
+	private String param;
+	
+	@Value("${filter.invalid_handler_uri}")
+	private String invalid_handler_uri;
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		champions = new HashSet<String>();
 		
 		//챔피언 리스트 가져옴
-		File championDir = new File(dirUrl);
+		File championDir = new File(championsDirUrl);
 		
 		for(String championFileName : championDir.list()) {
 			String champion = championFileName.substring(0, championFileName.length()-4);
@@ -41,14 +47,12 @@ public class ChampionValidationFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		
-		String param = "champion";
 		String unfiltered_name = request.getParameter(param);
 		
 		if(champions.contains(unfiltered_name)) {
 			chain.doFilter(request, response);
 		}else {
-			String url = "/invalid";
-			((HttpServletResponse)response).sendRedirect(url);
+			((HttpServletResponse)response).sendRedirect(invalid_handler_uri);
 		}
 	}
 

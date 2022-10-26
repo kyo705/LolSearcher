@@ -1,0 +1,55 @@
+server:
+  port: 8080
+  shutdown: graceful
+  tomcat:
+    accept-count: 100
+    threads:
+      max: 200
+      min-spare: 54
+  
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${datasource.url}
+    username: ${datasource.username}
+    password: ${datasource.password}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+        batch_size: 1000
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${oauth2.google.id}
+            client-secret: ${oauth2.google.secret}
+            scope: email, profile
+  mail:
+    host: ${mail.host}
+    port: ${mail.port}
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+          ssl:
+            protocols: TLSv1.2
+
+filter:
+  max_param_length: 50
+  invalid_handler_uri: /invalid
+  summoner_name:
+    param: name
+  position:
+    param: position
+  champion:
+    url: ${filter.champion.url}
+    param: champion

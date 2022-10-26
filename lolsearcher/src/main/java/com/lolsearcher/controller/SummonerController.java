@@ -54,8 +54,6 @@ public class SummonerController {
 	
 	@PostMapping(path = "/summoner")
 	public ModelAndView summonerdefault(@ModelAttribute SummonerParamDto param, @RequestAttribute String name) {
-		
-		System.out.println("파라미터 : "+name);
 		ModelAndView mv = new ModelAndView();
 		param.setName(name);
 		
