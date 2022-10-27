@@ -114,8 +114,6 @@ public class ThreadService {
 						}
 					}
 				}
-				
-				//threadService2.saveMatches(matches);
 			}
 		};
 		
@@ -170,73 +168,6 @@ public class ThreadService {
 			}
 		};
 		return savingFailMatchIds;
-		
-		/*Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					System.out.println(Thread.currentThread().getName() + " 스레드 2분 정지");
-					Thread.sleep(1000*60*2 + 2000);
-					System.out.println(Thread.currentThread().getName() + " 스레드 다시 시작");
-				} catch (InterruptedException e2) {
-					System.out.println("인터럽트 에러 발생");
-				}
-				
-				//트랜잭션 시작
-				
-				
-				List<Match> matches = new ArrayList<>();
-				
-				for(int i=start_index; i<matchIds.size();) {
-					String matchId = matchIds.get(i);
-					
-					try {
-						Match match = riotApi.getOneMatchByBlocking(matchId);
-						matches.add(match);
-						i++;
-					}catch(WebClientResponseException e1) {
-						if(e1.getStatusCode().value()==429) {
-							for(Match match : matches) {
-								try {
-									summonerRepository.saveMatch(match);
-								}catch(DataIntegrityViolationException e) {
-									//중복 데이터 삽입 시 에러 발생 -> 무시하고 다음 데이터 저장하면 됌 
-									System.out.println(e.getLocalizedMessage());
-								}
-							}
-							
-							
-							try {
-								System.out.println(Thread.currentThread().getName() + " 스레드 2분 정지");
-								Thread.sleep(1000*60*2+2000);
-								System.out.println(Thread.currentThread().getName() + " 스레드 다시 시작");
-								matches.clear();
-							} catch (InterruptedException e2) {
-								e2.printStackTrace();
-							}
-						}
-					}catch(Exception e2) {
-						break;
-					}
-				}
-				
-				for(Match match : matches) {
-					try {
-						summonerRepository.saveMatch(match);
-					}catch(DataIntegrityViolationException e) {
-						//중복 데이터 삽입 시 에러 발생 -> 무시하고 다음 데이터 저장하면 됌 
-						System.out.println(e.getLocalizedMessage());
-					}
-				}
-				
-				
-				//트랜잭션 종료
-				
-				
-			}
-		};
-		
-		return runnable;*/
 	}
 
 }

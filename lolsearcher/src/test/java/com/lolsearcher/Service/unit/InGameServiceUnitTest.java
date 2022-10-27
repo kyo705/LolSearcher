@@ -19,13 +19,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import com.lolsearcher.api.riotgames.RiotRestAPI;
 import com.lolsearcher.domain.Dto.ingame.InGameDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
 import com.lolsearcher.domain.entity.ingame.InGame;
 import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.repository.ingamerepository.IngameRepository;
-import com.lolsearcher.restapi.RiotRestAPI;
 import com.lolsearcher.service.InGameService;
 
 @ExtendWith(MockitoExtension.class)

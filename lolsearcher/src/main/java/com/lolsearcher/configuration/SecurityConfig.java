@@ -9,13 +9,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
-import com.lolsearcher.auth.UserLoginFailHandler;
-import com.lolsearcher.exception.LolsearcherDeniedHandler;
+import com.lolsearcher.auth.exceptiontranslationfilter.LolsearcherDeniedHandler;
+import com.lolsearcher.auth.usernamepassword.UserLoginFailHandler;
 import com.lolsearcher.repository.userrepository.UserRepository;
 import com.lolsearcher.service.OauthUserService;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -23,14 +23,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private UserRepository userRepository;
-	
-	/*public SecurityConfig() {}
-	
-	public SecurityConfig(UserLoginFailHandler userLoginFailHandler, 
-			OauthUserService oauthUserService) {
-		this.userLoginFailHandler = userLoginFailHandler;
-		this.oauthUserService = oauthUserService;
-	}*/
 	
 	@Bean
 	public OauthUserService oauthUserService() {

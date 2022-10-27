@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import com.lolsearcher.api.riotgames.RiotRestAPI;
 import com.lolsearcher.domain.Dto.command.MatchParamDto;
 import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
@@ -38,7 +39,6 @@ import com.lolsearcher.domain.entity.summoner.rank.Rank;
 import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
 import com.lolsearcher.exception.SameNameExistException;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
-import com.lolsearcher.restapi.RiotRestAPI;
 import com.lolsearcher.service.SummonerService;
 import com.lolsearcher.service.ThreadService;
 

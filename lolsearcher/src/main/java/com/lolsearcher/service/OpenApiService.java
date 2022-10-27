@@ -5,8 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.lolsearcher.domain.Dto.summoner.SummonerDto;
-import com.lolsearcher.restapi.LolsearcherRestApi;
+import com.lolsearcher.api.lolsearcher.LolsearcherRestApi;
 
 @Service
 public class OpenApiService {

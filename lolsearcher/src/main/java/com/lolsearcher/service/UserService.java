@@ -17,7 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lolsearcher.auth.LolsearcherUserDetails;
+import com.lolsearcher.auth.usernamepassword.LolsearcherUserDetails;
 import com.lolsearcher.domain.entity.user.LolSearcherUser;
 import com.lolsearcher.exception.join.CertificationTimeOutException;
 import com.lolsearcher.exception.join.RandomNumDifferenceException;

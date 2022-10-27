@@ -15,9 +15,9 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotRestApiv2;
 import com.lolsearcher.domain.entity.summoner.match.Match;
-import com.lolsearcher.restapi.RiotRestAPI;
-import com.lolsearcher.restapi.RiotRestApiv2;
 
 
 

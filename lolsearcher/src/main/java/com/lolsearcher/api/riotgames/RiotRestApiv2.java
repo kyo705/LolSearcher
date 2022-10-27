@@ -1,4 +1,4 @@
-package com.lolsearcher.restapi;
+package com.lolsearcher.api.riotgames;
 
 import java.util.ArrayList;
 import java.util.List;

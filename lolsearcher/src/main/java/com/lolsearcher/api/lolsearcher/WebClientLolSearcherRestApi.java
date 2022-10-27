@@ -1,4 +1,4 @@
-package com.lolsearcher.restapi;
+package com.lolsearcher.api.lolsearcher;
 
 import java.util.Map;
 import java.util.function.Consumer;

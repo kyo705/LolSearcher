@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import com.lolsearcher.api.riotgames.RiotRestAPI;
 import com.lolsearcher.domain.Dto.command.MatchParamDto;
 import com.lolsearcher.domain.Dto.command.MostchampParamDto;
 import com.lolsearcher.domain.Dto.summoner.MatchDto;
@@ -32,7 +33,6 @@ import com.lolsearcher.domain.entity.summoner.rank.Rank;
 import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
 import com.lolsearcher.repository.JpaTestRepository;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
-import com.lolsearcher.restapi.RiotRestAPI;
 import com.lolsearcher.service.SummonerService;
 
 @ActiveProfiles("test")

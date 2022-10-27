@@ -12,9 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.lolsearcher.domain.Dto.summoner.RankDto;
+import com.lolsearcher.api.riotgames.RiotRestAPI;
 import com.lolsearcher.domain.entity.summoner.Summoner;
-import com.lolsearcher.restapi.RiotRestAPI;
 
 @ActiveProfiles("test")
 @SpringBootTest
