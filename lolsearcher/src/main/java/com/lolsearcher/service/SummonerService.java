@@ -153,7 +153,7 @@ public class SummonerService {
 		return ranksDto;
 	}
 	
-	@Transactional
+	@Transactional(noRollbackFor = WebClientResponseException.class)
 	public List<MatchDto> getRenewMatches(SummonerDto summonerdto) throws WebClientResponseException {
 		
 		String id = summonerdto.getSummonerid();
@@ -166,6 +166,7 @@ public class SummonerService {
 		List<String> matchIds = riotApi.getAllMatchIds(puuid, lastmathid);
 		
 		if(matchIds.size()!=0) {
+			//DB에 Summoner 객체의 lastmatchid 필드 값 업데이트
 			summoner.setLastmatchid(matchIds.get(0));
 		}
 		
