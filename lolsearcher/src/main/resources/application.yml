@@ -9,6 +9,8 @@ server:
   
 spring:
   datasource:
+    hikari:
+      connection-timeout: 3000
     driver-class-name: org.mariadb.jdbc.Driver
     url: ${datasource.url}
     username: ${datasource.username}
