@@ -1,4 +1,4 @@
-package com.lolsearcher.auth;
+package com.lolsearcher.auth.usernamepassword;
 
 import java.util.ArrayList;
 import java.util.Collection;

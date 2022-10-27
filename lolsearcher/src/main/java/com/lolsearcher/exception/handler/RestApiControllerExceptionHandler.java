@@ -1,4 +1,4 @@
-package com.lolsearcher.exception;
+package com.lolsearcher.exception.handler;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -14,8 +14,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
-public class RestApiExceptionHandler {
+import com.lolsearcher.controller.RestApiController;
+
+@RestControllerAdvice(assignableTypes = RestApiController.class)
+public class RestApiControllerExceptionHandler {
 
 	@ExceptionHandler(value = NoResultException.class)
 	public ResponseEntity<Map<String, String>> NoResultExceptionHandler(NoResultException e){

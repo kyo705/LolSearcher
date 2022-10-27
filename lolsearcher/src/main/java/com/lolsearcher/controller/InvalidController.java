@@ -11,4 +11,11 @@ public class InvalidController {
 	public ModelAndView invalidParam() {
 		return new ModelAndView("error_name");
 	}
+	
+	@GetMapping(path = "/rejected")
+	public ModelAndView rejected() {
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("/rejected_ip");
+		return mv;
+	}
 }

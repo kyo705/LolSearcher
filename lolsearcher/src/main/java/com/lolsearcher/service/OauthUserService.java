@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lolsearcher.auth.LolsearcherUserDetails;
+import com.lolsearcher.auth.usernamepassword.LolsearcherUserDetails;
 import com.lolsearcher.domain.entity.user.LolSearcherUser;
 import com.lolsearcher.repository.userrepository.UserRepository;
 

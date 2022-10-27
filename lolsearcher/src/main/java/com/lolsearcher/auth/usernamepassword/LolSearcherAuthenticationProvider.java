@@ -1,4 +1,4 @@
-package com.lolsearcher.auth;
+package com.lolsearcher.auth.usernamepassword;
 
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;
