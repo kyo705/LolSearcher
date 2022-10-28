@@ -1,6 +1,7 @@
 package com.lolsearcher.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.filter.CorsFilter;
 
 import com.lolsearcher.auth.exceptiontranslationfilter.LolsearcherDeniedHandler;
 import com.lolsearcher.auth.usernamepassword.UserLoginFailHandler;
@@ -23,6 +25,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Qualifier("openApiCorsFilter")
+	private CorsFilter openApiCorsFilter;
 	
 	@Bean
 	public OauthUserService oauthUserService() {
@@ -49,7 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
 		
-		http.authorizeRequests()
+		http.addFilter(openApiCorsFilter)
+			.authorizeRequests()
 				.antMatchers("/api/**").access("hasRole('ROLE_GET')")
 				.anyRequest().permitAll()
 				.and()
