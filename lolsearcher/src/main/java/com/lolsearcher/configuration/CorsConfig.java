@@ -1,5 +1,6 @@
 package com.lolsearcher.configuration;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -10,6 +11,7 @@ import org.springframework.web.filter.CorsFilter;
 public class CorsConfig {
 
 	@Bean
+	@Qualifier("openApiCorsFilter")
 	CorsFilter oepnApiCorsFilter() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		

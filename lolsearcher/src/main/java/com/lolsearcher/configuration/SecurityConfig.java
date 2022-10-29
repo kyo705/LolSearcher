@@ -26,6 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
 	@Qualifier("openApiCorsFilter")
 	private CorsFilter openApiCorsFilter;
 	
