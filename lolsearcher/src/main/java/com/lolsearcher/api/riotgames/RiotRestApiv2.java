@@ -3,6 +3,9 @@ package com.lolsearcher.api.riotgames;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -19,7 +22,8 @@ import reactor.core.publisher.Mono;
 
 public class RiotRestApiv2 implements RiotRestAPI{
 
-	private static final String key = "RGAPI-2a0ac3ef-7f65-4854-97d4-54e2c7b3dbab";
+	@Value("${riot_api_key}")
+	private String key;
 	
 	private WebClient webclient;
 	
@@ -62,50 +66,32 @@ public class RiotRestApiv2 implements RiotRestAPI{
 	}
 	
 	@Override
+	public List<RankDto> getLeague(String summonerid) throws WebClientResponseException {
+		
+		List<RankDto> ranks = webclient.get()
+				.uri("https://kr.api.riotgames.com"
+				+ "/lol/league/v4/entries/by-summoner/"+summonerid+"?api_key="+key)
+				.retrieve()
+				.bodyToFlux(RankDto.class)
+				.collectList()
+				.block();
+		
+		return ranks;
+	}
+	
+	@Override
 	public List<String> getAllMatchIds(String puuid, String lastMatchId) throws WebClientResponseException {
-		List<String> matchidlist = new ArrayList<>();
 		
-		boolean plag = true;
-		String uri = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/"+puuid+"/ids?";
-		int starts = 0;
-		int counts = 100;
-		
-		while(plag) {
-			String[] matchids = webclient.get()
-					.uri(uri + "start="+starts+"&count="+counts+"&api_key="+key)
-					.retrieve()
-					.bodyToMono(String[].class)
-					.block();
-			
-			if(matchids.length!=100) {
-				plag = false;
-			}
-			
-			for(String matchid : matchids) {
-				if(matchid.equals(lastMatchId)) {
-					plag = false;
-					break;
-				}else {
-					matchidlist.add(matchid);
-				}
-			}
-			
-			starts += counts;
-		}
-			
-		
-		return matchidlist;
+		return getMatchIds(puuid, -1, "all", 0, -1, lastMatchId);
 	}
 	
 	@Override
 	public List<String> getMatchIds(String puuid, int queue, String type,
-			int start, int count, String lastmatchid) throws WebClientResponseException {
+			int start, int total_count, String lastmatchid) throws WebClientResponseException {
 		
-		List<String> matchidlist = new ArrayList<>();
-		
-		String uri;
-		int starts = start;
-		int counts = count;
+		String uri = null;
+		int cur_start = start;
+		int cur_count = total_count;
 		
 		if(queue==-1) {
 			uri = "https://asia.api.riotgames.com"
@@ -115,31 +101,36 @@ public class RiotRestApiv2 implements RiotRestAPI{
 					+ "/lol/match/v5/matches/by-puuid/"+puuid+"/ids?queue="+queue+"&";
 		}
 		
-		while(count>0) {
-			if(count>100) {
-				counts = 100;
-				count -= 100;
+		List<String> matchidlist = new ArrayList<>();
+		boolean plag = true;
+		
+		while(plag) {
+			if(total_count>100) {
+				cur_count = 100;
+				total_count -= 100;
+			}else if(total_count==-1) {
+				cur_count = 100;
 			}else {
-				counts = count;
-				count = 0;
+				cur_count = total_count;
+				plag = false;
 			}
 			
 			String[] matchids = webclient.get()
-					.uri(uri + "start="+starts+"&count="+counts+"&api_key="+key)
+					.uri(uri + "start="+cur_start+"&count="+cur_count+"&api_key="+key)
 					.retrieve()
 					.bodyToMono(String[].class)
 					.block();
 			
 			for(String matchid : matchids) {
 				if(matchid.equals(lastmatchid)) {
-					count = 0;
+					plag = false;
 					break;
 				}else {
 					matchidlist.add(matchid);
 				}
 			}
 			
-			starts += counts;
+			cur_start += cur_count;
 		}
 		
 		return matchidlist;
@@ -175,7 +166,7 @@ public class RiotRestApiv2 implements RiotRestAPI{
 			.onErrorResume(e -> {
 				if(e instanceof WebClientResponseException) {
 					System.out.print(e.getMessage());
-					if(((WebClientResponseException) e).getStatusCode().value() == 429) {
+					if(((WebClientResponseException) e).getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
 						fail_matchIds.add(matchId);
 					}
 				}
@@ -209,21 +200,6 @@ public class RiotRestApiv2 implements RiotRestAPI{
 		
 		
 		return recentMatchesDto;
-	}
-
-
-	@Override
-	public List<RankDto> getLeague(String summonerid) throws WebClientResponseException {
-		
-		List<RankDto> ranks = webclient.get()
-				.uri("https://kr.api.riotgames.com"
-				+ "/lol/league/v4/entries/by-summoner/"+summonerid+"?api_key="+key)
-				.retrieve()
-				.bodyToFlux(RankDto.class)
-				.collectList()
-				.block();
-		
-		return ranks;
 	}
 
 	
