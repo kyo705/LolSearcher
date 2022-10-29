@@ -44,7 +44,7 @@ spring:
           auth: true
           ssl:
             protocols: TLSv1.2
-
+            
 filter:
   max_param_length: 50
   invalid_handler_uri: /invalid
@@ -55,3 +55,5 @@ filter:
   champion:
     url: ${filter.champion.url}
     param: champion
+  
+riot_api_key: ${riot_api_key}
