@@ -45,15 +45,6 @@ spring:
           ssl:
             protocols: TLSv1.2
             
-filter:
-  max_param_length: 50
-  invalid_handler_uri: /invalid
-  summoner_name:
-    param: name
-  position:
-    param: position
-  champion:
-    url: ${filter.champion.url}
-    param: champion
-  
+
 riot_api_key: ${riot_api_key}
+  
