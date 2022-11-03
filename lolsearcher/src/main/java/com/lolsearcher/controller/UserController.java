@@ -28,7 +28,6 @@ public class UserController {
 			mv.addObject("loginFailMessage", loginFailMessage);
 		}
 		
-		
 		return mv;
 	}
 	

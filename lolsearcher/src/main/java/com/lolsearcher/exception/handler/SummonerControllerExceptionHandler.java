@@ -1,13 +1,9 @@
 package com.lolsearcher.exception.handler;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.servlet.ServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,23 +11,22 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.servlet.ModelAndView;
 
 import com.lolsearcher.controller.SummonerController;
-import com.lolsearcher.exception.SameNameExistException;
-import com.lolsearcher.filter.IpBanFilter;
+import com.lolsearcher.exception.summoner.SameNameExistException;
+import com.lolsearcher.service.ban.SearchIpBanService;
 
 @ControllerAdvice(assignableTypes = SummonerController.class)
 public class SummonerControllerExceptionHandler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private final Map<String, Integer> banCount;
-	private final ApplicationContext appContext;
+	private final SearchIpBanService searchIpBanService;
+	private final int count = 30;
 	
-	public SummonerControllerExceptionHandler(ApplicationContext appContext) {
-		banCount = new ConcurrentHashMap<String, Integer>();
-		this.appContext = appContext;
+	public SummonerControllerExceptionHandler(SearchIpBanService searchIpBanService) {
+		this.searchIpBanService = searchIpBanService;
 	}
 	
 	@ExceptionHandler(SameNameExistException.class)
-    public ModelAndView getSameSummonerExistError(SameNameExistException e, ServletRequest req) {
+    public ModelAndView getSameSummonerExistError(SameNameExistException e) {
 		//로그 기록
 		logger.error(e.getMessage());
 		
@@ -66,20 +61,11 @@ public class SummonerControllerExceptionHandler {
 		}
 		
 		String user_ip = req.getRemoteAddr();
-		
-		banCount.put(user_ip, banCount.getOrDefault(user_ip, 0)+1);
-		
-		if(banCount.get(user_ip)>=30) {
-			IpBanFilter banFilter = appContext.getBean(IpBanFilter.class);
-			banFilter.addBanList(user_ip);
-			
+		if(searchIpBanService.isExceedBanCount(count, user_ip)) {
+			searchIpBanService.registerBanList(user_ip);
 			logger.error(" ip : '{}' user is banned because of too many bad request", user_ip);
 			mv.setViewName("rejected_ip");
-			banCount.remove(user_ip);
-			
-			return mv;
 		}
-		
 		
         return mv;
     }

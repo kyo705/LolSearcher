@@ -20,7 +20,7 @@ import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
 import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
-import com.lolsearcher.exception.SameNameExistException;
+import com.lolsearcher.exception.summoner.SameNameExistException;
 import com.lolsearcher.service.SummonerService;
 
 @Controller

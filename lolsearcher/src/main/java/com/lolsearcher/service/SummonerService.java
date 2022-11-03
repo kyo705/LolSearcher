@@ -24,7 +24,7 @@ import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.rank.Rank;
 import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
-import com.lolsearcher.exception.SameNameExistException;
+import com.lolsearcher.exception.summoner.SameNameExistException;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 
 

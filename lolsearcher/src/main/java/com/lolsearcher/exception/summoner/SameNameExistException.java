@@ -1,4 +1,4 @@
-package com.lolsearcher.exception;
+package com.lolsearcher.exception.summoner;
 
 public class SameNameExistException extends RuntimeException {
 
