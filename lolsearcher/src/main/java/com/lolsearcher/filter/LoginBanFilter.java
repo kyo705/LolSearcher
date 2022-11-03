@@ -13,6 +13,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+
 public class LoginBanFilter implements Filter {
 
 	private String filteredUri = "/login";
@@ -42,7 +43,7 @@ public class LoginBanFilter implements Filter {
 		banList.put(user_ip, System.currentTimeMillis());
 	}
 
-	public void removeBanList(String ip) {
-		this.banList.remove(ip);
+	public void removeBanList(String user_ip) {
+		banList.remove(user_ip);
 	}
 }
