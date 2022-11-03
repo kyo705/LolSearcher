@@ -29,6 +29,7 @@
 >   - 언어 : Java
 >   - 프레임 워크 : SpringBoot, Spring MVC, Spring Security
 >   - 빌드 관리 툴 : Gradle
+>   - 스케줄러 : Spring Quartz
 >   - REST API 수집 : WebClient
 >   - ORM : JPA(Hibernate)
 >   -  DBMS :
