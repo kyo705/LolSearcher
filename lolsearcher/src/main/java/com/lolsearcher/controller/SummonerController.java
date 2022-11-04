@@ -20,7 +20,7 @@ import com.lolsearcher.domain.Dto.summoner.MatchDto;
 import com.lolsearcher.domain.Dto.summoner.MostChampDto;
 import com.lolsearcher.domain.Dto.summoner.SummonerDto;
 import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
-import com.lolsearcher.exception.summoner.SameNameExistException;
+import com.lolsearcher.exception.summoner.SameValueExistException;
 import com.lolsearcher.service.SummonerService;
 
 @Controller
@@ -47,7 +47,7 @@ public class SummonerController {
 		
 		try {
 			summonerdto = summonerService.findDbSummoner(name);
-		}catch (SameNameExistException e) {
+		}catch (SameValueExistException e) {
 			summonerService.updateDbSummoner(name);
 			summonerdto = summonerService.findDbSummoner(name);
 		}

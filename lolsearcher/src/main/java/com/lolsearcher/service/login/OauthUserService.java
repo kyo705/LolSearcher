@@ -1,4 +1,4 @@
-package com.lolsearcher.service;
+package com.lolsearcher.service.login;
 
 import java.util.Map;
 

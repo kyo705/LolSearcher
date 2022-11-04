@@ -37,7 +37,7 @@ import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.rank.Rank;
 import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
-import com.lolsearcher.exception.summoner.SameNameExistException;
+import com.lolsearcher.exception.summoner.SameValueExistException;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 import com.lolsearcher.service.SummonerService;
 import com.lolsearcher.service.ThreadService;
@@ -141,10 +141,10 @@ class SummonerServiceUnitTest {
 		.thenReturn(dbSummoners);
 		
 		//when
-		Exception e = assertThrows(SameNameExistException.class, ()->{
+		Exception e = assertThrows(SameValueExistException.class, ()->{
 			summonerService.findDbSummoner(summonerName);
 		});
-		assertThat(e.getClass()).isEqualTo(SameNameExistException.class);
+		assertThat(e.getClass()).isEqualTo(SameValueExistException.class);
 	}
 	
 	

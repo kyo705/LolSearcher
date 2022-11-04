@@ -24,7 +24,7 @@ import com.lolsearcher.domain.entity.summoner.Summoner;
 import com.lolsearcher.domain.entity.summoner.match.Match;
 import com.lolsearcher.domain.entity.summoner.rank.Rank;
 import com.lolsearcher.domain.entity.summoner.rank.RankCompKey;
-import com.lolsearcher.exception.summoner.SameNameExistException;
+import com.lolsearcher.exception.summoner.SameValueExistException;
 import com.lolsearcher.repository.SummonerRepository.SummonerRepository;
 
 
@@ -40,10 +40,8 @@ public class SummonerService {
 	private final RiotRestAPI riotApi;
 	private final ThreadService threadService;
 	
-	public SummonerService(
-			ThreadService threadService,
-			SummonerRepository summonerrepository, 
-			RiotRestAPI riotApi) {
+	public SummonerService(ThreadService threadService, SummonerRepository summonerrepository, 
+							RiotRestAPI riotApi) {
 		this.threadService = threadService;
 		this.summonerrepository = summonerrepository;
 		this.riotApi = riotApi;
@@ -61,7 +59,7 @@ public class SummonerService {
 			summonerDto =  new SummonerDto(dbSummoners.get(0));
 		}else {
 			logger.error("'{}' 닉네임에 해당하는 유저가 둘 이상 존재",summonername);
-			throw new SameNameExistException();
+			throw new SameValueExistException();
 		}
 		
 		return summonerDto;

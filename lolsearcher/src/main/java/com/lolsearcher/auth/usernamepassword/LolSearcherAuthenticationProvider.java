@@ -29,8 +29,7 @@ public class LolSearcherAuthenticationProvider implements AuthenticationProvider
 		
 		String inputUserId = authentication.getName();
 		String inputUserPwd = (String)authentication.getCredentials();
-		System.out.println(inputUserId);
-		System.out.println(inputUserPwd);
+		
 		LolsearcherUserDetails userDetails = (LolsearcherUserDetails)userDetailService.loadUserByUsername(inputUserId);
 		
 		if(userDetails==null||!pwdEncoding.matches(inputUserPwd, userDetails.getPassword())) {

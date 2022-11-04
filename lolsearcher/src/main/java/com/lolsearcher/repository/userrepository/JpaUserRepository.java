@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 
 import com.lolsearcher.domain.entity.user.LolSearcherUser;
+import com.lolsearcher.exception.summoner.SameValueExistException;
 
 @Repository
 public class JpaUserRepository implements UserRepository {
@@ -24,36 +25,38 @@ public class JpaUserRepository implements UserRepository {
 	
 	@Override
 	public LolSearcherUser findUserByName(String username) {
+		LolSearcherUser user = null;
 		String jpql = "select u from LolSearcherUser u where u.username = :username";
 		
-		List<LolSearcherUser> list = em.createQuery(jpql, LolSearcherUser.class)
+		List<LolSearcherUser> users = em.createQuery(jpql, LolSearcherUser.class)
 				.setParameter("username", username)
 				.getResultList();
 		
-		if(list.size()==1){
-			return list.get(0);
-		}else if(list.size()==0) {
-			return null;
+		if(users.size()>=2) {
+			throw new SameValueExistException();
 		}
-		
-		return null;
+		if(users.size()==1) {
+			user = users.get(0);
+		}
+		return user;
 	}
 
 	@Override
 	public LolSearcherUser findUserByEmail(String email) {
+		LolSearcherUser user = null;
 		String jpql = "select u from LolSearcherUser u where u.email = :email";
 		
-		List<LolSearcherUser> list = em.createQuery(jpql, LolSearcherUser.class)
+		List<LolSearcherUser> users = em.createQuery(jpql, LolSearcherUser.class)
 				.setParameter("email", email)
 				.getResultList();
 		
-		if(list.size()==1){
-			return list.get(0);
-		}else if(list.size()==0) {
-			return null;
+		if(users.size()>=2) {
+			throw new SameValueExistException();
 		}
-		
-		return null;
+		if(users.size()==1) {
+			user = users.get(0);
+		}
+		return user;
 	}
 
 }

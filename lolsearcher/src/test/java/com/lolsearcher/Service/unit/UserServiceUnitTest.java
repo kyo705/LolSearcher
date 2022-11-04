@@ -5,11 +5,11 @@ import org.mockito.Mock;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.lolsearcher.repository.userrepository.UserRepository;
-import com.lolsearcher.service.UserService;
+import com.lolsearcher.service.join.JoinService;
 
 public class UserServiceUnitTest {
 
-	UserService userService;
+	JoinService userService;
 	@Mock
 	UserRepository userRepository;
 	@Mock

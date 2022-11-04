@@ -5,12 +5,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.lolsearcher.controller.UserController;
+import com.lolsearcher.controller.JoinController;
 import com.lolsearcher.exception.join.CertificationTimeOutException;
 import com.lolsearcher.exception.join.RandomNumDifferenceException;
 
-@ControllerAdvice(assignableTypes = UserController.class)
-public class UserControllerExceptionHandler {
+@ControllerAdvice(assignableTypes = JoinController.class)
+public class JoinExceptionHandler {
 
 	@ExceptionHandler(CertificationTimeOutException.class)
     public ModelAndView getCertificationTimeOutError(CertificationTimeOutException e) {

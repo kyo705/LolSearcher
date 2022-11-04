@@ -1,6 +1,6 @@
 package com.lolsearcher.exception.summoner;
 
-public class SameNameExistException extends RuntimeException {
+public class SameValueExistException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.lolsearcher.controller.RestApiController;
 
 @RestControllerAdvice(assignableTypes = RestApiController.class)
-public class RestApiControllerExceptionHandler {
+public class RestApiExceptionHandler {
 
 	@ExceptionHandler(value = NoResultException.class)
 	public ResponseEntity<Map<String, String>> NoResultExceptionHandler(NoResultException e){

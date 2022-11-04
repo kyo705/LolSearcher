@@ -11,22 +11,22 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.servlet.ModelAndView;
 
 import com.lolsearcher.controller.SummonerController;
-import com.lolsearcher.exception.summoner.SameNameExistException;
+import com.lolsearcher.exception.summoner.SameValueExistException;
 import com.lolsearcher.service.ban.SearchIpBanService;
 
 @ControllerAdvice(assignableTypes = SummonerController.class)
-public class SummonerControllerExceptionHandler {
+public class SummonerExceptionHandler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final SearchIpBanService searchIpBanService;
 	private final int count = 30;
 	
-	public SummonerControllerExceptionHandler(SearchIpBanService searchIpBanService) {
+	public SummonerExceptionHandler(SearchIpBanService searchIpBanService) {
 		this.searchIpBanService = searchIpBanService;
 	}
 	
-	@ExceptionHandler(SameNameExistException.class)
-    public ModelAndView getSameSummonerExistError(SameNameExistException e) {
+	@ExceptionHandler(SameValueExistException.class)
+    public ModelAndView getSameSummonerExistError(SameValueExistException e) {
 		//로그 기록
 		logger.error(e.getMessage());
 		

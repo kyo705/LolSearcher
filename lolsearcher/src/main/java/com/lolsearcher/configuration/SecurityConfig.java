@@ -12,7 +12,7 @@ import org.springframework.web.filter.CorsFilter;
 import com.lolsearcher.auth.exceptiontranslationfilter.LolsearcherDeniedHandler;
 import com.lolsearcher.auth.usernamepassword.UserLoginFailHandler;
 import com.lolsearcher.filter.LoginBanFilter;
-import com.lolsearcher.service.OauthUserService;
+import com.lolsearcher.service.login.OauthUserService;
 
 @Configuration
 @EnableWebSecurity
