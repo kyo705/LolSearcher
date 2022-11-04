@@ -13,6 +13,8 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.lolsearcher.api.riotgames.RiotRestAPI;
@@ -34,18 +36,27 @@ public class LolSearcherConfig {
 	public WebClient webclient() {
 		return webclientBuilder.build();
 	}
-	
 	@Bean
 	public ExecutorService matchSavingThreadPool() {
 		return Executors.newFixedThreadPool(100);
 	}
-	
-	
 	@Bean
 	public RiotRestAPI riotRestApi(WebClient webclient) {
-		
 		return new RiotRestApiv2(webclient);
 	}
+	
+	//-------------------- 시큐리티 관련 @bean 등록 ----------------------------
+	
+	@Bean
+	public BCryptPasswordEncoder encodePwd() {
+		return new BCryptPasswordEncoder();
+	}
+	@Bean
+	public HttpSessionEventPublisher httpSessionEventPublisher() {
+	    return new HttpSessionEventPublisher();
+	}
+	
+	//-------------------- 카프카 관련 @bean 등록 ----------------------------
 	
 	@Bean
 	public KafkaTemplate<String, Match> MatchesKafkaTemplate(){
@@ -60,7 +71,6 @@ public class LolSearcherConfig {
 		
 		return new KafkaTemplate<String, Match>(producerFactory);
 	}
-	
 	@Bean
 	public KafkaTemplate<String, String> failMatchIdsKafkaTemplate(){
 		Map<String, Object> props = new HashMap<>();

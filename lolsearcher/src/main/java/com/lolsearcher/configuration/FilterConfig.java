@@ -15,6 +15,7 @@ public class FilterConfig {
 
 	@Bean
 	FilterRegistrationBean<EncodingFilter> encodingFilter(){
+		
 		FilterRegistrationBean<EncodingFilter> bean = 
 				new FilterRegistrationBean<>(new EncodingFilter());
 		
@@ -26,6 +27,7 @@ public class FilterConfig {
 	
 	@Bean
 	FilterRegistrationBean<IpBanFilter> ipBanFilter(){
+		
 		FilterRegistrationBean<IpBanFilter> bean = 
 				new FilterRegistrationBean<>(new IpBanFilter());
 		
@@ -37,6 +39,7 @@ public class FilterConfig {
 	
 	@Bean
 	FilterRegistrationBean<SummonerNameValidationFilter> summonernameParamFilter(){
+		
 		FilterRegistrationBean<SummonerNameValidationFilter> bean = 
 				new FilterRegistrationBean<>(new SummonerNameValidationFilter());
 		
@@ -48,6 +51,7 @@ public class FilterConfig {
 	
 	@Bean
 	FilterRegistrationBean<PositionValidationFilter> positionParamFilter(){
+		
 		FilterRegistrationBean<PositionValidationFilter> bean = 
 				new FilterRegistrationBean<>(new PositionValidationFilter());
 		
@@ -59,7 +63,6 @@ public class FilterConfig {
 	
 	@Bean
 	FilterRegistrationBean<ChampionValidationFilter> championParamFilter(){
-		
 		
 		FilterRegistrationBean<ChampionValidationFilter> bean = 
 				new FilterRegistrationBean<>(new ChampionValidationFilter());

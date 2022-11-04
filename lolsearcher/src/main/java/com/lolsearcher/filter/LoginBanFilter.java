@@ -6,23 +6,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.stereotype.Component;
 
+@Component
 public class LoginBanFilter implements Filter {
 
 	private String filteredUri = "/login";
-	private Map<String, Long> banList;
+	private Map<String, Long> banList = new ConcurrentHashMap<>();
 	
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-		banList = new ConcurrentHashMap<>();
-	}
 	
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

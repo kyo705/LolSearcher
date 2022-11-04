@@ -21,7 +21,6 @@ public class OauthUserService extends DefaultOAuth2UserService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private UserRepository userRepository;
-
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	public OauthUserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder){
