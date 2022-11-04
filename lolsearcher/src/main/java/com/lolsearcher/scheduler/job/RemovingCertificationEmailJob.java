@@ -6,22 +6,23 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lolsearcher.service.ban.LoginIpBanService;
+import com.lolsearcher.service.join.JoinService;
 
-public class RemovingBannedIpJob implements Job {
+public class RemovingCertificationEmailJob implements Job {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private LoginIpBanService loginIpBanService;
+	private JoinService joinService;
 	
-	public RemovingBannedIpJob(LoginIpBanService loginIpBanService) {
-		this.loginIpBanService = loginIpBanService;
+	public RemovingCertificationEmailJob(JoinService joinService) {
+		this.joinService = joinService;
 	}
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		logger.info("스레드 : {} 에서 '{}' 실행", Thread.currentThread(),this.getClass().getName());
 		
-		String ip = context.getJobDetail().getJobDataMap().getKeys()[0];
-		loginIpBanService.removeBanList(ip);
+		String email = context.getJobDetail().getJobDataMap().getKeys()[0];
+		joinService.removeRandomNumber(email);
+		joinService.removeUncertificatedUser(email);
 	}
 
 }
