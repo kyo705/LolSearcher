@@ -40,13 +40,21 @@
 
 프로젝트 서버 구조
 -----------------------------------------
-![image](https://user-images.githubusercontent.com/89891704/188450211-fba3f0e7-4893-4f0f-8d4c-1292738ba046.png)
+![image](https://user-images.githubusercontent.com/89891704/200253517-5f6c3b3a-2d67-4664-9d62-da4c920cb200.png)
 
 프로젝트 톰캣 스레드풀 최소 갯수 설정
 -------------------------
-**스레드 수 = 사용 가능한 코어 수 * (1+대기 시간/서비스 시간)**   [by  "Java Concurrency in Practice"]   
+**커넥션풀 사이즈 공식 : 스레드 수 = 사용 가능한 코어 수 * (1+대기 시간/서비스 시간)**   
+[by  "Java Concurrency in Practice"]   
 
 위 공식을 적용하여 성능 측정 결과 최소 36, 최대 72의 스레드 갯수가 나오므로 최소 유지 스레드 갯수를 평균값인 54로 적용함
+
+프로젝트 HikariCP 커넥션풀 최소 갯수 설정
+-------------------------
+**커넥션풀 사이즈 공식 : connections = ((core_count * 2) + effective_spindle_count)   
+[by https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing]**
+
+로컬 CPU 6 core 12 thread, 하드디스크 1개이므로 커넥션풀 사이즈 25로 설정
 
 테스트 코드 설명서
 --------------------------
