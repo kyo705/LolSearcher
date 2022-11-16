@@ -10,29 +10,25 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 public class SummonerNameValidationFilter implements Filter {
-	private String param = "name";
-	private String failHandlerUri = "/invalid";
-	private int maxParamLength = 50;
+	private final int MAX_NAME_LENGTH = 50;
+	private final String NAME = "name";
+	private final String FAIL_HANDLER_URI = "/invalid";
+	private final String REGEX = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
+		String unfiltered_name = request.getParameter(NAME);
 		
-		String unfiltered_name = request.getParameter(param);
-		
-		if(unfiltered_name.length()>maxParamLength) {
-			((HttpServletResponse)response).sendRedirect(failHandlerUri);
+		if(unfiltered_name==null || unfiltered_name.equals("")) {
+			((HttpServletResponse)response).sendRedirect(FAIL_HANDLER_URI);
+		}else if(unfiltered_name.length() > MAX_NAME_LENGTH) {
+			((HttpServletResponse)response).sendRedirect(FAIL_HANDLER_URI);
 		}else {
-			if(unfiltered_name!=null&&!unfiltered_name.equals("")) {
-				String regex = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
-				String filtered_name = unfiltered_name.replaceAll(regex, "");
-				
-				request.setAttribute(param, filtered_name);
-				chain.doFilter(request, response);
-			}else {
-				((HttpServletResponse)response).sendRedirect(failHandlerUri);
-			}
+			String filtered_name = unfiltered_name.replaceAll(REGEX, "");
+			
+			request.setAttribute(NAME, filtered_name);
+			chain.doFilter(request, response);
 		}
 	}
-
 }

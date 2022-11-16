@@ -13,15 +13,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 public class ChampionValidationFilter implements Filter {
-
+	private final String CHAMPIONS_NAME_URI = "src/main/resources/static/champion";
+	private final String CHAMPION = "champion";
+	private final String FAIL_HANDLER_URI = "/invalid";
+	
 	private Set<String> champions;
-	private String championFolderUri = "src/main/resources/static/champion";
-	private String param = "champion";
-	private String failHandlerUri = "/invalid";
 	
 	public ChampionValidationFilter() {
 		champions = new HashSet<String>();
-		File championDir = new File(championFolderUri);
+		File championDir = new File(CHAMPIONS_NAME_URI);
 		
 		for(String championFileName : championDir.list()) {
 			String champion = championFileName.substring(0, championFileName.length()-4);
@@ -32,13 +32,12 @@ public class ChampionValidationFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
+		String championName = request.getParameter(CHAMPION);
 		
-		String unfiltered_name = request.getParameter(param);
-		
-		if(champions.contains(unfiltered_name)) {
+		if(champions.contains(championName)) {
 			chain.doFilter(request, response);
 		}else {
-			((HttpServletResponse)response).sendRedirect(failHandlerUri);
+			((HttpServletResponse)response).sendRedirect(FAIL_HANDLER_URI);
 		}
 	}
 
