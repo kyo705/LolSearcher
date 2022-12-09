@@ -4,9 +4,9 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.NoResultException;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,55 +19,59 @@ import com.lolsearcher.controller.RestApiController;
 @RestControllerAdvice(assignableTypes = RestApiController.class)
 public class RestApiExceptionHandler {
 
-	@ExceptionHandler(value = NoResultException.class)
-	public ResponseEntity<Map<String, String>> NoResultExceptionHandler(NoResultException e){
+	@ExceptionHandler(value = EmptyResultDataAccessException.class)
+	private ResponseEntity<Map<String, String>> EmptyResultDataAccessExceptionHandler(
+			EmptyResultDataAccessException e){
 		HttpHeaders headers = new HttpHeaders();
 		
-		Map<String, String> map = new HashMap<>();
-		map.put("error code", "404");
-		map.put("error message", "data not found");
+		Map<String, String> body = new HashMap<>();
+		body.put("error code", Integer.toString(HttpStatus.NOT_FOUND.value()));
+		body.put("error message", HttpStatus.NOT_FOUND.getReasonPhrase());
 		
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.headers(headers)
-				.body(map);
+				.body(body);
 	}
 	
 	@ExceptionHandler(value = MalformedURLException.class)
-	public ResponseEntity<Map<String, String>> ExceptionHandler(MalformedURLException e){
+	private ResponseEntity<Map<String, String>> ExceptionHandler(MalformedURLException e){
 		HttpHeaders headers = new HttpHeaders();
-		System.out.println(e.getLocalizedMessage());
-		Map<String, String> map = new HashMap<>();
-		map.put("error code", "400");
-		map.put("error message", "bad request");
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("error code", Integer.toString(HttpStatus.BAD_REQUEST.value()));
+		body.put("error message", HttpStatus.BAD_REQUEST.getReasonPhrase());
 		
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 				.headers(headers)
-				.body(map);
+				.body(body);
 	}
 	
 	@ExceptionHandler(value = AccessDeniedException.class)
-	public ResponseEntity<Map<String, String>> ForbiddenHandler(AccessDeniedException e){
+	private ResponseEntity<Map<String, String>> ForbiddenHandler(AccessDeniedException e){
 		HttpHeaders headers = new HttpHeaders();
-		System.out.println(e.getLocalizedMessage());
-		Map<String, String> map = new HashMap<>();
-		map.put("error code", "403");
-		map.put("error message", "unauthorized");
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("error code", Integer.toString(HttpStatus.FORBIDDEN.value()));
+		body.put("error message", HttpStatus.FORBIDDEN.getReasonPhrase());
 		
 		return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.headers(headers)
-				.body(map);
+				.body(body);
 	}
 	
 	@ExceptionHandler(value = DataIntegrityViolationException.class)
-	public ResponseEntity<Map<String, String>> ForbiddenHandler(DataIntegrityViolationException e){
+	private ResponseEntity<Map<String, String>> ForbiddenHandler(DataIntegrityViolationException e){
 		HttpHeaders headers = new HttpHeaders();
-		System.out.println(e.getLocalizedMessage());
-		Map<String, String> map = new HashMap<>();
-		map.put("error code", "201");
-		map.put("error message", "created");
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("error code", Integer.toString(HttpStatus.CREATED.value()));
+		body.put("error message", HttpStatus.CREATED.getReasonPhrase());
 		
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.headers(headers)
-				.body(map);
+				.body(body);
 	}
+	
+	//DB 커넥션 timeout -> 408 error
+	//DB 에러 -> 500 error
 }

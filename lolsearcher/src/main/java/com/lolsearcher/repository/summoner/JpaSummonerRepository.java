@@ -20,21 +20,21 @@ public class JpaSummonerRepository implements SummonerRepository {
 	}
 	
 	@Override
-	public Summoner findSummonerById(String summonerid){
-		String jpql = "SELECT s FROM Summoner s WHERE s.id = :summonerid";
+	public Summoner findSummonerById(String summonerId){
+		String jpql = "SELECT s FROM Summoner s WHERE s.id = :summonerId";
 		
 		return em.createQuery(jpql, Summoner.class)
-				.setParameter("summonerid", summonerid)
+				.setParameter("summonerId", summonerId)
 				.getSingleResult();
 	}
 	
 	@Override
-	public List<Summoner> findSummonerByName(String summonername) {
+	public List<Summoner> findSummonerByName(String summonerName) {
 		String jpql = "SELECT s FROM Summoner s WHERE s.name = :summonerName "
 				+ "ORDER BY s.lastRenewTimeStamp DESC";
 		
 		return em.createQuery(jpql, Summoner.class)
-				.setParameter("summonerName", summonername)
+				.setParameter("summonerName", summonerName)
 				.getResultList();
 	}
 
@@ -43,212 +43,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 		String jpql = "DELETE FROM Summoner s WHERE s.id = :id";
 		
 		em.createQuery(jpql)
-		.setParameter("id", summoner.getId())
+		.setParameter("id", summoner.getSummonerId())
 		.executeUpdate();
 	}
-
-	//-----------------Rank 테이블 CRUD----------------------------------
-
-	@Override
-	public void saveRanks(List<Rank> list) throws DataIntegrityViolationException {
-		Iterator<Rank> it =  list.iterator();
-		
-		while(it.hasNext()) {
-			Rank rank = it.next();
-			em.merge(rank);
-		}
-	}
-	
-	@Override
-	public Rank findRank(RankCompKey rankKey) {
-		return em.find(Rank.class, rankKey);
-	}
-
-	//-----------------Match,Member 테이블 CRUD----------------------------------
-	
-	@Override
-	public Match findMatchById(String matchId) {
-		return em.find(Match.class, matchId);
-	}
-	
-	@Override
-	public boolean findMatchid(String matchid) {
-		if(em.find(Match.class, matchid)==null) {
-			return false;
-		}
-		return true;
-	}
-	
-	@Override
-	public void saveMatch(Match match) throws DataIntegrityViolationException {
-		if(em.find(Match.class, match.getMatchId())==null) {
-			em.persist(match);
-		}
-	}
-
-	
-	@Override
-	public List<Match> findMatchList(String summonerid, int gametype, String champion, int count) {
-		List<Match> matchList;
-		String jpql;
-		
-		if(gametype==-1) {
-			if(champion.equals("all")) {	
-				
-				jpql = "SELECT DISTINCT m FROM Match m "
-						+ "WHERE m.matchid IN "
-						+ "(SELECT DISTINCT t.ck.matchid FROM Member t WHERE t.summonerid = :summonerid) "
-						+ "ORDER BY m.gameEndTimestamp DESC";
-				
-				matchList = em.createQuery(jpql, Match.class)
-						.setParameter("summonerid", summonerid)
-						.setFirstResult(0)
-						.setMaxResults(count)
-						.getResultList();
-			}else {
-				jpql = "SELECT DISTINCT m FROM Match m "
-						+ "WHERE m.matchid IN "
-						+ "(SELECT DISTINCT t.ck.matchid from Member t "
-						+ "WHERE t.summonerid = :summonerid AND t.championid = :championid) "
-						+ "ORDER BY m.gameEndTimestamp DESC";
-				
-				matchList = em.createQuery(jpql, Match.class)
-						.setParameter("summonerid", summonerid)
-						.setParameter("championid", champion)
-						.setFirstResult(0)
-						.setMaxResults(count)
-						.getResultList();
-			}
-		}else {
-			if(champion.equals("all")) {
-				jpql = "SELECT DISTINCT m FROM Match m "
-						+ "WHERE m.queueId = :queueId AND m.matchid IN "
-						+ "(SELECT DISTINCT t.ck.matchid from Member t where t.summonerid = :summonerid) "
-						+ "ORDER BY m.gameEndTimestamp DESC";
-				
-				matchList = em.createQuery(jpql, Match.class)
-						.setParameter("summonerid", summonerid)
-						.setParameter("queueId", gametype)
-						.setFirstResult(0)
-						.setMaxResults(count)
-						.getResultList();
-				
-			}else {
-				jpql = "SELECT DISTINCT m FROM Match m "
-						+ "WHERE m.queueId = :queueId AND m.matchid IN "
-						+ "(SELECT DISTINCT t.ck.matchid from Member t "
-						+ "WHERE t.championid = :championid AND t.summonerid = :summonerid) "
-						+ "ORDER BY m.gameEndTimestamp DESC";
-				
-				matchList = em.createQuery(jpql, Match.class)
-						.setParameter("summonerid", summonerid)
-						.setParameter("championid", champion)
-						.setParameter("queueId", gametype)
-						.setFirstResult(0)
-						.setMaxResults(count)
-						.getResultList();
-			}
-		}
-		return matchList;
-		
-	}
-	
-	@SuppressWarnings("rawtypes")
-	@Override
-	public List<String> findMostchampids(String summonerid, int queue, int season) {
-		final int count = 5;
-		
-		List<String> champids = new ArrayList<>();
-		String jpql;
-		List results; //집계함수(ex. count(),avg() ...)를 통해 받는 값은 long type임. jpa에서 그렇게 제공해줌
-		if(queue==-1) {
-			jpql = "select m.championid, COUNT(m.championid) AS c from Member m "
-					+ "where m.summonerid = :summonerid and m.match.season = :season "
-					+ "GROUP BY m.championid ORDER BY c DESC";
-			
-			results = em.createQuery(jpql)
-					.setParameter("summonerid", summonerid)
-					.setParameter("season", season)
-					.setFirstResult(0)
-					.setMaxResults(count)
-					.getResultList();
-		}else {
-			jpql = "select m.championid, COUNT(m.championid) AS c from Member m "
-					+ "where m.summonerid = :summonerid and m.match.queueId = :queue and m.match.season = :season "
-					+ "GROUP BY m.championid ORDER BY c DESC";
-			
-			results = em.createQuery(jpql)
-					.setParameter("summonerid", summonerid)
-					.setParameter("queue", queue)
-					.setParameter("season", season)
-					.setFirstResult(0)
-					.setMaxResults(count)
-					.getResultList();
-		}
-		
-		for(Object result : results) {
-			Object[] obj = (Object[])result;
-			champids.add((String)obj[0]);
-		}
-		
-		return champids;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public MostChampDto findChamp(String summonerid, String champid, int queue, int season) {
-		
-		String jpql;
-		List<Object> results;
-		
-		if(queue==-1) {
-			jpql = "select avg(m.cs), avg(m.kills),avg(m.deaths), avg(m.assists),count(m), m.wins "
-					+ "from Member m "
-					+ "where m.championid = :championid and m.summonerid = :summonerid and m.match.season = :season "
-					+ "group by m.wins";
-			
-			results = em.createQuery(jpql)
-					.setParameter("summonerid", summonerid)
-					.setParameter("championid", champid)
-					.setParameter("season", season)
-					.getResultList();
-		}else {
-			jpql = "select avg(m.cs), avg(m.kills),avg(m.deaths), avg(m.assists),count(m), m.wins "
-					+ "from Member m "
-					+ "where m.championid = :championid and m.summonerid = :summonerid and m.match.queueId = :queue and "
-					+ "m.match.season = :season "
-					+ "group by m.wins";
-			
-			results = em.createQuery(jpql)
-					.setParameter("summonerid", summonerid)
-					.setParameter("championid", champid)
-					.setParameter("queue", queue)
-					.setParameter("season", season)
-					.getResultList();
-		}
-		
-		MostChampDto champ = new MostChampDto();
-		
-		champ.setChampionid(champid);
-		
-		for(Object result : results) {
-			Object[] o = (Object[])result;
-			if(((boolean)o[5])==true) {
-				champ.setTotalwin((long)o[4]);
-			}
-			champ.setAvgcs((double)o[0] + champ.getAvgcs());
-			champ.setAvgkill((double)o[1] + champ.getAvgkill());
-			champ.setAvgdeath((double)o[2] + champ.getAvgdeath());
-			champ.setAvgassist((double)o[3] + champ.getAvgassist());
-			champ.setTotalgame((long)o[4] + champ.getTotalgame());
-		}
-		
-		champ.setAvgcs(champ.getAvgcs()/2);
-		champ.setAvgkill(champ.getAvgkill()/2);
-		champ.setAvgdeath(champ.getAvgdeath()/2);
-		champ.setAvgassist(champ.getAvgassist()/2);
-		
-		return champ;
-	}
-	
 }

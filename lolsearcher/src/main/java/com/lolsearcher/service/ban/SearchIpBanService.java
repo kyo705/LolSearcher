@@ -3,6 +3,7 @@ package com.lolsearcher.service.ban;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -14,26 +15,23 @@ import com.lolsearcher.scheduler.dto.Timer;
 import com.lolsearcher.scheduler.job.RemovingBannedIpJob;
 import com.lolsearcher.scheduler.service.SchedulerService;
 
+@RequiredArgsConstructor
 @Service
 public class SearchIpBanService implements IpBanService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private final Map<String, Integer> banCount;
+	
+	private final int BAN_COUNT = 30;
+	
+	private final Map<String, Integer> banCount = new ConcurrentHashMap<>();
 	private final ApplicationContext applicationContext;
 	SchedulerService schedulerService;
-	
-	public SearchIpBanService(ApplicationContext applicationContext, SchedulerService schedulerService) {
-		banCount = new ConcurrentHashMap<String, Integer>();
-		this.applicationContext = applicationContext;
-		this.schedulerService = schedulerService;
-	}
 
 	@Override
-	public boolean isExceedBanCount(int count, String ip) {
+	public boolean isExceedBanCount(String ip) {
 		banCount.put(ip, banCount.getOrDefault(ip, 0)+1);
-		if(banCount.get(ip)>=count) {
+		if(banCount.get(ip)>= BAN_COUNT) {
 			return true;
 		}
-		
 		return false;
 	}
 

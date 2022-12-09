@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.lolsearcher.model.dto.ingame.InGameDto;
@@ -25,32 +26,36 @@ public class InGameController {
 	public ModelAndView inGame(@RequestAttribute String name) {
 		ModelAndView mv = new ModelAndView();
 		
-		//view로 전달될 데이터(Model)
-		InGameDto inGameDto = null;
-		SummonerDto summonerDto = null;
-		
-		summonerDto = summonerService.findDbSummoner(name);
-		String summonerId = summonerDto.getSummonerid();
-		
-		inGameDto = inGameService.getInGame(summonerDto);
-		
-		
-		if(inGameDto==null) {
-			logger.info("'{}' is not in game", name);
-			threadService.runRemovingDirtyInGame(summonerId);
-			
-			mv.addObject("summoner", summonerDto);
-			mv.setViewName("error_ingame");
-		}else {
-			logger.info("'{}' is in game '{}'", name, inGameDto.getGameId());
-			threadService.runSavingInGame(inGameDto);
-			threadService.runRemovingDirtyInGame(summonerId, inGameDto.getGameId());
-			
-			mv.addObject("summoner", summonerDto);
-			mv.addObject("ingame", inGameDto);
-			mv.setViewName("inGame");
-		}
-		
+		SummonerDto summonerDto = summonerService.findDbSummoner(name);
+
+		long lastInGameSearchTimeStamp = summonerDto.getLastRenewTimeStamp();
+		String summonerId = summonerDto.getSummonerId();
+
+		InGameDto inGameDto = getInGame(lastInGameSearchTimeStamp, summonerId);
+		logger.info("'{}'는 게임 : '{}'을 진행 중입니다.", name, inGameDto.getGameId());
+
+		mv.addObject("summoner", summonerDto);
+		mv.addObject("ingame", inGameDto);
+		mv.setViewName("inGame");
+
 		return mv;
+	}
+
+	private InGameDto getInGame(long lastInGameSearchTimeStamp, String summonerId)
+			throws WebClientResponseException {
+
+		if(System.currentTimeMillis() - lastInGameSearchTimeStamp < RENEW_TIME){
+			return inGameService.getOldInGame(summonerId);
+		}
+
+		long inGameId = -1L;
+		try{
+			InGameDto inGameDto = inGameService.getRenewInGame(summonerId);
+			inGameId = inGameDto.getGameId();
+
+			return inGameDto;
+		}  finally {
+			inGameService.removeDirtyInGame(summonerId, inGameId);
+		}
 	}
 }

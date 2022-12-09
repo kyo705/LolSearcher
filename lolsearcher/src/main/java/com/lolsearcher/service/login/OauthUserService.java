@@ -2,6 +2,7 @@ package com.lolsearcher.service.login;
 
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,20 +14,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lolsearcher.auth.usernamepassword.LolsearcherUserDetails;
-import com.lolsearcher.domain.entity.user.LolSearcherUser;
-import com.lolsearcher.repository.userrepository.UserRepository;
+import com.lolsearcher.model.entity.user.LolSearcherUser;
+import com.lolsearcher.repository.user.UserRepository;
 
+@RequiredArgsConstructor
 @Service
 public class OauthUserService extends DefaultOAuth2UserService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private UserRepository userRepository;
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
-	
-	public OauthUserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder){
-		this.userRepository = userRepository;
-		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-	}
+	private final UserRepository userRepository;
+	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	@Override
 	@Transactional
@@ -37,9 +34,8 @@ public class OauthUserService extends DefaultOAuth2UserService {
 		logger.info("로그인된 lolsearcher user : '{}'", user);
 		
 		Map<String, Object> attributes = oAuth2User.getAttributes();
-		LolsearcherUserDetails lolseracherUserDetails = new LolsearcherUserDetails(user, attributes);
-		
-		return lolseracherUserDetails;
+
+		return new LolsearcherUserDetails(user, attributes);
 	}
 	
 	private LolSearcherUser findLolSearcherAccount(OAuth2User oAuth2User) {

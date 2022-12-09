@@ -2,28 +2,28 @@ package com.lolsearcher.api.riotgames;
 
 import java.util.List;
 
-import com.lolsearcher.domain.Dto.ingame.InGameDto;
-import com.lolsearcher.domain.Dto.summoner.RankDto;
-import com.lolsearcher.domain.Dto.summoner.RecentMatchesDto;
-import com.lolsearcher.domain.entity.summoner.Summoner;
-import com.lolsearcher.domain.entity.summoner.match.Match;
+import com.lolsearcher.model.dto.match.SuccessMatchesAndFailMatchIds;
+import com.lolsearcher.model.entity.ingame.InGame;
+import com.lolsearcher.model.entity.summoner.Summoner;
+import com.lolsearcher.model.entity.match.Match;
+import com.lolsearcher.model.entity.rank.Rank;
 
 public interface RiotRestAPI {
 	
-	public Summoner getSummonerByName(String summonername);
+	Summoner getSummonerByName(String summonerName);
 	
-	public Summoner getSummonerById(String id);
+	Summoner getSummonerById(String id);
+
+	List<Rank> getLeague(String summonerId);
 	
-	public List<RankDto> getLeague(String summonerid);
+	List<String> getAllMatchIds(String puuid, String lastMatchId);
 	
-	public List<String> getAllMatchIds(String puuid, String lastMatchId);
+	List<String> getMatchIds(String puuid, int queue, String type, int start, int count, String lastmatchid);
 	
-	public List<String> getMatchIds(String puuid, int queue, String type, int start, int count, String lastmatchid);
+	Match getOneMatchByBlocking(String matchId);
 	
-	public Match getOneMatchByBlocking(String matchId);
+	SuccessMatchesAndFailMatchIds getMatchesByNonBlocking(List<String> matchIds);
 	
-	public RecentMatchesDto getMatchesByNonBlocking(List<String> matchIds);
-	
-	public InGameDto getInGameBySummonerId(String summonerid);
+	InGame getInGameBySummonerId(String summonerId);
 	
 }

@@ -9,39 +9,31 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lolsearcher.domain.entity.user.LolSearcherUser;
+import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.exception.join.CertificationTimeOutException;
 import com.lolsearcher.exception.join.RandomNumDifferenceException;
-import com.lolsearcher.repository.userrepository.UserRepository;
+import com.lolsearcher.repository.user.UserRepository;
 import com.lolsearcher.scheduler.dto.Timer;
 import com.lolsearcher.scheduler.job.RemovingCertificationEmailJob;
 import com.lolsearcher.scheduler.service.SchedulerService;
 
+@RequiredArgsConstructor
 @Service
 public class JoinService {
 	private final Map<String, LolSearcherUser> userContainer = new ConcurrentHashMap<>();
-	private final Map<String, Integer> randomNumContanier = new ConcurrentHashMap<>();
+	private final Map<String, Integer> randomNumContainer = new ConcurrentHashMap<>();
 	
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final UserRepository userRepository;
 	private final JavaMailSender javaMailSender;
 	private final ExecutorService executorService;
 	private final SchedulerService schedulerService;
-	
-	public JoinService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, 
-						JavaMailSender mailSender, ExecutorService executorService,
-						SchedulerService schedulerService) {
-		this.userRepository = userRepository;
-		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-		this.javaMailSender = mailSender;
-		this.executorService =executorService;
-		this.schedulerService = schedulerService;
-	}
 	
 	@Transactional
 	public void joinUser(LolSearcherUser user) {
@@ -61,45 +53,28 @@ public class JoinService {
 	}
 	
 	
-	public boolean isExistedId(String username) {
-		LolSearcherUser user = findUserByUsername(username);
-		if(user==null)
-			return false;
-		else
-			return true;
-	}
-	
-	
-	public boolean isPossibleForm(String userid) {
+	public boolean isValidForm(String userid) {
 		for(char c : userid.toCharArray()) {
 			if((c>='a'&&c<='z')||(c>='A'&&c<='Z')||(c>='0'&&c<='9')) {
 				continue;
-			}else {
-				return false;
 			}
+			return false;
 		}
 		return true;
 	}
 
 	
-	public void sendCertificationToEmail(String username, String rawPassword, String email) {
-		String defaultRole = "ROLE_GET";
-		String password = bCryptPasswordEncoder.encode(rawPassword);
-		
-		LolSearcherUser user = new LolSearcherUser(username, password, defaultRole, email, 0);
+	public void sendCertificationEmail(String username, String rawPassword, String email) {
+		LolSearcherUser user = createAccount(username, rawPassword, email);
 		int randomNumber = (int)(Math.random()*10000000);
-		
-		userContainer.put(email, user);
-		randomNumContanier.put(email, randomNumber);
 		
 		Runnable certificationEmailTask = createCertificationEmail(email, randomNumber);
 		executorService.submit(certificationEmailTask);
 		
-		Timer timer = new Timer();
-		timer.setInitialOffsetMs(1000*60*5); //5분
-		timer.setTotalFireCount(1);
-		timer.setCallbackData(email);
+		userContainer.put(email, user);
+		randomNumContainer.put(email, randomNumber);
 		
+		Timer timer = createEmailTimer(email);
 		schedulerService.schedule(RemovingCertificationEmailJob.class, timer);
 	}
 
@@ -108,27 +83,47 @@ public class JoinService {
 		if(!userContainer.containsKey(email)) {
 			throw new CertificationTimeOutException();
 		}
-		int randomNumber = randomNumContanier.get(email);
+		int randomNumber = randomNumContainer.get(email);
 		if(randomNumber != inputNumber) {
 			throw new RandomNumDifferenceException(email);
 		}
-		
 		LolSearcherUser user = userContainer.get(email);
-		userContainer.remove(email);
-		randomNumContanier.remove(email);
+		
+		removeUncertificatedUser(email);
+		removeRandomNumber(email);
 		
 		return user;
 	}
 	
 	
 	public void removeRandomNumber(String email) {
-		randomNumContanier.remove(email);
+		randomNumContainer.remove(email);
 	}
 	
 	
 	public void removeUncertificatedUser(String email) {
 		userContainer.remove(email);
 	}
+	
+	
+	private LolSearcherUser createAccount(String username, String rawPassword, String email) {
+		String defaultRole = "ROLE_GET";
+		String password = bCryptPasswordEncoder.encode(rawPassword);
+		
+		return new LolSearcherUser(username, password, defaultRole, email, 0);
+	}
+	
+	private Timer createEmailTimer(String email) {
+		long validTime = 1000*60*5; //5분
+		
+		Timer timer = new Timer();
+		timer.setInitialOffsetMs(validTime);
+		timer.setTotalFireCount(1);
+		timer.setCallbackData(email);
+		
+		return timer;
+	}
+
 	
 	
 	private Runnable createCertificationEmail(String email, int randomNumber) {
