@@ -1,21 +1,20 @@
 package com.lolsearcher.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import com.lolsearcher.domain.entity.user.LolSearcherUser;
+
+import com.lolsearcher.model.dto.user.JoinStatus;
+import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.service.join.JoinService;
 
+@RequiredArgsConstructor
 @Controller
 public class JoinController {
-	
-	private JoinService userService;
-	
-	public JoinController(JoinService userService) {
-		this.userService = userService;
-	}
+	private final JoinService userService;
 	
 	@GetMapping(path = "/joinForm")
 	public ModelAndView joinForm(@RequestParam(required = false) String userid,
@@ -34,15 +33,15 @@ public class JoinController {
 		ModelAndView mv = new ModelAndView("redirect:/joinForm");
 		mv.addObject("userid", userid);
 		
-		if(!userService.isPossibleForm(userid)) {
-			mv.addObject("joinPossible", 2);
+		if(!userService.isValidForm(userid)) {
+			mv.addObject("joinPossible", JoinStatus.NOTALLOWED.getValue());
 			return mv;
 		}
-		if(userService.isExistedId(userid)) {
-			mv.addObject("joinPossible", 1);
+		if(userService.findUserByUsername(userid) != null) {
+			mv.addObject("joinPossible", JoinStatus.EXISTED.getValue());
 			return mv;
 		}
-		mv.addObject("joinPossible", 0);
+		mv.addObject("joinPossible", JoinStatus.OK.getValue());
 		return mv;
 	}
 	
@@ -57,7 +56,7 @@ public class JoinController {
 			mv.setViewName("/user/joined_already");
 			return mv;
 		}
-		userService.sendCertificationToEmail(username, password, email);
+		userService.sendCertificationEmail(username, password, email);
 		
 		mv.addObject("email", email);
 		mv.setViewName("/user/self_certification");

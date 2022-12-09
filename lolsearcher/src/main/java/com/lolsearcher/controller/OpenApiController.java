@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,16 +15,13 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.lolsearcher.service.OpenApiService;
+import com.lolsearcher.service.openapi.OpenApiService;
 
+@RequiredArgsConstructor
 @Controller
 public class OpenApiController {
 
 	private final OpenApiService openApiService;
-	
-	public OpenApiController(OpenApiService openApiService) {
-		this.openApiService = openApiService;
-	}
 	
 	@GetMapping(path = "/api/docs/index")
 	public ModelAndView home() {
@@ -49,10 +47,10 @@ public class OpenApiController {
 	
 	@SuppressWarnings("rawtypes")
 	@GetMapping(path = "/api/summoner/id")
-	public String getSummonerBySummonerId(String summonerid, HttpSession session, RedirectAttributes rttr) {
+	public String getSummonerBySummonerId(String summonerId, HttpSession session, RedirectAttributes rttr) {
 		String sessionId = session.getId();
 		System.out.println("sessionid = "+sessionId);
-		ResponseEntity<Map> summoner = openApiService.findSummonerById(summonerid, sessionId);
+		ResponseEntity<Map> summoner = openApiService.findSummonerById(summonerId, sessionId);
 		
 		rttr.addFlashAttribute("summoner", summoner);
 		
@@ -68,7 +66,7 @@ public class OpenApiController {
 		Map<String, String> map = new HashMap<>();
 		map.put("message", e.getMessage());
 		
-		ResponseEntity<Map> error = new ResponseEntity<Map>(map, e.getHeaders(), e.getStatusCode());
+		ResponseEntity<Map> error = new ResponseEntity<>(map, e.getHeaders(), e.getStatusCode());
 		
 		rttr.addFlashAttribute("summoner", error);
 		

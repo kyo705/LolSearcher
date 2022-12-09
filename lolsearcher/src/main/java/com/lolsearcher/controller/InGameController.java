@@ -1,5 +1,6 @@
 package com.lolsearcher.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -7,29 +8,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.lolsearcher.domain.Dto.ingame.InGameDto;
-import com.lolsearcher.domain.Dto.summoner.SummonerDto;
-import com.lolsearcher.service.InGameService;
-import com.lolsearcher.service.SummonerService;
-import com.lolsearcher.service.ThreadService;
+import com.lolsearcher.model.dto.ingame.InGameDto;
+import com.lolsearcher.model.dto.summoner.SummonerDto;
+import com.lolsearcher.service.ingame.InGameService;
+import com.lolsearcher.service.summoner.SummonerService;
 
+@RequiredArgsConstructor
 @Controller
 public class InGameController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+	private final long RENEW_TIME = 1000*60*2L; //2분
 	private final SummonerService summonerService;
-	
 	private final InGameService inGameService;
-	
-	private final ThreadService threadService;
-	
-	public InGameController(SummonerService summonerService,
-							InGameService inGameService,
-							ThreadService threadService) {
-		this.summonerService = summonerService;
-		this.inGameService = inGameService;
-		this.threadService = threadService;
-	}
 	
 	@PostMapping(path = "/ingame")
 	public ModelAndView inGame(@RequestAttribute String name) {

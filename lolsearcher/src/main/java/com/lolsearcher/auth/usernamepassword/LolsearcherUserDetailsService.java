@@ -7,9 +7,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.lolsearcher.domain.entity.user.LolSearcherUser;
+import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.exception.summoner.SameValueExistException;
-import com.lolsearcher.repository.userrepository.UserRepository;
+import com.lolsearcher.repository.user.UserRepository;
 
 @Service
 public class LolsearcherUserDetailsService implements UserDetailsService {

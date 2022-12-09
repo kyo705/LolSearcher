@@ -11,18 +11,20 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.servlet.ModelAndView;
-import com.lolsearcher.domain.Dto.command.MatchParamDto;
-import com.lolsearcher.domain.Dto.command.MatchParamDtoBuilder;
-import com.lolsearcher.domain.Dto.command.MostChampParamDtoBuilder;
-import com.lolsearcher.domain.Dto.command.MostchampParamDto;
-import com.lolsearcher.domain.Dto.command.SummonerParamDto;
-import com.lolsearcher.domain.Dto.summoner.MatchDto;
-import com.lolsearcher.domain.Dto.summoner.MostChampDto;
-import com.lolsearcher.domain.Dto.summoner.SummonerDto;
-import com.lolsearcher.domain.Dto.summoner.TotalRanksDto;
-import com.lolsearcher.exception.summoner.SameValueExistException;
-import com.lolsearcher.service.SummonerService;
 
+import com.lolsearcher.model.dto.match.MatchDto;
+import com.lolsearcher.model.dto.parameter.MatchParam;
+import com.lolsearcher.model.dto.parameter.MostChampParam;
+import com.lolsearcher.model.dto.parameter.SummonerUrlParam;
+import com.lolsearcher.model.dto.rank.TotalRanks;
+import com.lolsearcher.model.dto.mostchamp.MostChampDto;
+import com.lolsearcher.model.dto.summoner.SummonerDto;
+import com.lolsearcher.service.match.MatchService;
+import com.lolsearcher.service.mostchamp.MostChampService;
+import com.lolsearcher.service.rank.RankService;
+import com.lolsearcher.service.summoner.SummonerService;
+
+@RequiredArgsConstructor
 @Controller
 public class SummonerController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

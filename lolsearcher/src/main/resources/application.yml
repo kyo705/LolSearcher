@@ -10,6 +10,7 @@ server:
 spring:
   datasource:
     hikari:
+      maximum-pool-size: 25
       connection-timeout: 3000
     driver-class-name: org.mariadb.jdbc.Driver
     url: ${datasource.url}
@@ -32,8 +33,8 @@ spring:
             client-secret: ${oauth2.google.secret}
             scope: email, profile
   mail:
-    host: ${mail.host}
-    port: ${mail.port}
+    host: smtp.gmail.com
+    port: 587
     username: ${mail.username}
     password: ${mail.password}
     properties:
