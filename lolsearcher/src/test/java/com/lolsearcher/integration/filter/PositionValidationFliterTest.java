@@ -1,4 +1,4 @@
-package com.lolsearcher.filter.integration;
+package com.lolsearcher.integration.filter;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -22,13 +22,13 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.lolsearcher.controller.ChampionController;
-import com.lolsearcher.filter.parameter.ChampionValidationFilter;
+import com.lolsearcher.filter.parameter.PositionValidationFilter;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ChampionValidationFilterTest {
-	private final String KEY = "champion";
+public class PositionValidationFliterTest {
+	private final String KEY = "position";
 	private final String SUCCESS_URI = "success";
 	
 	private MockMvc mockMvc;
@@ -40,34 +40,34 @@ public class ChampionValidationFilterTest {
 	@BeforeEach
 	public void beforeEach() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context)
-	            .addFilters(new ChampionValidationFilter())
+	            .addFilters(new PositionValidationFilter())
 	            .build();
 		
-		when(championController.champions(anyString()))
+		when(championController.championDetail(anyString()))
 		.thenReturn(new ModelAndView(SUCCESS_URI));
 	}
 	
 	@DisplayName("Request의 파라미터 값이 적절한 경우 다음 필터로 이동")
+	@NullSource
 	@ParameterizedTest
-	@ValueSource(strings = {"Talon", "Aatrox"})
+	@ValueSource(strings = {"TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"})
 	void getRequestWithProperParameter(String value) throws Exception{
-		mockMvc.perform(post("/champions/detail").param(KEY, value))
+		mockMvc.perform(post("/champions").param(KEY, value))
 		.andExpect(status().isOk());
 	}
 	
-	@DisplayName("Request의 파라미터 값이 없을 경우 실패 페이지로 이동")
+	@DisplayName("Request의 파라미터 값이 없을 경우 다음 필터로 이동")
 	@Test
 	void getRequestWithNoParameter() throws Exception{
-		mockMvc.perform(post("/champions/detail"))
-		.andExpect(status().is3xxRedirection());
+		mockMvc.perform(post("/champions"))
+		.andExpect(status().isOk());
 	}
 	
 	@DisplayName("Request의 파라미터 값이 적절하지 않을 경우 실패 페이지로 이동")
-	@NullSource
 	@ParameterizedTest
-	@ValueSource(strings = {"", "123","챔피언"})
+	@ValueSource(strings = {"", " ", "탑","TOP ","top"})
 	void getRequestWithImproperParameter(String value) throws Exception{
-		mockMvc.perform(post("/champions/detail").param(KEY, value))
+		mockMvc.perform(post("/champions").param(KEY, value))
 		.andExpect(status().is3xxRedirection());
 	}
 }

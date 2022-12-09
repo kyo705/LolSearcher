@@ -1,10 +1,10 @@
-package com.lolsearcher.Service.unit;
+package com.lolsearcher.unit.service.join;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.lolsearcher.repository.userrepository.UserRepository;
+import com.lolsearcher.repository.user.UserRepository;
 import com.lolsearcher.service.join.JoinService;
 
 public class UserServiceUnitTest {

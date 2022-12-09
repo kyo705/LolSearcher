@@ -1,4 +1,4 @@
-package com.lolsearcher.Service.unit;
+package com.lolsearcher.unit.service.producer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,15 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.lolsearcher.domain.entity.summoner.match.Match;
-import com.lolsearcher.service.ThreadService;
+import com.lolsearcher.model.entity.match.Match;
+import com.lolsearcher.service.producer.MessageProducingService;
 
 @ActiveProfiles("test")
 @SpringBootTest
 public class ThreadServiceTest {
 
 	@Autowired
-	private ThreadService threadService;
+	private MessageProducingService threadService;
 	
 	@Autowired
 	ExecutorService threadpool;

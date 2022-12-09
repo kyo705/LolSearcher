@@ -1,44 +1,23 @@
-package com.lolsearcher.controller;
+package com.lolsearcher.unit.controller;
 
-import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-
-import com.lolsearcher.domain.Dto.summoner.RankDto;
-import com.lolsearcher.domain.Dto.summoner.SummonerDto;
-import com.lolsearcher.service.RestApiService;
 
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @SpringBootTest
 public class RestApiControllerTest {
-	
+	/*
 	@Autowired
     private MockMvc mockMvc;
 	
@@ -48,18 +27,19 @@ public class RestApiControllerTest {
 	@Test
 	void getOneSummonerById() throws Exception {
 		
-		final SummonerDto summoner = new SummonerDto();
-		summoner.setSummonerid("pYDMufKXwDIdMEQlvwlSzukdrtrFo_qmQPGBRMF1A4NhlCQ");
-		summoner.setPuuid("ELxmjBy4_fjTu676kny5dJaAZDzFqsE6eDoYNH4Qki9esM8nZxupTRiUFlwj8bOaKGTDirtZkoZkiA");
-		summoner.setName("JUGKlNG");
-		summoner.setSummonerLevel(363L);
-		summoner.setProfileIconId(3554);
-		summoner.setLastRenewTimeStamp(1653323114302L);
+		final SummonerDto summoner = SummonerDto.builder()
+												.summonerId("pYDMufKXwDIdMEQlvwlSzukdrtrFo_qmQPGBRMF1A4NhlCQ")
+												.puuId("ELxmjBy4_fjTu676kny5dJaAZDzFqsE6eDoYNH4Qki9esM8nZxupTRiUFlwj8bOaKGTDirtZkoZkiA")
+												.name("JUGKlNG")
+												.summonerLevel(363L)
+												.profileIconId(3554)
+												.lastRenewTimeStamp(1653323114302L)
+												.build();
 		
-	    when(restApiService.getSummonerById(summoner.getSummonerid()))
+	    when(restApiService.getSummonerById(summoner.getSummonerId()))
 	    .thenReturn(summoner);
 	    
-	    this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api/summoner/id/{id}", summoner.getSummonerid()) // 4
+	    this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api/summoner/id/{id}", summoner.getSummonerId()) // 4
 	            .accept(MediaType.APPLICATION_JSON))
 	        	.andExpect(status().isOk())
 	        	.andDo(
@@ -280,10 +260,10 @@ public class RestApiControllerTest {
 			matchIds.add("match"+i);
 		}
 		
-	    when(restApiService.getMatchIds(summoner.getSummonerid(), 0, 100))
+	    when(restApiService.getMatchIds(summoner.getSummonerId(), 0, 100))
 	    .thenReturn(matchIds);
 	    
-	    this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api/summoner/id/{id}/matcheIds?start=0&count=100", summoner.getSummonerid())
+	    this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api/summoner/id/{id}/matcheIds?start=0&count=100", summoner.getSummonerId())
 	            .accept(MediaType.APPLICATION_JSON))
 	        	.andExpect(status().isOk())
 	        	.andDo(
@@ -304,5 +284,5 @@ public class RestApiControllerTest {
 	        					)
 	        			);
 	        	
-	}
+	}*/
 }

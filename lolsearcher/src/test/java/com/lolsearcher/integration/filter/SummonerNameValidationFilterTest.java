@@ -1,4 +1,4 @@
-package com.lolsearcher.filter.integration;
+package com.lolsearcher.integration.filter;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,7 +46,7 @@ public class SummonerNameValidationFilterTest {
 	            .addFilters(new SummonerNameValidationFilter())
 	            .build();
 		
-		when(summonerController.getSummoner(any(), anyString()))
+		when(summonerController.getSummonerData(any(), anyString()))
 		.thenReturn(new ModelAndView(SUCCESS_URI));
 	}
 	

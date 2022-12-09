@@ -1,4 +1,4 @@
-package com.lolsearcher.RestApi.unit;
+package com.lolsearcher.unit.api;
 
 import java.io.IOException;
 

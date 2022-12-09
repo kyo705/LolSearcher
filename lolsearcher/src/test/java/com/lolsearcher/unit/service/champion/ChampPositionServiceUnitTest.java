@@ -1,4 +1,4 @@
-package com.lolsearcher.Service.unit;
+package com.lolsearcher.unit.service.champion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -6,25 +6,25 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lolsearcher.model.entity.championstatic.position.ChampPosition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.lolsearcher.domain.Dto.championstatic.ChampionDto;
-import com.lolsearcher.domain.Dto.championstatic.TotalChampDto;
-import com.lolsearcher.domain.entity.championstatic.Champion;
-import com.lolsearcher.domain.entity.championstatic.ChampionCompKey;
-import com.lolsearcher.domain.entity.championstatic.enemy.ChampEnemy;
-import com.lolsearcher.domain.entity.championstatic.enemy.ChampEnemyCompKey;
-import com.lolsearcher.domain.entity.championstatic.item.ChampItem;
-import com.lolsearcher.domain.entity.championstatic.item.ChampItemCompKey;
-import com.lolsearcher.repository.ChampionRepository.JpaChampionRepository;
-import com.lolsearcher.service.ChampionService;
+import com.lolsearcher.model.dto.championstatic.ChampPositionDto;
+import com.lolsearcher.model.dto.championstatic.TotalChampDto;
+import com.lolsearcher.model.entity.championstatic.position.ChampPositionCompKey;
+import com.lolsearcher.model.entity.championstatic.enemy.ChampEnemy;
+import com.lolsearcher.model.entity.championstatic.enemy.ChampEnemyCompKey;
+import com.lolsearcher.model.entity.championstatic.item.ChampItem;
+import com.lolsearcher.model.entity.championstatic.item.ChampItemCompKey;
+import com.lolsearcher.repository.champion.JpaChampionRepository;
+import com.lolsearcher.service.statistic.ChampionService;
 
 @ExtendWith(MockitoExtension.class)
-class ChampionServiceUnitTest {
+class ChampPositionServiceUnitTest {
 
 	@Mock
 	JpaChampionRepository championReository;
@@ -45,27 +45,27 @@ class ChampionServiceUnitTest {
 		String position = "MIDDLE";
 		
 		//Mock 객체 리턴 값 1
-		Champion champion1 = new Champion();
-		champion1.setCk(new ChampionCompKey("제드",22,"MIDDLE"));
-		champion1.setWins(50);
-		champion1.setLosses(45);
-		Champion champion2 = new Champion();
-		champion2.setCk(new ChampionCompKey("카타리나",22,"MIDDLE"));
-		champion2.setWins(40);
-		champion2.setLosses(45);
+		ChampPosition champPosition1 = new ChampPosition();
+		champPosition1.setCk(new ChampPositionCompKey("제드",22,"MIDDLE"));
+		champPosition1.setWins(50);
+		champPosition1.setLosses(45);
+		ChampPosition champPosition2 = new ChampPosition();
+		champPosition2.setCk(new ChampPositionCompKey("카타리나",22,"MIDDLE"));
+		champPosition2.setWins(40);
+		champPosition2.setLosses(45);
 		
-		List<Champion> champions = new ArrayList<>();
-		champions.add(champion1);
-		champions.add(champion2);
+		List<ChampPosition> champPositions = new ArrayList<>();
+		champPositions.add(champPosition1);
+		champPositions.add(champPosition2);
 		
-		when(championReository.findChamps("MIDDLE")).thenReturn(champions);
+		when(championReository.findChampPositions("MIDDLE")).thenReturn(champPositions);
 		
 		//when
-		List<ChampionDto> championDtos = championService.getChampions(position);
+		List<ChampPositionDto> champPositionDtos = championService.getChampions(position);
 		
 		//then
-		assertThat(championDtos.size()).isEqualTo(champions.size());
-		assertThat(championDtos.get(0).getChampionId()).isEqualTo(champions.get(0).getCk().getChampionId());
+		assertThat(champPositionDtos.size()).isEqualTo(champPositions.size());
+		assertThat(champPositionDtos.get(0).getChampionId()).isEqualTo(champPositions.get(0).getCk().getChampionId());
 	}
 	
 	@Test
@@ -113,7 +113,7 @@ class ChampionServiceUnitTest {
 		championEnemys.add(champEnemy1);
 		championEnemys.add(champEnemy2);
 		
-		when(championReository.findChampEnemys("제드")).thenReturn(championEnemys);
+		when(championReository.findChampEnemies("제드")).thenReturn(championEnemys);
 		
 		//when
 		TotalChampDto totalChampDto = championService.getChampionDetail(championId);
@@ -123,8 +123,8 @@ class ChampionServiceUnitTest {
 		assertThat(totalChampDto.getChampItems().get(0).getItemId())
 		.isEqualTo(30);
 		
-		assertThat(totalChampDto.getChampEnemys().size()).isEqualTo(2);
-		assertThat(totalChampDto.getChampEnemys().get(0).getEnemychampionId())
+		assertThat(totalChampDto.getChampEnemies().size()).isEqualTo(2);
+		assertThat(totalChampDto.getChampEnemies().get(0).getEnemyChampionId())
 		.isEqualTo("카타리나");
 	}
 }

@@ -1,4 +1,4 @@
-package com.lolsearcher.filter.unit;
+package com.lolsearcher.unit.filter;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

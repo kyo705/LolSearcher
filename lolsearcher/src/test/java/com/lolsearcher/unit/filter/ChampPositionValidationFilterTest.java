@@ -1,4 +1,4 @@
-package com.lolsearcher.filter.unit;
+package com.lolsearcher.unit.filter;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,7 +23,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import com.lolsearcher.filter.parameter.ChampionValidationFilter;
 
 @ExtendWith(MockitoExtension.class)
-public class ChampionValidationFilterTest {
+public class ChampPositionValidationFilterTest {
 	private final String KEY = "champion";
 	private final String FAIL_HANDLER_URI = "/invalid";
 	
