@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface MatchRepository {
     Match findMatchById(String matchId);
+
     void saveMatch(Match match);
+
     List<Match> findMatches(String summonerId, int gameType, String champion, int count);
 
     PerkStats findPerkStats(short defense, short flex, short offense);

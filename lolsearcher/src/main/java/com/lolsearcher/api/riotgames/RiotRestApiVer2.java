@@ -9,6 +9,7 @@ import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.riot.match.MatchDto;
 import com.lolsearcher.model.riot.match.ParticipantDto;
 import com.lolsearcher.model.riot.match.perk.PerksDto;
+import com.lolsearcher.model.riot.rank.RankDto;
 import com.lolsearcher.model.riot.summoner.SummonerDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +20,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import com.lolsearcher.model.dto.ingame.CurrentGameParticipantDto;
 import com.lolsearcher.model.dto.ingame.InGameDto;
-import com.lolsearcher.model.dto.rank.RankDto;
 import com.lolsearcher.model.dto.match.SuccessMatchesAndFailMatchIds;
 import com.lolsearcher.model.entity.summoner.Summoner;
 
@@ -30,7 +30,9 @@ import reactor.core.publisher.Mono;
 public class RiotRestApiVer2 implements RiotRestAPI{
 	@Value("${riot_api_key}")
 	private String key = null;
-	private final int SEASON_ID = 22;
+
+	@Value("${lolsearcher.season}")
+	private final int SEASON_ID;
 	
 	private final WebClient webclient;
 
@@ -188,7 +190,8 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	}
 
 	private Summoner getSummoner(SummonerDto summonerDto) {
-		Summoner summoner = new Summoner(summonerDto);
+
+		Summoner summoner = summonerDto.changeToSummoner();
 		summoner.setLastMatchId("");
 		summoner.setLastRenewTimeStamp(System.currentTimeMillis());
 		summoner.setLastInGameSearchTimeStamp(0);
@@ -198,14 +201,16 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 
 	private List<Rank> getRanks(List<RankDto> rankDtos) {
 		List<Rank> ranks = new ArrayList<>();
+
 		for(RankDto rankDto : rankDtos) {
-			ranks.add(new Rank(rankDto));
+			ranks.add(rankDto.changeToRank());
 		}
 		return ranks;
 	}
 
 	private Match getMatch(MatchDto matchDto) {
-		Match match = new Match(matchDto);
+
+		Match match = matchDto.changeToMatch();
 		match.setSeason(SEASON_ID);
 
 		List<ParticipantDto> participantDtos = matchDto.getInfo().getParticipants();
@@ -222,7 +227,7 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	}
 
 	private Member getMember(ParticipantDto participantDto, MemberCompKey memberCompKey){
-		Member member = new Member(participantDto);
+		Member member = participantDto.changeToMember();
 		member.setCk(memberCompKey);
 
 		PerksDto perksDto = participantDto.getPerks();
@@ -234,9 +239,10 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	}
 
 	private Perks getPerks(PerksDto perksDto, MemberCompKey memberCompKey){
-		PerkStats perkStats = new PerkStats(perksDto.getStatPerks());
 
-		Perks perks = new Perks(perksDto);
+		PerkStats perkStats = perksDto.getStatPerks().changeToPerkStats();
+
+		Perks perks = perksDto.changeToPerks();
 		perks.setMemberCompKey(memberCompKey); //pk 생성
 		perks.setPerkStats(perkStats); //연관 관계 설정
 

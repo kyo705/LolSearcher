@@ -1,5 +1,6 @@
 package com.lolsearcher.model.riot.match;
 
+import com.lolsearcher.model.entity.match.Member;
 import com.lolsearcher.model.riot.match.perk.PerksDto;
 import lombok.Data;
 
@@ -109,4 +110,116 @@ public class ParticipantDto {
     private Short wardsKilled;
     private Short wardsPlaced;
     private boolean win;
+
+
+    public Member changeToMember() {
+
+        Member member = new Member();
+
+        member.setAssists(assists);
+        member.setBaronKills(baronKills);
+        member.setBountyLevel(bountyLevel);
+        member.setChampExperience(champExperience);
+        member.setChampLevel(champLevel);
+        member.setChampionId(championId);
+        member.setChampionName(championName);
+        member.setChampionTransform(championTransform);
+        member.setConsumablesPurchased(consumablesPurchased);
+        member.setDamageDealtToBuildings(damageDealtToBuildings);
+        member.setDamageDealtToObjectives(damageDealtToObjectives);
+        member.setDamageDealtToTurrets(damageDealtToTurrets);
+        member.setDamageSelfMitigated(damageSelfMitigated);
+        member.setDeaths(deaths);
+        member.setDetectorWardsPlaced(detectorWardsPlaced);
+        member.setDoubleKills(doubleKills);
+        member.setDragonKills(dragonKills);
+        member.setFirstBloodAssist(firstBloodAssist);
+        member.setFirstBloodKill(firstBloodKill);
+        member.setFirstTowerAssist(firstTowerAssist);
+        member.setFirstTowerKill(firstTowerKill);
+        member.setGameEndedInEarlySurrender(gameEndedInEarlySurrender);
+        member.setGameEndedInSurrender(gameEndedInSurrender);
+        member.setGoldEarned(goldEarned);
+        member.setGoldSpent(goldSpent);
+        member.setIndividualPosition(individualPosition);
+        member.setInhibitorTakedowns(inhibitorTakedowns);
+        member.setInhibitorsLost(inhibitorsLost);
+        member.setItem0(item0);
+        member.setItem1(item1);
+        member.setItem2(item2);
+        member.setItem3(item3);
+        member.setItem4(item4);
+        member.setItem5(item5);
+        member.setItem6(item6);
+        member.setItemsPurchased(itemsPurchased);
+        member.setKillingSprees(killingSprees);
+        member.setKills(kills);
+        member.setLane(lane);
+        member.setLargestCriticalStrike(largestCriticalStrike);
+        member.setLargestKillingSpree(largestKillingSpree);
+        member.setLargestMultiKill(largestMultiKill);
+        member.setLongestTimeSpentLiving(longestTimeSpentLiving);
+        member.setMagicDamageDealt(magicDamageDealt);
+        member.setMagicDamageDealtToChampions(magicDamageDealtToChampions);
+        member.setMagicDamageTaken(magicDamageTaken);
+        member.setNeutralMinionsKilled(neutralMinionsKilled);
+        member.setNexusKills(nexusKills);
+        member.setNexusTakedowns(nexusTakedowns);
+        member.setNexusLost(nexusLost);
+        member.setObjectivesStolen(objectivesStolen);
+        member.setObjectivesStolenAssists(objectivesStolenAssists);
+        member.setParticipantId(participantId);
+        member.setPentaKills(pentaKills);
+        member.setPhysicalDamageDealt(physicalDamageDealt);
+        member.setPhysicalDamageDealtToChampions(physicalDamageDealtToChampions);
+        member.setPhysicalDamageTaken(physicalDamageTaken);
+        member.setProfileIcon(profileIcon);
+        member.setPuuid(puuid);
+        member.setQuadraKills(quadraKills);
+        member.setRiotIdName(riotIdName);
+        member.setRiotIdTagline(riotIdTagline);
+        member.setRole(role);
+        member.setSightWardsBoughtInGame(sightWardsBoughtInGame);
+        member.setSpell1Casts(spell1Casts);
+        member.setSpell2Casts(spell2Casts);
+        member.setSpell3Casts(spell3Casts);
+        member.setSpell4Casts(spell4Casts);
+        member.setSummoner1Casts(summoner1Casts);
+        member.setSummoner1Id(summoner1Id);
+        member.setSummoner2Casts(summoner2Casts);
+        member.setSummoner2Id(summoner2Id);
+        member.setSummonerId(summonerId);
+        member.setSummonerLevel(summonerLevel);
+        member.setSummonerName(summonerName);
+        member.setTeamEarlySurrendered(teamEarlySurrendered);
+        member.setTeamId(teamId);
+        member.setTeamPosition(teamPosition);
+        member.setTimeCCingOthers(timeCCingOthers);
+        member.setTimePlayed(timePlayed);
+        member.setTotalDamageDealt(totalDamageDealt);
+        member.setTotalDamageDealtToChampions(totalDamageDealtToChampions);
+        member.setTotalDamageShieldedOnTeammates(totalDamageShieldedOnTeammates);
+        member.setTotalDamageTaken(totalDamageTaken);
+        member.setTotalHeal(totalHeal);
+        member.setTotalHealsOnTeammates(totalHealsOnTeammates);
+        member.setTotalMinionsKilled(totalMinionsKilled);
+        member.setTotalTimeCCDealt(totalTimeCCDealt);
+        member.setTotalTimeSpentDead(totalTimeSpentDead);
+        member.setTotalUnitsHealed(totalUnitsHealed);
+        member.setTripleKills(tripleKills);
+        member.setTrueDamageDealt(trueDamageDealt);
+        member.setTrueDamageDealtToChampions(trueDamageDealtToChampions);
+        member.setTrueDamageTaken(trueDamageTaken);
+        member.setTurretKills(turretKills);
+        member.setTurretTakedowns(turretTakedowns);
+        member.setTurretsLost(turretsLost);
+        member.setUnrealKills(unrealKills);
+        member.setVisionScore(visionScore);
+        member.setVisionWardsBoughtInGame(visionWardsBoughtInGame);
+        member.setWardsKilled(wardsKilled);
+        member.setWardsPlaced(wardsPlaced);
+        member.setWin(win);
+
+        return member;
+    }
 }

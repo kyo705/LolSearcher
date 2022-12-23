@@ -50,6 +50,7 @@ spring:
 riot_api_key: ${riot_api_key}
 
 lolsearcher:
+  season: 12
   kafka:
     producers:
       success_match:
