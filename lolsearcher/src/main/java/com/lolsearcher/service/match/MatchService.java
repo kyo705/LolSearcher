@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import com.lolsearcher.model.dto.match.ParticipantDto;
 import com.lolsearcher.model.dto.match.perk.PerksDto;
 import com.lolsearcher.model.entity.match.Member;
+import com.lolsearcher.model.entity.match.PerkStats;
 import com.lolsearcher.repository.match.MatchRepository;
 import com.lolsearcher.service.producer.ProducerService;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,8 @@ import com.lolsearcher.repository.summoner.SummonerRepository;
 @Service
 public class MatchService {
 
-	private final String failMatchIdServiceName = "failMatchIdProducerService";
-	private final String successMatchServiceName = "successMatchProducerService";
+	private final String failMatchIdServiceBeanName = "failMatchIdProducerService";
+	private final String successMatchServiceBeanName = "successMatchProducerService";
 	
 	private final Map<String, ProducerService> kafkaProducerServices;
 	private final ExecutorService executorService;
@@ -50,9 +51,13 @@ public class MatchService {
 		
 		List<Match> successMatches = successMatchesAndFailMatchIds.getSuccessMatches();
 		List<String> failMatchIds = successMatchesAndFailMatchIds.getFailMatchIds();
-		
-		sendBatchDataToKafka(successMatches, successMatchServiceName);
-		sendBatchDataToKafka(failMatchIds, failMatchIdServiceName);
+
+		for(Match successMatch : successMatches){
+			addAdditionalValue(successMatch);
+		}
+
+		sendBatchDataToKafka(successMatches, successMatchServiceBeanName);
+		sendBatchDataToKafka(failMatchIds, failMatchIdServiceBeanName);
 
 		return getMatchDtoList(successMatches);
 	}
@@ -92,6 +97,19 @@ public class MatchService {
 			}
 		}
 		return recentMatchIds;
+	}
+
+	private void addAdditionalValue(Match successMatch) {
+		List<Member> members = successMatch.getMembers();
+
+		for(Member member : members){
+			PerkStats perkStats = member.getPerks().getPerkStats();
+
+			PerkStats dbPerkStats =
+					matchRepository.findPerkStats(perkStats.getDefense(), perkStats.getFlex(), perkStats.getOffense());
+
+			perkStats.setId(dbPerkStats.getId());
+		}
 	}
 
 	private <T> void sendData(T data, String serviceName) {
