@@ -48,4 +48,17 @@ spring:
             
 
 riot_api_key: ${riot_api_key}
-  
+
+lolsearcher:
+  kafka:
+    producers:
+      success_match:
+        bootstrap_server: localhost:9092
+        ack: all
+        idempotence: true
+        transaction_id: success_match
+      fail_match_id:
+        bootstrap_server: localhost:9092
+        ack: all
+        idempotence: true
+        transaction_id: fail_match_id

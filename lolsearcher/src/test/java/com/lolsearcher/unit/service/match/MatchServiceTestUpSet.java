@@ -13,6 +13,8 @@ import com.lolsearcher.model.dto.match.SuccessMatchesAndFailMatchIds;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.entity.match.Match;
 
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
 public class MatchServiceTestUpSet {
 
 	protected static Summoner getSummoner(String summonerId) {
@@ -42,7 +44,7 @@ public class MatchServiceTestUpSet {
 		}
 		List<String> failMatchIds = allMatchIds.subList(limitedCount, allMatchIds.size());
 
-		successMatchesAndFailMatchIds.setMatches(matches);
+		successMatchesAndFailMatchIds.setSuccessMatches(matches);
 		successMatchesAndFailMatchIds.setFailMatchIds(failMatchIds);
 		
 		return successMatchesAndFailMatchIds;
@@ -83,15 +85,15 @@ public class MatchServiceTestUpSet {
 
 	protected static Stream<Arguments> getMatchIdsParameter() {
 		return Stream.of(
-				Arguments.arguments(0, 10, List.of(3,4,5), 5),
-				Arguments.arguments(0, 10, List.of(3,4,5), 0),
-				Arguments.arguments(0, 20, List.of(3,4,15), 10)
+				arguments(0, 10, List.of(3,4,5), 5),
+				arguments(0, 10, List.of(3,4,5), 0),
+				arguments(0, 20, List.of(3,4,15), 10)
 		);
 	}
 
 	protected static Stream<Arguments> getMatchParameter(){
 		return Stream.of(
-				Arguments.arguments(
+				arguments(
 						MatchParam.builder()
 								.summonerId("summonerId1")
 								.gameType(420)
@@ -99,7 +101,7 @@ public class MatchServiceTestUpSet {
 								.count(10)
 								.build()
 				),
-				Arguments.arguments(
+				arguments(
 						MatchParam.builder()
 								.summonerId("summonerId1")
 								.gameType(-1)

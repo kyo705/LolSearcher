@@ -13,6 +13,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SuccessMatchesAndFailMatchIds {
-	private List<Match> matches;
+	private List<Match> successMatches;
 	private List<String> failMatchIds;
 }

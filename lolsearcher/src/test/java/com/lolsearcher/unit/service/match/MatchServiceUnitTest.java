@@ -9,7 +9,7 @@ import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.repository.match.MatchRepository;
 import com.lolsearcher.repository.summoner.SummonerRepository;
 import com.lolsearcher.service.match.MatchService;
-import com.lolsearcher.service.producer.MessageProducingService;
+import com.lolsearcher.service.producer.ProducerService;
 import org.hibernate.NonUniqueResultException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,7 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class MatchServiceUnitTest {
-	@Mock private MessageProducingService kafkaService;
+	@Mock private Map<String, ProducerService> producerServices;
 	@Mock private ExecutorService executorService;
 	@Mock private RiotRestAPI riotRestApi;
 	@Mock private SummonerRepository summonerRepository;
@@ -43,7 +43,7 @@ public class MatchServiceUnitTest {
 	
 	@BeforeEach
 	void upset() {
-		matchService = new MatchService(kafkaService, executorService, riotRestApi, summonerRepository, matchRepository);
+		matchService = new MatchService(producerServices, executorService, riotRestApi, summonerRepository, matchRepository);
 	}
 	
 	//----------------------getMatches() 메소드 Test Case------------------------------------
@@ -115,10 +115,12 @@ public class MatchServiceUnitTest {
 			given(matchRepository.findMatchById(matchId)).willReturn(existedMatches.getOrDefault(matchId, null));
 		}
 		given(riotRestApi.getMatchesByNonBlocking(matchIds)).willReturn(result);
+
 		//when
 		List<MatchDto> renewMatches = matchService.getRenewMatches(summonerId);
+
 		//then
-		assertThat(renewMatches.size()).isEqualTo(result.getMatches().size());
+		assertThat(renewMatches.size()).isEqualTo(result.getSuccessMatches().size());
 		assertThat(summoner.getLastMatchId()).isEqualTo(allMatchIds.get(0));
 	}
 
@@ -135,8 +137,10 @@ public class MatchServiceUnitTest {
 				matchParam.getChampion(),
 				matchParam.getCount()
 		)).willReturn(matches);
+
 		//when
 		List<MatchDto> oldMatches = matchService.getOldMatches(matchParam);
+
 		//then
 		for(int i=0;i<oldMatches.size();i++){
 			assertThat(oldMatches.get(i).getMatchId())

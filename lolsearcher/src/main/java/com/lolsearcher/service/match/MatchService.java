@@ -2,15 +2,16 @@ package com.lolsearcher.service.match;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import com.lolsearcher.model.dto.match.ParticipantDto;
 import com.lolsearcher.model.dto.match.perk.PerksDto;
 import com.lolsearcher.model.entity.match.Member;
 import com.lolsearcher.repository.match.MatchRepository;
+import com.lolsearcher.service.producer.ProducerService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,14 +25,16 @@ import com.lolsearcher.model.dto.match.SuccessMatchesAndFailMatchIds;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.repository.summoner.SummonerRepository;
-import com.lolsearcher.service.producer.MessageProducingService;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class MatchService {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private final String failMatchIdServiceName = "failMatchIdProducerService";
+	private final String successMatchServiceName = "successMatchProducerService";
 	
-	private final MessageProducingService kafkaService;
+	private final Map<String, ProducerService> kafkaProducerServices;
 	private final ExecutorService executorService;
 	private final RiotRestAPI riotApi;
 	private final SummonerRepository summonerRepository;
@@ -42,20 +45,16 @@ public class MatchService {
 		Summoner summoner = summonerRepository.findSummonerById(summonerId);
 		
 		List<String> matchIds = getRecentMatchIds(summoner);
+
 		SuccessMatchesAndFailMatchIds successMatchesAndFailMatchIds = riotApi.getMatchesByNonBlocking(matchIds);
 		
-		List<Match> successMatches = successMatchesAndFailMatchIds.getMatches();
+		List<Match> successMatches = successMatchesAndFailMatchIds.getSuccessMatches();
 		List<String> failMatchIds = successMatchesAndFailMatchIds.getFailMatchIds();
 		
-		saveSuccessMatches(successMatches);
-		saveFailMatchIds(failMatchIds);
-		
-		List<MatchDto> recentMatches = new ArrayList<>(successMatches.size());
-		for(Match successMatch : successMatches) {
-			MatchDto matchDto = getMatchDto(successMatch);
-			recentMatches.add(matchDto);
-		}
-		return recentMatches;
+		sendBatchDataToKafka(successMatches, successMatchServiceName);
+		sendBatchDataToKafka(failMatchIds, failMatchIdServiceName);
+
+		return getMatchDtoList(successMatches);
 	}
 
 	@Transactional(readOnly = true)
@@ -94,15 +93,29 @@ public class MatchService {
 		}
 		return recentMatchIds;
 	}
-	
-	private void saveFailMatchIds(List<String> failMatchIds) {
-		executorService.submit(()->
-				kafkaService.saveFailMatchIds(failMatchIds));
+
+	private <T> void sendData(T data, String serviceName) {
+
+		ProducerService<T> producerService = kafkaProducerServices.get(serviceName);
+
+		executorService.submit(()->producerService.send(data));
 	}
 
-	private void saveSuccessMatches(List<Match> successMatches) {
-		executorService.submit(()->
-			kafkaService.saveSuccessMatches(successMatches));
+	private <T> void sendBatchDataToKafka(List<T> data, String serviceName) {
+
+		ProducerService<T> producerService = kafkaProducerServices.get(serviceName);
+
+		executorService.submit(()-> producerService.sendBatch(data));
+	}
+
+	private List<MatchDto> getMatchDtoList(List<Match> successMatches) {
+		List<MatchDto> recentMatches = new ArrayList<>(successMatches.size());
+
+		for(Match successMatch : successMatches) {
+			MatchDto matchDto = getMatchDto(successMatch);
+			recentMatches.add(matchDto);
+		}
+		return recentMatches;
 	}
 
 	private MatchDto getMatchDto(Match successMatch) {
