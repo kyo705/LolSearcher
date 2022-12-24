@@ -2,9 +2,9 @@ package com.lolsearcher.repository.champion;
 
 import java.util.List;
 
-import com.lolsearcher.model.entity.championstatic.position.ChampPosition;
-import com.lolsearcher.model.entity.championstatic.enemy.ChampEnemy;
-import com.lolsearcher.model.entity.championstatic.item.ChampItem;
+import com.lolsearcher.model.entity.champion.position.ChampPosition;
+import com.lolsearcher.model.entity.champion.enemy.ChampEnemy;
+import com.lolsearcher.model.entity.champion.item.ChampItem;
 
 public interface ChampionReository {
 

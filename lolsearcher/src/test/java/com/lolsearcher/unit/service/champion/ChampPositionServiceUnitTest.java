@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.lolsearcher.model.entity.championstatic.position.ChampPosition;
+import com.lolsearcher.model.entity.champion.position.ChampPosition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,11 +15,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.lolsearcher.model.dto.championstatic.ChampPositionDto;
 import com.lolsearcher.model.dto.championstatic.TotalChampDto;
-import com.lolsearcher.model.entity.championstatic.position.ChampPositionCompKey;
-import com.lolsearcher.model.entity.championstatic.enemy.ChampEnemy;
-import com.lolsearcher.model.entity.championstatic.enemy.ChampEnemyCompKey;
-import com.lolsearcher.model.entity.championstatic.item.ChampItem;
-import com.lolsearcher.model.entity.championstatic.item.ChampItemCompKey;
+import com.lolsearcher.model.entity.champion.position.ChampPositionCompKey;
+import com.lolsearcher.model.entity.champion.enemy.ChampEnemy;
+import com.lolsearcher.model.entity.champion.enemy.ChampEnemyCompKey;
+import com.lolsearcher.model.entity.champion.item.ChampItem;
+import com.lolsearcher.model.entity.champion.item.ChampItemCompKey;
 import com.lolsearcher.repository.champion.JpaChampionRepository;
 import com.lolsearcher.service.statistic.ChampionService;
 

@@ -1,4 +1,4 @@
-package com.lolsearcher.model.entity.championstatic.position;
+package com.lolsearcher.model.entity.champion.position;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

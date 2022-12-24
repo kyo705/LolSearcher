@@ -12,9 +12,9 @@ import com.lolsearcher.model.dto.championstatic.ChampEnemyDto;
 import com.lolsearcher.model.dto.championstatic.ChampItemDto;
 import com.lolsearcher.model.dto.championstatic.ChampPositionDto;
 import com.lolsearcher.model.dto.championstatic.TotalChampDto;
-import com.lolsearcher.model.entity.championstatic.position.ChampPosition;
-import com.lolsearcher.model.entity.championstatic.enemy.ChampEnemy;
-import com.lolsearcher.model.entity.championstatic.item.ChampItem;
+import com.lolsearcher.model.entity.champion.position.ChampPosition;
+import com.lolsearcher.model.entity.champion.enemy.ChampEnemy;
+import com.lolsearcher.model.entity.champion.item.ChampItem;
 import com.lolsearcher.repository.champion.ChampionReository;
 
 @RequiredArgsConstructor

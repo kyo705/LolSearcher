@@ -1,4 +1,4 @@
-package com.lolsearcher.model.entity.championstatic.item;
+package com.lolsearcher.model.entity.champion.enemy;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,13 +15,13 @@ import javax.persistence.Embeddable;
 @NoArgsConstructor
 @Data
 @Embeddable
-public class ChampItemCompKey implements Serializable{
-	private static final long serialVersionUID = 1649475722631843255L;
-	
+public class ChampEnemyCompKey implements Serializable {
+	private static final long serialVersionUID = -5366055224920056946L;
+
 	@Column(name = "CHAMPION_ID")
 	private String championId;
 	@Column(name = "SEASON_ID")
 	private int seasonId;
-	@Column(name = "ITEM_ID")
-	private int itemId;
+	@Column(name = "ENEMY_CHAMPION_ID")
+	private String enemyChampionId;
 }

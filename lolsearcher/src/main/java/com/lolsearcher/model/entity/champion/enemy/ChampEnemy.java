@@ -1,4 +1,4 @@
-package com.lolsearcher.model.entity.championstatic.item;
+package com.lolsearcher.model.entity.champion.enemy;
 
 import lombok.Data;
 
@@ -7,10 +7,9 @@ import javax.persistence.Entity;
 
 @Data
 @Entity
-public class ChampItem {
-
+public class ChampEnemy {
 	@EmbeddedId
-	private ChampItemCompKey ck;
+	private ChampEnemyCompKey ck;
 	
 	private long wins;
 	

@@ -1,6 +1,6 @@
 package com.lolsearcher.model.dto.championstatic;
 
-import com.lolsearcher.model.entity.championstatic.item.ChampItem;
+import com.lolsearcher.model.entity.champion.item.ChampItem;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
