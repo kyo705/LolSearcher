@@ -50,7 +50,6 @@ spring:
 riot_api_key: ${riot_api_key}
 
 lolsearcher:
-  season: 12
   kafka:
     producers:
       success_match:
@@ -63,3 +62,4 @@ lolsearcher:
         ack: all
         idempotence: true
         transaction_id: fail_match_id
+        transaction_timeout: 150000 #2min 30sec -> 2분 동안 sleep 상태되기 때문

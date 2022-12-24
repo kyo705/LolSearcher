@@ -19,10 +19,12 @@ public class FailMatchIdProducerConfig {
     private String BOOTSTRAP_SERVER;
     @Value("lolsearcher.kafka.producers.fail_match_id.ack")
     private String ACK;
-    @Value("lolsearcher.kafka.producers.fail_match_id.transaction_id")
-    private String TRANSACTION_ID;
     @Value("lolsearcher.kafka.producers.fail_match_id.idempotence")
     private Boolean ENABLE_IDEMPOTENCE;
+    @Value("lolsearcher.kafka.producers.fail_match_id.transaction_id")
+    private String TRANSACTION_ID;
+    @Value("lolsearcher.kafka.producers.fail_match_id.transaction_timeout")
+    private String TRANSACTION_TIME_OUT;
 
     @Bean
     public KafkaTemplate<String, String> failMatchIdKafkaTemplate(){
@@ -44,6 +46,7 @@ public class FailMatchIdProducerConfig {
         props.put(ProducerConfig.ACKS_CONFIG, ACK);
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, ENABLE_IDEMPOTENCE);
         props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, TRANSACTION_ID);
+        props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, TRANSACTION_TIME_OUT);
 
         return new DefaultKafkaProducerFactory<>(props);
     }
