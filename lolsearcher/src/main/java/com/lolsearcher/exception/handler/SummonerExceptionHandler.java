@@ -2,8 +2,7 @@ package com.lolsearcher.exception.handler;
 
 import javax.servlet.ServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,9 +13,9 @@ import org.springframework.web.servlet.ModelAndView;
 import com.lolsearcher.controller.SummonerController;
 import com.lolsearcher.service.ban.SearchIpBanService;
 
+@Slf4j
 @ControllerAdvice(assignableTypes = SummonerController.class)
 public class SummonerExceptionHandler {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final SearchIpBanService searchIpBanService;
 	
@@ -28,7 +27,7 @@ public class SummonerExceptionHandler {
     public ModelAndView getResponseError(WebClientResponseException e, ServletRequest req) {
 		ModelAndView mv = new ModelAndView();
 		
-		logger.error("'{}' error occurred by 'Riot' game server", e.getStatusCode().value());
+		log.error("'{}' error occurred by 'Riot' game server", e.getStatusCode().value());
 		
 		if(e.getStatusCode().equals(HttpStatus.BAD_GATEWAY)||
 			e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)||
@@ -47,7 +46,7 @@ public class SummonerExceptionHandler {
 		String user_ip = req.getRemoteAddr();
 		if(searchIpBanService.isExceedBanCount(user_ip)) {
 			searchIpBanService.registerBanList(user_ip);
-			logger.error(" ip : '{}' user is banned because of too many bad request", user_ip);
+			log.error(" ip : '{}' user is banned because of too many bad request", user_ip);
 			mv.setViewName("rejected_ip");
 		}
         return mv;
@@ -55,7 +54,7 @@ public class SummonerExceptionHandler {
 	
 	@ExceptionHandler(DataIntegrityViolationException.class)
     public ModelAndView getOverlapSavingEntityError(DataIntegrityViolationException e) {
-		logger.error("DB에 중복 데이터 저장 예외가 발생");
+		log.error("DB에 중복 데이터 저장 예외가 발생");
 		
         return new ModelAndView("/error/overlap");
     }

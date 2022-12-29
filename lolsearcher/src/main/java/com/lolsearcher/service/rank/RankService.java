@@ -2,10 +2,9 @@ package com.lolsearcher.service.rank;
 
 import java.util.List;
 
+import com.lolsearcher.constant.RankConstants;
 import com.lolsearcher.repository.rank.RankRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +19,6 @@ import com.lolsearcher.model.entity.rank.RankCompKey;
 @RequiredArgsConstructor
 @Service
 public class RankService {
-	private static final int SEASON_ID = 22;
-	private static final String SOLO_RANK = "RANKED_SOLO_5x5";
-	private static final String FLEX_RANK = "RANKED_FLEX_SR";
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final RiotRestAPI riotApi;
 
@@ -32,8 +26,8 @@ public class RankService {
 	
 	@Transactional(readOnly = true)
 	public TotalRanks getLeague(String summonerId){
-		RankCompKey soloRankKey = new RankCompKey(summonerId, SOLO_RANK, SEASON_ID);
-		RankCompKey flexRankKey = new RankCompKey(summonerId, FLEX_RANK, SEASON_ID);
+		RankCompKey soloRankKey = new RankCompKey(summonerId, RankConstants.SOLO_RANK, RankConstants.SEASON_ID);
+		RankCompKey flexRankKey = new RankCompKey(summonerId, RankConstants.FLEX_RANK, RankConstants.SEASON_ID);
 		
 		Rank soloRank = rankRepository.findRank(soloRankKey);
 		Rank flexRank = rankRepository.findRank(flexRankKey);
@@ -56,7 +50,7 @@ public class RankService {
 		for(Rank rank : apiRanks) {
 			rankRepository.saveRank(rank);
 			
-			if(rank.getCk().getQueueType().equals(SOLO_RANK)) {
+			if(rank.getCk().getQueueType().equals(RankConstants.SOLO_RANK)) {
 				totalRanks.setSolorank(new RankDto(rank));
 			}else {
 				totalRanks.setTeamrank(new RankDto(rank));

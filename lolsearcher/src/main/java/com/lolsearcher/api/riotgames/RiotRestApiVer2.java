@@ -3,6 +3,7 @@ package com.lolsearcher.api.riotgames;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lolsearcher.constant.RankConstants;
 import com.lolsearcher.model.entity.ingame.InGame;
 import com.lolsearcher.model.entity.match.*;
 import com.lolsearcher.model.entity.rank.Rank;
@@ -30,9 +31,6 @@ import reactor.core.publisher.Mono;
 public class RiotRestApiVer2 implements RiotRestAPI{
 	@Value("${riot_api_key}")
 	private String key = null;
-
-	@Value("${lolsearcher.season}")
-	private final int SEASON_ID;
 	
 	private final WebClient webclient;
 
@@ -211,7 +209,7 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	private Match getMatch(MatchDto matchDto) {
 
 		Match match = matchDto.changeToMatch();
-		match.setSeason(SEASON_ID);
+		match.setSeason(RankConstants.SEASON_ID);
 
 		List<ParticipantDto> participantDtos = matchDto.getInfo().getParticipants();
 

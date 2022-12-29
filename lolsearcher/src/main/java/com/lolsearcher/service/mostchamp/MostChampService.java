@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.lolsearcher.repository.mostchamp.MostChampRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +14,6 @@ import com.lolsearcher.model.dto.mostchamp.MostChampDto;
 @RequiredArgsConstructor
 @Service
 public class MostChampService {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final MostChampRepository mostChampRepository;
 

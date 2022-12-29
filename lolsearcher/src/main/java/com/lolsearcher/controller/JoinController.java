@@ -17,8 +17,11 @@ public class JoinController {
 	private final JoinService userService;
 	
 	@GetMapping(path = "/joinForm")
-	public ModelAndView joinForm(@RequestParam(required = false) String userid,
-								@RequestParam(required = false) Integer joinPossible) {
+	public ModelAndView joinForm(
+			@RequestParam(required = false) String userid,
+			@RequestParam(required = false) Integer joinPossible
+	) {
+
 		ModelAndView mv = new ModelAndView("/user/join");
 		if(userid!=null) {
 			mv.addObject("userid", userid);
@@ -30,6 +33,7 @@ public class JoinController {
 	
 	@PostMapping(path = "/findId")
 	public ModelAndView findExistedId(@RequestParam String userid) {
+
 		ModelAndView mv = new ModelAndView("redirect:/joinForm");
 		mv.addObject("userid", userid);
 		
@@ -47,9 +51,12 @@ public class JoinController {
 	
 	
 	@PostMapping(path = "/join")
-	public ModelAndView join(@RequestParam String username,
-							@RequestParam String password,
-							@RequestParam String email) {
+	public ModelAndView join(
+			@RequestParam String username,
+			@RequestParam String password,
+			@RequestParam String email
+	) {
+
 		ModelAndView mv = new ModelAndView();
 		LolSearcherUser user = userService.findUserByEmail(email);
 		if(user!=null) {
@@ -65,8 +72,10 @@ public class JoinController {
 	
 	
 	@PostMapping(path = "/selfCertification")
-	public ModelAndView selfCertification(@RequestParam Integer certificationNumber,
-										@RequestParam String email) {
+	public ModelAndView selfCertification(
+			@RequestParam Integer certificationNumber,
+			@RequestParam String email
+	) {
 		LolSearcherUser user = userService.certificate(email, certificationNumber);
 		userService.joinUser(user);
 		

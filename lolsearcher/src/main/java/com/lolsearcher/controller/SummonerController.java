@@ -3,11 +3,10 @@ package com.lolsearcher.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lolsearcher.constant.RenewMsConstants;
 import com.lolsearcher.exception.summoner.MoreSummonerException;
 import com.lolsearcher.exception.summoner.NoSummonerException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,8 +30,6 @@ import com.lolsearcher.service.summoner.SummonerService;
 @RequiredArgsConstructor
 @Controller
 public class SummonerController {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private final long RENEW_TIME = 1000*60*5;
 	
 	private final SummonerService summonerService;
 	private final RankService rankService;
@@ -42,33 +39,35 @@ public class SummonerController {
 	@PostMapping(path = "/summoner")
 	public ModelAndView getSummonerData(
 			@ModelAttribute(name = "params") SummonerUrlParam requestParam,
-			@RequestAttribute(name = "name") String name
+			@RequestAttribute(name = "name") String name /* 필터된 닉네임 */
 	) {
+
 		boolean isRenew = false;
 		SummonerDto summoner = getSummoner(name);
 		
-		if(summoner==null) {
+		if((summoner==null) || (requestParam.isRenew() &&
+				System.currentTimeMillis() - summoner.getLastRenewTimeStamp() >= RenewMsConstants.SUMMONER_RENEW_MS)) {
+
 			summoner = summonerService.renewSummoner(name);
 			isRenew = true;
 		}
-		long renewedTime = System.currentTimeMillis()-summoner.getLastRenewTimeStamp();
-		if(renewedTime>=RENEW_TIME && requestParam.isRenew()) {
-			summoner = summonerService.renewSummoner(name);
-			isRenew = true;
-		}
-		String summonerId = summoner.getSummonerId();
+
+		//요청 파라미터 값 갱신
 		requestParam.setName(name);
 		requestParam.setSummonerId(summoner.getSummonerId());
+
 		
-		TotalRanks ranks = getRanks(summonerId, isRenew);
+		TotalRanks ranks = getRanks(summoner.getSummonerId(), isRenew);
+
 		List<MatchDto> matches = getMatches(requestParam, isRenew);
-		List<MostChampDto> mostchamps = getMostChamps(requestParam);
+
+		List<MostChampDto> mostChampions = getMostChamps(requestParam);
 		
 		ModelAndView mv = new ModelAndView("/summoner_data");
 		mv.addObject("summoner", summoner);
 		mv.addObject("rank", ranks);
 		mv.addObject("matches", matches);
-		mv.addObject("mostchamps", mostchamps);
+		mv.addObject("mostchamps", mostChampions);
 		
 		return mv;
 	}

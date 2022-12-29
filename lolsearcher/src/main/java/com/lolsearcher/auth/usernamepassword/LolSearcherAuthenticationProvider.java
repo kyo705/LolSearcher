@@ -1,5 +1,6 @@
 package com.lolsearcher.auth.usernamepassword;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,16 +14,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class LolSearcherAuthenticationProvider implements AuthenticationProvider {
 
-	private UserDetailsService userDetailService;
-	private BCryptPasswordEncoder pwdEncoding;
-	
-	public LolSearcherAuthenticationProvider(UserDetailsService userDetailService, BCryptPasswordEncoder pwdEncoding) {
-		this.userDetailService = userDetailService;
-		this.pwdEncoding = pwdEncoding;
-	}
+	private final UserDetailsService userDetailService;
+	private final BCryptPasswordEncoder pwdEncoding;
+
 	
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -46,10 +44,8 @@ public class LolSearcherAuthenticationProvider implements AuthenticationProvider
 		
 		userDetails.setPassword(null);
 		
-		Authentication newAuth = new UsernamePasswordAuthenticationToken(
+		return new UsernamePasswordAuthenticationToken(
 				userDetails, null, userDetails.getAuthorities());
-		
-		return newAuth;
 	}
 
 	@Override

@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoginBanFilter implements Filter {
 
-	private String filteredUri = "/login";
-	private Map<String, Long> banList = new ConcurrentHashMap<>();
+	private final String filteredUri = "/login";
+	private final Map<String, Long> banList = new ConcurrentHashMap<>();
 	
 	
 	@Override
@@ -26,6 +26,7 @@ public class LoginBanFilter implements Filter {
 			throws IOException, ServletException {
 		String request_ip = request.getRemoteAddr();
 		String uri = ((HttpServletRequest)request).getRequestURI();
+
 		if(!banList.containsKey(request_ip)||!uri.equals(filteredUri)) {
 			chain.doFilter(request, response);
 		}else {

@@ -3,9 +3,9 @@ package com.lolsearcher.service.ban;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.lolsearcher.constant.BanConstants;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.lolsearcher.filter.LoginBanFilter;
@@ -13,12 +13,11 @@ import com.lolsearcher.scheduler.dto.Timer;
 import com.lolsearcher.scheduler.job.RemovingBannedIpJob;
 import com.lolsearcher.scheduler.service.SchedulerService;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class LoginIpBanService implements IpBanService {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	private final int BAN_COUNT = 10;
+
 	private final Map<String, Integer> banCount = new ConcurrentHashMap<>();
 	
 	private final SchedulerService schedulerService;
@@ -28,7 +27,7 @@ public class LoginIpBanService implements IpBanService {
 	public boolean isExceedBanCount(String ip) {
 		banCount.put(ip, banCount.getOrDefault(ip, 0)+1);
 
-		if(banCount.get(ip)>= BAN_COUNT) {
+		if(banCount.get(ip)>= BanConstants.LOGIN_BAN_COUNT) {
 			return true;
 		}
 		return false;
@@ -44,8 +43,8 @@ public class LoginIpBanService implements IpBanService {
 		timer.setRepeatIntervalMs(0);
 		timer.setRunForever(false);
 		timer.setTotalFireCount(1);
-		
-		logger.info("스레드 : {} 에서 실행", Thread.currentThread());
+
+		log.info("스레드 : {} 에서 실행", Thread.currentThread());
 		schedulerService.schedule(RemovingBannedIpJob.class, timer);
 	}
 
@@ -56,8 +55,8 @@ public class LoginIpBanService implements IpBanService {
 
 	@Override
 	public void removeBanList(String user_ip) {
-		logger.info("IP : '{}' 벤 목록에서 삭제 시도", user_ip);
+		log.info("IP : '{}' 벤 목록에서 삭제 시도", user_ip);
 		loginBanFilter.removeBanList(user_ip);
-		logger.info("IP : '{}' 벤 목록에서 삭제 성공", user_ip);
+		log.info("IP : '{}' 벤 목록에서 삭제 성공", user_ip);
 	}
 }

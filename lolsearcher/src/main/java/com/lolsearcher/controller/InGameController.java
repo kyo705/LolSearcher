@@ -1,8 +1,8 @@
 package com.lolsearcher.controller;
 
+import com.lolsearcher.constant.RenewMsConstants;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -14,11 +14,11 @@ import com.lolsearcher.model.dto.summoner.SummonerDto;
 import com.lolsearcher.service.ingame.InGameService;
 import com.lolsearcher.service.summoner.SummonerService;
 
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 public class InGameController {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private final long RENEW_TIME = 1000*60*2L; //2분
+
 	private final SummonerService summonerService;
 	private final InGameService inGameService;
 	
@@ -32,7 +32,7 @@ public class InGameController {
 		String summonerId = summonerDto.getSummonerId();
 
 		InGameDto inGameDto = getInGame(lastInGameSearchTimeStamp, summonerId);
-		logger.info("'{}'는 게임 : '{}'을 진행 중입니다.", name, inGameDto.getGameId());
+		log.info("'{}'는 게임 : '{}'을 진행 중입니다.", name, inGameDto.getGameId());
 
 		mv.addObject("summoner", summonerDto);
 		mv.addObject("ingame", inGameDto);
@@ -41,10 +41,9 @@ public class InGameController {
 		return mv;
 	}
 
-	private InGameDto getInGame(long lastInGameSearchTimeStamp, String summonerId)
-			throws WebClientResponseException {
+	private InGameDto getInGame(long lastInGameSearchTimeStamp, String summonerId) throws WebClientResponseException {
 
-		if(System.currentTimeMillis() - lastInGameSearchTimeStamp < RENEW_TIME){
+		if(System.currentTimeMillis() - lastInGameSearchTimeStamp < RenewMsConstants.INGAME_RENEW_MS){
 			return inGameService.getOldInGame(summonerId);
 		}
 

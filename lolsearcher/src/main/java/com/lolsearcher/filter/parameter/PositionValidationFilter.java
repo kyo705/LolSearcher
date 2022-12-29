@@ -1,5 +1,7 @@
 package com.lolsearcher.filter.parameter;
 
+import com.lolsearcher.constant.PositionConstants;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -10,11 +12,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 public class PositionValidationFilter implements Filter {
-	private final String TOP = "TOP";
-	private final String JUNGLE = "JUNGLE";
-	private final String MIDDLE = "MIDDLE";
-	private final String BOTTOM = "BOTTOM";
-	private final String UNTILITY = "UTILITY";
 
 	private final String POSITION = "position";
 	private final String FAIL_HANDLER_URI = "/invalid";
@@ -26,11 +23,14 @@ public class PositionValidationFilter implements Filter {
 		String unfiltered_name = request.getParameter(POSITION);
 		if(unfiltered_name==null) {
 			chain.doFilter(request, response);
-		}else if(unfiltered_name.equals(TOP)||
-			unfiltered_name.equals(JUNGLE)||
-			unfiltered_name.equals(MIDDLE)||
-			unfiltered_name.equals(BOTTOM)||
-			unfiltered_name.equals(UNTILITY)) {
+
+		}else if(
+				unfiltered_name.equals(PositionConstants.TOP)||
+				unfiltered_name.equals(PositionConstants.JUNGLE)||
+				unfiltered_name.equals(PositionConstants.MIDDLE)||
+				unfiltered_name.equals(PositionConstants.BOTTOM)||
+				unfiltered_name.equals(PositionConstants.UTILITY)
+		) {
 			chain.doFilter(request, response);
 		}else {
 			((HttpServletResponse)response).sendRedirect(FAIL_HANDLER_URI);

@@ -21,7 +21,7 @@ public class JoinExceptionHandler {
     }
 	
 	@ExceptionHandler(RandomNumDifferenceException.class)
-    public ModelAndView getRandomNumdifferenceError(RandomNumDifferenceException e) {
+    public ModelAndView getRandomNumDifferenceError(RandomNumDifferenceException e) {
 		ModelAndView mv = new ModelAndView();
 		String email = e.getEmail();
 		

@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,20 +20,17 @@ import org.springframework.stereotype.Service;
 
 import com.lolsearcher.service.ban.LoginIpBanService;
 
+@RequiredArgsConstructor
 @Service
 public class UserLoginFailHandler implements AuthenticationFailureHandler {
-	private int count = 10;
-	private LoginIpBanService loginIpBanService;
-	
-	public UserLoginFailHandler(LoginIpBanService loginIpBanService) {
-		this.loginIpBanService = loginIpBanService;
-	}
+
+	private final LoginIpBanService loginIpBanService;
 	
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
 		String ip = request.getRemoteAddr();
-		if(loginIpBanService.isExceedBanCount(count, ip)) {
+		if(loginIpBanService.isExceedBanCount(ip)) {
 			loginIpBanService.registerBanList(ip);
 			
 			request.setAttribute("loginFailMessage", "로그인 시도 횟수 초과!! 10분 뒤 다시 시도해주세요");

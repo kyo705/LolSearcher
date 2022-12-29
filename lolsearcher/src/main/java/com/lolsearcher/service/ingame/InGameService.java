@@ -7,8 +7,7 @@ import com.lolsearcher.exception.ingame.NoInGameException;
 import com.lolsearcher.exception.summoner.MoreSummonerException;
 import com.lolsearcher.exception.summoner.NoSummonerException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -23,33 +22,33 @@ import com.lolsearcher.repository.ingame.InGameRepository;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional
 public class InGameService {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	private final RiotRestAPI riotGames;
 	private final InGameRepository ingameRepository;
 	private final SummonerRepository summonerRepository;
 	
 	public InGameDto getOldInGame(String summonerId) throws WebClientResponseException {
-		logger.info("InGame 기존 데이터 조회");
+		log.info("InGame 기존 데이터 조회");
 		List<InGame> inGames = ingameRepository.getInGamesBySummonerId(summonerId);
 
 		if(inGames.size()==0){
-			logger.error("인게임 데이터가 현재 DB에 존재하지 않습니다.");
+			log.error("인게임 데이터가 현재 DB에 존재하지 않습니다.");
 			throw new NoInGameException(1);
 		}
 		if(inGames.size()>1){
-			logger.error("인게임 데이터가 현재 DB에 2 이상 존재합니다.");
+			log.error("인게임 데이터가 현재 DB에 2 이상 존재합니다.");
 			throw new MoreInGameException(1, inGames.size());
 		}
 		return new InGameDto(inGames.get(0));
 	}
 
 	public InGameDto getRenewInGame(String summonerId) throws WebClientResponseException {
-		logger.info("InGame 데이터 갱신");
+		log.info("InGame 데이터 갱신");
 
 		InGame inGame = riotGames.getInGameBySummonerId(summonerId);
 		ingameRepository.saveInGame(inGame);
@@ -72,7 +71,7 @@ public class InGameService {
 				try {
 					ingameRepository.deleteInGame(inGame);
 				}catch(Exception e) {
-					logger.error("GameId : '{}' 삭제 에러", inGame.getGameId());
+					log.error("GameId : '{}' 삭제 에러", inGame.getGameId());
 				}
 			}
 		}

@@ -5,8 +5,7 @@ import java.util.List;
 import com.lolsearcher.exception.summoner.MoreSummonerException;
 import com.lolsearcher.exception.summoner.NoSummonerException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -19,10 +18,10 @@ import com.lolsearcher.model.dto.summoner.SummonerDto;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.repository.summoner.SummonerRepository;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
-public class SummonerService {	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class SummonerService {
 	
 	private final RiotRestAPI riotApi;
 	private final SummonerRepository summonerRepository;
@@ -32,11 +31,11 @@ public class SummonerService {
 		List<Summoner> dbSummoners = summonerRepository.findSummonerByName(summonerName);
 		
 		if(dbSummoners.size()==0) {
-			logger.error("닉네임 '{}'는 현재 DB에 존재하지 않습니다.", summonerName);
+			log.error("닉네임 '{}'는 현재 DB에 존재하지 않습니다.", summonerName);
 			throw new NoSummonerException(1);
 		}
 		if(dbSummoners.size()>=2) {
-			logger.error("닉네임 '{}'는 현재 DB에 2 이상 존재합니다.", summonerName);
+			log.error("닉네임 '{}'는 현재 DB에 2 이상 존재합니다.", summonerName);
 			throw new MoreSummonerException(1, dbSummoners.size());
 		}
 		return new SummonerDto(dbSummoners.get(0));
@@ -53,10 +52,10 @@ public class SummonerService {
 				renewSummoner(dbSummoner, renewedSummoner);
 			}catch(WebClientResponseException e) {
 				if(e.getStatusCode()==HttpStatus.BAD_REQUEST) {
-					logger.error("'{}' 닉네임에 해당하는 유저는 게임 내에 존재하지 않음", name);
+					log.error("'{}' 닉네임에 해당하는 유저는 게임 내에 존재하지 않음", name);
 					summonerRepository.deleteSummoner(dbSummoner);
 				}else {
-					logger.error(e.getMessage());
+					log.error(e.getMessage());
 					throw e;
 				}
 			}

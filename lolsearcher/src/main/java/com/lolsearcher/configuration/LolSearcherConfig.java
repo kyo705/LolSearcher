@@ -3,20 +3,18 @@ package com.lolsearcher.configuration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@RequiredArgsConstructor
 @Configuration
 public class LolSearcherConfig {
 
-	private WebClient.Builder webclientBuilder;
-	
-	public LolSearcherConfig(WebClient.Builder webclientBuilder) {
-		this.webclientBuilder = webclientBuilder;
-	}
+	private final WebClient.Builder webclientBuilder;
 	
 	@Bean
 	public WebClient webclient() {
@@ -24,7 +22,7 @@ public class LolSearcherConfig {
 	}
 	@Bean
 	public ExecutorService matchSavingThreadPool() {
-		return Executors.newFixedThreadPool(100);
+		return Executors.newFixedThreadPool(54);
 	}
 	
 	//-------------------- 시큐리티 관련 @bean 등록 ----------------------------

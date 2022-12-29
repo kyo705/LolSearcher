@@ -2,6 +2,7 @@ package com.lolsearcher.auth.usernamepassword;
 
 import javax.transaction.Transactional;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,13 +12,11 @@ import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.exception.summoner.SameValueExistException;
 import com.lolsearcher.repository.user.UserRepository;
 
+@RequiredArgsConstructor
 @Service
 public class LolsearcherUserDetailsService implements UserDetailsService {
+
 	private final UserRepository userRepository;
-	
-	public LolsearcherUserDetailsService(UserRepository userRepository) {
-		this.userRepository = userRepository;
-	}
 
 	@Transactional
 	@Override

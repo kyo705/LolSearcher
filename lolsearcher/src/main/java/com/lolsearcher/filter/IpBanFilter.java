@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -15,13 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class IpBanFilter implements Filter {
 
-	private String filteredUri = "/rejected";
-	private Map<String, Long> banList;
-	
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-		banList = new ConcurrentHashMap<>();
-	}
+	private final String filteredUri = "/rejected";
+	private final Map<String, Long> banList = new ConcurrentHashMap<>();
 	
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

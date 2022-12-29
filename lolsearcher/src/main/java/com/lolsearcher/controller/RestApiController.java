@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 
+import com.lolsearcher.constant.RankConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,10 +29,6 @@ import com.lolsearcher.service.openapi.RestApiService;
 @RestController
 @RequestMapping("/api")
 public class RestApiController {
-
-	private static final String SOLO = "RANKED_SOLO_5x5";
-	private static final String FLEX = "RANKED_FLEX_SR";
-	private static final int SEASON = 22;
 	
 	private final RestApiService restApiService;
 
@@ -65,7 +62,7 @@ public class RestApiController {
 	
 	@GetMapping("/summoner/id/{id}/rank/solo/season/22")
 	ResponseEntity<RankDto> getSoloRankById(@PathVariable("id") String id){
-		RankDto rank = restApiService.getRankById(id, SOLO, SEASON);
+		RankDto rank = restApiService.getRankById(id, RankConstants.SOLO_RANK, RankConstants.SEASON_ID);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/solorank.html; rel=\"profile\"");
@@ -78,7 +75,7 @@ public class RestApiController {
 	
 	@GetMapping("/summoner/id/{id}/rank/flex/season/22")
 	ResponseEntity<RankDto> getFlexRankById(@PathVariable("id") String id){
-		RankDto rank = restApiService.getRankById(id, FLEX, SEASON);
+		RankDto rank = restApiService.getRankById(id, RankConstants.FLEX_RANK, RankConstants.SEASON_ID);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/teamrank.html; rel=\"profile\"");
@@ -91,7 +88,7 @@ public class RestApiController {
 	
 	@GetMapping("/summoner/id/{id}/ranks/season/22")
 	ResponseEntity<List<RankDto>> getRanksById(@PathVariable("id") String id){
-		List<RankDto> ranks = restApiService.getRanksById(id, SEASON);
+		List<RankDto> ranks = restApiService.getRanksById(id, RankConstants.SEASON_ID);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/ranks.html; rel=\"profile\"");
