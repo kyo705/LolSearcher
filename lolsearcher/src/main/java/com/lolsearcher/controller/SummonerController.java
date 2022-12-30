@@ -41,7 +41,6 @@ public class SummonerController {
 			@ModelAttribute(name = "params") SummonerUrlParam requestParam,
 			@RequestAttribute(name = "name") String name /* 필터된 닉네임 */
 	) {
-
 		boolean isRenew = false;
 		SummonerDto summoner = getSummoner(name);
 		
@@ -51,7 +50,6 @@ public class SummonerController {
 			summoner = summonerService.renewSummoner(name);
 			isRenew = true;
 		}
-
 		//요청 파라미터 값 갱신
 		requestParam.setName(name);
 		requestParam.setSummonerId(summoner.getSummonerId());
@@ -62,7 +60,7 @@ public class SummonerController {
 		List<MatchDto> matches = getMatches(requestParam, isRenew);
 
 		List<MostChampDto> mostChampions = getMostChamps(requestParam);
-		
+
 		ModelAndView mv = new ModelAndView("/summoner_data");
 		mv.addObject("summoner", summoner);
 		mv.addObject("rank", ranks);
@@ -98,17 +96,14 @@ public class SummonerController {
 		List<MatchDto> matches = new ArrayList<>();
 		
 		if(isRenew) {
-			matches.addAll(matchService.getRenewMatches(request.getSummonerId()));
+			List<String> recentMatchIds = matchService.getRecentMatchIds(request.getSummonerId());
+
+			matches.addAll(matchService.getRenewMatches(recentMatchIds));
 		}
-		MatchParam matchParam = MatchParam.builder()
-				.name(request.getName())
-				.champion(request.getChampion())
-				.summonerId(request.getSummonerId())
-				.gameType(request.getMatchGameType())
-				.count(request.getCount())
-				.build();
+		MatchParam matchParam = getMatchParam(request);
 
 		matches.addAll(matchService.getOldMatches(matchParam));
+
 		sortMatches(matches);
 
 		return matches;
@@ -122,6 +117,17 @@ public class SummonerController {
 				.build();
 
 		return mostChampService.getMostChamp(mostChampParam);
+	}
+
+	private MatchParam getMatchParam(SummonerUrlParam requestParam) {
+
+		return MatchParam.builder()
+				.name(requestParam.getName())
+				.champion(requestParam.getChampion())
+				.summonerId(requestParam.getSummonerId())
+				.gameType(requestParam.getMatchGameType())
+				.count(requestParam.getCount())
+				.build();
 	}
 
 	private void sortMatches(List<MatchDto> matches) {

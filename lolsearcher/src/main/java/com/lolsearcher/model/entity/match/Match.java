@@ -1,5 +1,6 @@
 package com.lolsearcher.model.entity.match;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import org.hibernate.annotations.BatchSize;
 @Data
 @Entity
 @Table(name = "MATCHES")
-public class Match {
+public class Match implements Serializable {
 
 	@Id
 	@Column(name = "ID")

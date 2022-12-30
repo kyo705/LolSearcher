@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @Entity
-public class Perks {
+public class Perks implements Serializable {
     @EmbeddedId
     MemberCompKey memberCompKey;
 

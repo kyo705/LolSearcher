@@ -24,6 +24,10 @@ spring:
       hibernate:
         jdbc:
         batch_size: 1000
+  cache:
+    type: redis
+    redis:
+      cache-null-values: true
   security:
     oauth2:
       client:
@@ -50,16 +54,29 @@ spring:
 riot_api_key: ${riot_api_key}
 
 lolsearcher:
+  webclient:
+    kr-base-url: https://kr.api.riotgames.com
+    asia-base-url: https://asia.api.riotgames.com
+  redis:
+    ttl:
+      ingame: 120 # 2min
+      match: 1440 # 1day
   kafka:
+    topics:
+      fail_match_id:
+        name: filtered_fail_match_id
+        replica: 1
+        partitions: 1
+      success_match:
+        name: success_match
+        replica: 1
+        partitions: 1
     producers:
       success_match:
         bootstrap_server: localhost:9092
         ack: all
-        idempotence: true
         transaction_id: success_match
       fail_match_id:
         bootstrap_server: localhost:9092
         ack: all
-        idempotence: true
         transaction_id: fail_match_id
-        transaction_timeout: 150000 #2min 30sec -> 2분 동안 sleep 상태되기 때문

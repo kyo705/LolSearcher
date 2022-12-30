@@ -2,11 +2,11 @@ package com.lolsearcher.api.riotgames;
 
 import java.util.List;
 
-import com.lolsearcher.model.dto.match.SuccessMatchesAndFailMatchIds;
-import com.lolsearcher.model.entity.ingame.InGame;
+import com.lolsearcher.model.dto.ingame.InGameDto;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.model.entity.rank.Rank;
+import reactor.core.publisher.Mono;
 
 public interface RiotRestAPI {
 	
@@ -19,11 +19,11 @@ public interface RiotRestAPI {
 	List<String> getAllMatchIds(String puuid, String lastMatchId);
 	
 	List<String> getMatchIds(String puuid, int queue, String type, int start, int count, String lastmatchid);
-	
-	Match getOneMatchByBlocking(String matchId);
-	
-	SuccessMatchesAndFailMatchIds getMatchesByNonBlocking(List<String> matchIds);
-	
-	InGame getInGameBySummonerId(String summonerId);
-	
+
+	Mono<Match> getMatchByNonBlocking(String matchId);
+
+	Match getMatchByBlocking(String matchId);
+
+	InGameDto getInGameBySummonerId(String summonerId);
+
 }

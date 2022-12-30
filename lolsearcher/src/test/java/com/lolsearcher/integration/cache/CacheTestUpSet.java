@@ -1,0 +1,31 @@
+package com.lolsearcher.integration.cache;
+
+import com.lolsearcher.model.dto.ingame.InGameDto;
+import com.lolsearcher.model.entity.match.Match;
+import com.lolsearcher.model.entity.match.PerkStats;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+public class CacheTestUpSet {
+
+    protected static InGameDto createInGameDto(String summonerId){
+        return InGameDto
+                .builder()
+                .gameId(0)
+                .gameMode("CLASSIC")
+                .build();
+    }
+
+    protected static List<String> getMatchIds() {
+        return List.of("matchId1" , "matchId2", "matchId3");
+    }
+
+    public static Mono<Match> getMatchMono(String matchId) {
+
+        Match match = new Match();
+        match.setMatchId(matchId);
+
+        return Mono.just(match);
+    }
+}

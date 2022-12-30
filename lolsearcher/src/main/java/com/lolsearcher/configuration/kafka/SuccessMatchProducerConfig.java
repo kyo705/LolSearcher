@@ -22,8 +22,6 @@ public class SuccessMatchProducerConfig {
     private String BOOTSTRAP_SERVER;
     @Value("lolsearcher.kafka.producers.success_match.ack")
     private String ACK;
-    @Value("lolsearcher.kafka.producers.success_match.idempotence")
-    private Boolean ENABLE_IDEMPOTENCE;
     @Value("lolsearcher.kafka.producers.success_match.transaction_id")
     private String TRANSACTION_ID;
 
@@ -44,7 +42,7 @@ public class SuccessMatchProducerConfig {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         props.put(ProducerConfig.ACKS_CONFIG, ACK);
-        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, ENABLE_IDEMPOTENCE);
+        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, TRANSACTION_ID);
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, CompressionType.ZSTD.name);
 

@@ -1,14 +1,88 @@
-spring.datasource.driverClassName=org.mariadb.jdbc.Driver
-spring.datasource.url= ${test.datasource.url}
-spring.datasource.username=${test.datasource.username}
-spring.datasource.password=${test.datasource.password}
 
-spring.jpa.show-sql=true
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.open-in-view=false
-spring.jpa.properties.hibernate.jdbc.batch_size=4
-spring.jpa.properties.hibernate.order_inserts=true
-spring.jpa.properties.hibernate.order_updates=true
-spring.jpa.properties.hibernate.generate_statistics=true
+server:
+  port: 8080
+  shutdown: graceful
+  tomcat:
+    accept-count: 100
+    threads:
+      max: 200
+      min-spare: 54
 
-server.servlet.encoding.force-response=true
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 25
+      connection-timeout: 3000
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+        batch_size: 1000
+  cache:
+    type: redis
+    redis:
+      cache-null-values: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${oauth2.google.id}
+            client-secret: ${oauth2.google.secret}
+            scope: email, profile
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+          ssl:
+            protocols: TLSv1.2
+
+
+riot_api_key: ${riot_api_key}
+
+lolsearcher:
+  webclient:
+    kr-base-url: http://localhost:15554
+    asia-base-url: http://localhost:15554
+  mock-server:
+    port: 15554
+  redis:
+    port: 13513
+    ttl:
+      ingame: 1 # 1sec
+      match: 1 # 1sec
+  kafka:
+    topics:
+      fail_match_id:
+        name: filtered_fail_match_id
+        replica: 1
+        partitions: 1
+      success_match:
+        name: success_match
+        replica: 1
+        partitions: 1
+    producers:
+      success_match:
+        bootstrap_server: localhost:9092
+        ack: all
+        idempotence: true
+        transaction_id: success_match
+      fail_match_id:
+        bootstrap_server: localhost:9092
+        ack: all
+        idempotence: true
+        transaction_id: fail_match_id
