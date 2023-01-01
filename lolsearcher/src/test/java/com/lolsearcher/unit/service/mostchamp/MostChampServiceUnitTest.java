@@ -1,7 +1,7 @@
 package com.lolsearcher.unit.service.mostchamp;
 
+import static com.lolsearcher.constant.LolSearcherConstants.MOST_CHAMP_LIMITED_COUNT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.BDDMockito.given;
 
 import com.lolsearcher.model.dto.parameter.MostChampParam;
@@ -42,7 +42,8 @@ public class MostChampServiceUnitTest {
             given(mostChampRepository.findMostChampionIds(
                     mostChampParam.getSummonerId(),
                     mostChampParam.getGameQueue(),
-                    mostChampParam.getSeason())
+                    mostChampParam.getSeason(),
+                    MOST_CHAMP_LIMITED_COUNT)
             ).willReturn(mostChampionIds);
 
             for(int i=0; i<mostChampionIds.size(); i++){

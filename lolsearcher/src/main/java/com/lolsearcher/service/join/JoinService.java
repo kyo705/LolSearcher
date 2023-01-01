@@ -9,11 +9,11 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.exception.join.CertificationTimeOutException;
@@ -35,19 +35,19 @@ public class JoinService {
 	private final ExecutorService executorService;
 	private final SchedulerService schedulerService;
 	
-	@Transactional
+	@JpaTransactional
 	public void joinUser(LolSearcherUser user) {
 		userRepository.saveUser(user);
 	}
 	
 	
-	@Transactional(readOnly = true)
+	@JpaTransactional(readOnly = true)
 	public LolSearcherUser findUserByUsername(String username) {
 		return userRepository.findUserByName(username);
 	}
 	
 	
-	@Transactional(readOnly = true)
+	@JpaTransactional(readOnly = true)
 	public LolSearcherUser findUserByEmail(String email) {
 		return userRepository.findUserByEmail(email);
 	}

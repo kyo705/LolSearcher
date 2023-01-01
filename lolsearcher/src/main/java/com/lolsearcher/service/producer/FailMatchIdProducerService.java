@@ -1,5 +1,6 @@
 package com.lolsearcher.service.producer;
 
+import com.lolsearcher.service.summoner.SummonerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -9,7 +10,6 @@ import org.springframework.kafka.core.KafkaSendCallback;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import java.util.List;
@@ -24,22 +24,12 @@ public class FailMatchIdProducerService implements ProducerService<String> {
 
     private final KafkaTemplate<String, String> failMatchIdKafkaTemplate;
 
-    @Transactional(transactionManager = "failMatchIdKafkaTransactionManager")
+    private final SummonerService summonerService;
+
     @Override
-    public void send(String failMatchId) {
+    public void send(List<String> failMatchIds, String summonerId, String beforeLastMatchId) {
 
-        ProducerRecord<String, String> record = createRecord(failMatchId);
-
-        ListenableFuture<SendResult<String, String>> future = failMatchIdKafkaTemplate.send(record);
-
-        future.addCallback(callback());
-    }
-
-    @Transactional(transactionManager = "failMatchIdKafkaTransactionManager")
-    @Override
-    public void sendBatch(List<String> failMatchIds) {
-
-        KafkaSendCallback<String, String> callback = callback();
+        KafkaSendCallback<String, String> callback = callback(summonerId, beforeLastMatchId);
 
         for(String failMatchId : failMatchIds){
             ProducerRecord<String, String> record = createRecord(failMatchId);
@@ -54,9 +44,8 @@ public class FailMatchIdProducerService implements ProducerService<String> {
         return new ProducerRecord<>(TOPIC_NAME, data);
     }
 
-    private KafkaSendCallback<String, String> callback(){
+    private KafkaSendCallback<String, String> callback(String summonerId, String beforeLastMatchId){
         return new KafkaSendCallback<>(){
-
             @Override
             public void onSuccess(SendResult<String, String> result) {
                 log.info("fail match id : {} 카프카 토픽에 저장 성공!!", result.getProducerRecord().value());
@@ -65,6 +54,8 @@ public class FailMatchIdProducerService implements ProducerService<String> {
             @Override
             public void onFailure(KafkaProducerException ex) {
                 log.error("fail match id : {} 카프카 토픽에 저장 실패...", ex.getFailedProducerRecord().value());
+
+                summonerService.rollbackLastMatchId(summonerId, beforeLastMatchId);
             }
         };
     }

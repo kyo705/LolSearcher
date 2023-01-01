@@ -46,7 +46,7 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 
 
 	@Override
-	public Summoner getSummonerById(String id) throws WebClientResponseException {
+	public Summoner getSummonerById(String id) {
 		String uri = "/lol/summoner/v4/summoners/" + id + "?api_key=" + key;
 
 		SummonerDto summonerDto = webclients.get(KR_WEB_CLIENT)
@@ -60,7 +60,7 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	}
 
 	@Override
-	public Summoner getSummonerByName(String summonerName) throws WebClientResponseException {
+	public Summoner getSummonerByName(String summonerName) {
 		String uri = "/lol/summoner/v4/summoners/by-name/"+summonerName+"?api_key="+key;
 
 		SummonerDto summonerDto = webclients.get(KR_WEB_CLIENT)
@@ -74,7 +74,7 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	}
 	
 	@Override
-	public List<Rank> getLeague(String summonerId) throws WebClientResponseException {
+	public List<Rank> getLeague(String summonerId) {
 		String uri = "/lol/league/v4/entries/by-summoner/"+summonerId+"?api_key="+key;
 
 		List<RankDto> rankDtos = webclients.get(KR_WEB_CLIENT)
@@ -89,14 +89,12 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	}
 
 	@Override
-	public List<String> getAllMatchIds(String puuid, String lastMatchId) throws WebClientResponseException {
+	public List<String> getAllMatchIds(String puuid, String lastMatchId) {
 		return getMatchIds(puuid, -1, "all", 0, -1, lastMatchId);
 	}
 	
 	@Override
-	public List<String> getMatchIds(
-			String puuid, int queue, String type, int start, int totalCount, String lastMatchId
-	) throws WebClientResponseException {
+	public List<String> getMatchIds(String puuid, int queue, String type, int start, int totalCount, String lastMatchId) {
 
 		List<String> matchIds = new ArrayList<>();
 
@@ -149,9 +147,9 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 		return getMatchByNonBlocking(matchId).block();
 	}
 
-	@Cacheable(cacheManager = "cacheManager", key = "#summonerId", value = CacheConstants.IN_GAME_KEY)
+	@Cacheable(cacheManager = "redisCacheManager", key = "#summonerId", value = CacheConstants.IN_GAME_KEY)
 	@Override
-	public InGameDto getInGameBySummonerId(String summonerId) throws WebClientResponseException {
+	public InGameDto getInGameBySummonerId(String summonerId) {
 		String uri = "/lol/spectator/v4/active-games/by-summoner/" +
 				summonerId + "?api_key=" + key;
 

@@ -3,8 +3,7 @@ package com.lolsearcher.service.statistic;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.transaction.Transactional;
-
+import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +17,12 @@ import com.lolsearcher.model.entity.champion.item.ChampItem;
 import com.lolsearcher.repository.champion.ChampionReository;
 
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class ChampionService {
 
 	private final ChampionReository championRepository;
-	
+
+	@JpaTransactional
 	public List<ChampPositionDto> getChampions(String position) {
 		List<ChampPositionDto> champDtoList = new ArrayList<>();
 		
@@ -36,6 +35,7 @@ public class ChampionService {
 		return champDtoList;
 	}
 
+	@JpaTransactional
 	public TotalChampDto getChampionDetail(String champion) {
 		TotalChampDto totalChampDto = new TotalChampDto();
 
@@ -48,6 +48,7 @@ public class ChampionService {
 		return totalChampDto;
 	}
 
+	@JpaTransactional
 	private List<ChampItemDto> getChampItemDtos(List<ChampItem> champItems) {
 		List<ChampItemDto> champItemDtos = new ArrayList<>();
 
@@ -57,6 +58,7 @@ public class ChampionService {
 		return champItemDtos;
 	}
 
+	@JpaTransactional
 	private List<ChampEnemyDto> getChampEnemyDtos(List<ChampEnemy> champEnemies) {
 		List<ChampEnemyDto> champEnemyDtos = new ArrayList<>();
 

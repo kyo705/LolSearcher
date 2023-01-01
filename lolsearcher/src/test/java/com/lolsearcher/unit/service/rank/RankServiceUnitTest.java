@@ -1,5 +1,6 @@
 package com.lolsearcher.unit.service.rank;
 
+import static com.lolsearcher.constant.RankConstants.SOLO_RANK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,9 +35,6 @@ import com.lolsearcher.service.rank.RankService;
 
 @ExtendWith(MockitoExtension.class)
 public class RankServiceUnitTest {
-	static final int CURRENT_SEASON_ID = 22;
-	static final String SOLO_RANK = "RANKED_SOLO_5x5";
-	static final String FLEX_RANK = "RANKED_FLEX_SR";
 	
 	private RankService rankService;
 	@Mock private RiotRestAPI riotRestApi;
@@ -53,13 +51,16 @@ public class RankServiceUnitTest {
 	@MethodSource("com.lolsearcher.unit.service.rank.RankServiceTestUpSet#getRankParameter")
 	@DisplayName("getLeague : DB에 랭크 데이터가 있다면 반환하고 없을 경우 null을 반환한다.")
 	public void getTotalRanks(RankCompKey soloRankKey, RankCompKey flexRankKey, Rank soloRank, Rank flexRank) {
+
 		//given
 		String summonerId = "summonerId";
 		
 		given(rankRepository.findRank(soloRankKey)).willReturn(soloRank);
 		given(rankRepository.findRank(flexRankKey)).willReturn(flexRank);
+
 		//when
 		TotalRanks totalRanks = rankService.getLeague(summonerId);
+
 		//then
 		if(totalRanks.getSolorank()!=null) {
 			assertEquals(totalRanks.getSolorank(), new RankDto(soloRank));
@@ -76,11 +77,14 @@ public class RankServiceUnitTest {
 	@MethodSource("com.lolsearcher.unit.service.rank.RankServiceTestUpSet#setRankParameter")
 	@DisplayName("setLeague : API로부터 받은 랭크 데이터를 DB에 저장한다.")
 	public void setTotalRanks(List<Rank> ranks) {
+
 		//given
 		String summonerId = "summonerId";
 		given(riotRestApi.getLeague(summonerId)).willReturn(ranks);
+
 		//when
 		TotalRanks totalRanks = rankService.setLeague(summonerId);
+
 		//then
 		for(Rank rank : ranks) {
 			if(rank.getCk().getQueueType().equals(SOLO_RANK)) {
@@ -104,11 +108,13 @@ public class RankServiceUnitTest {
 	@MethodSource("com.lolsearcher.unit.service.rank.RankServiceTestUpSet#setRankParameter")
 	@DisplayName("setLeague : 다수의 클라이언트가 DB에 같은 데이터를 저장할 때 예외가 발생한다.")
 	public void setTotalRanksWithOverlabData(List<Rank> ranks) {
+
 		//given
 		String summonerId = "summonerId";
 		given(riotRestApi.getLeague(summonerId)).willReturn(ranks);
 		
 		willThrow(DataIntegrityViolationException.class).given(rankRepository).saveRank(any());
+
 		//when & then
 		assertThrows(DataIntegrityViolationException.class,()->{
 			rankService.setLeague(summonerId);
@@ -119,11 +125,13 @@ public class RankServiceUnitTest {
 	@Test
 	@DisplayName("setLeague : API 요청이 실패한 경우 예외가 발생한다.")
 	public void setTotalRanksByTooManyRequest() {
+
 		//given
 		String summonerId = "summonerId";
 		given(riotRestApi.getLeague(summonerId)).willThrow(new WebClientResponseException(
 				HttpStatus.TOO_MANY_REQUESTS.value(), HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
 				null, null, null));
+
 		//when & then
 		WebClientResponseException e = assertThrows(WebClientResponseException.class,
 				()->rankService.setLeague(summonerId));

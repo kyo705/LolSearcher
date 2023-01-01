@@ -2,15 +2,13 @@ package com.lolsearcher.service.summoner;
 
 import java.util.List;
 
-import com.lolsearcher.exception.summoner.MoreSummonerException;
-import com.lolsearcher.exception.summoner.NoSummonerException;
+import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.api.riotgames.RiotRestAPI;
@@ -26,48 +24,25 @@ public class SummonerService {
 	private final RiotRestAPI riotApi;
 	private final SummonerRepository summonerRepository;
 	
-	@Transactional(readOnly = true)
-	public SummonerDto findDbSummoner(String summonerName) throws WebClientResponseException {
+	@JpaTransactional(noRollbackFor = WebClientResponseException.class)
+	public SummonerDto findOldSummoner(String summonerName) {
 		List<Summoner> dbSummoners = summonerRepository.findSummonerByName(summonerName);
 		
 		if(dbSummoners.size()==0) {
-			log.error("닉네임 '{}'는 현재 DB에 존재하지 않습니다.", summonerName);
-			throw new NoSummonerException(1);
+			return null;
 		}
 		if(dbSummoners.size()>=2) {
-			log.error("닉네임 '{}'는 현재 DB에 2 이상 존재합니다.", summonerName);
-			throw new MoreSummonerException(1, dbSummoners.size());
+			return updateIncorrectSummoners(dbSummoners, summonerName);
 		}
 		return new SummonerDto(dbSummoners.get(0));
 	}
 	
-	
-	@Transactional(noRollbackFor = WebClientResponseException.class)
-	public void updateDbSummoner(String name) throws WebClientResponseException {
-		List<Summoner> dbSummoners = summonerRepository.findSummonerByName(name);
-		
-		for(Summoner dbSummoner : dbSummoners) {
-			try {
-				Summoner renewedSummoner = riotApi.getSummonerById(dbSummoner.getSummonerId());
-				renewSummoner(dbSummoner, renewedSummoner);
-			}catch(WebClientResponseException e) {
-				if(e.getStatusCode()==HttpStatus.BAD_REQUEST) {
-					log.error("'{}' 닉네임에 해당하는 유저는 게임 내에 존재하지 않음", name);
-					summonerRepository.deleteSummoner(dbSummoner);
-				}else {
-					log.error(e.getMessage());
-					throw e;
-				}
-			}
-		}
-	}
-	
-	@Transactional
-	public SummonerDto renewSummoner(String summonerName) throws WebClientResponseException, DataIntegrityViolationException {
+	@JpaTransactional
+	public SummonerDto findRecentSummoner(String summonerName) {
 		Summoner apiSummoner = riotApi.getSummonerByName(summonerName);
 		try {
 			Summoner dbSummoner = summonerRepository.findSummonerById(apiSummoner.getSummonerId());
-			renewSummoner(dbSummoner, apiSummoner);
+			renewDbSummoner(dbSummoner, apiSummoner);
 
 			return new SummonerDto(dbSummoner);
 
@@ -77,13 +52,49 @@ public class SummonerService {
 			return new SummonerDto(apiSummoner);
 		}
 	}
+
+	@JpaTransactional(propagation = Propagation.REQUIRES_NEW)
+	public void rollbackLastMatchId(String summonerId, String beforeLastMatchId) {
+
+		Summoner summoner = summonerRepository.findSummonerById(summonerId);
+
+		summoner.setLastMatchId(beforeLastMatchId);
+	}
+
+	private SummonerDto updateIncorrectSummoners(List<Summoner> incorrectSummoners, String wantedSummonerName) {
+
+		SummonerDto summonerDto = null;
+
+		for(Summoner incorrectSummoner : incorrectSummoners) {
+			try {
+				Summoner renewedSummoner = riotApi.getSummonerById(incorrectSummoner.getSummonerId());
+				renewDbSummoner(incorrectSummoner, renewedSummoner);
+
+				if(renewedSummoner.getName().equals(wantedSummonerName)){
+					summonerDto = new SummonerDto(renewedSummoner);
+				}
+			}catch(WebClientResponseException e) {
+				if(e.getStatusCode()==HttpStatus.BAD_REQUEST) {
+					log.error("'{}' 닉네임에 해당하는 유저는 게임 내에 존재하지 않음", incorrectSummoner.getName());
+					summonerRepository.deleteSummoner(incorrectSummoner);
+				}else {
+					log.error(e.getMessage());
+					throw e;
+				}
+			}
+		}
+
+		return summonerDto;
+	}
 	
 	
-	private void renewSummoner(Summoner before, Summoner after) {
+	private void renewDbSummoner(Summoner before, Summoner after) {
 		before.setRevisionDate(after.getRevisionDate());
 		before.setName(after.getName());
 		before.setProfileIconId(after.getProfileIconId());
 		before.setSummonerLevel(after.getSummonerLevel());
 		before.setLastRenewTimeStamp(after.getLastRenewTimeStamp());
 	}
+
+
 }

@@ -45,7 +45,7 @@ public class InGameServiceUnitTest {
 		assertThat(e.getActualSize()).isEqualTo(0);
 	}
 
-	@DisplayName("DB에 인게임 데이터가 하나 존재할 경우 해당 데이터를 리턴한다.")
+	@DisplayName("API 요청으로 인게임 데이터가 응답될 경우 해당 데이터를 리턴한다.")
 	@Test
 	void getInGameWithSuccess(){
 		//given

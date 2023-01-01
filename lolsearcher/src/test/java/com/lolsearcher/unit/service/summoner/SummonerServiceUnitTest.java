@@ -15,11 +15,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -44,7 +45,7 @@ class SummonerServiceUnitTest {
 	//----------------------findDbSummoner() 메소드 Test Case------------------------------------
 
 	@Test
-	@DisplayName("findDbSummoner : DB에 특정 닉네임이 1개 존재할 때 해당 엔티티를 반환한다.")
+	@DisplayName("findOldSummoner : DB에 특정 닉네임이 1개 존재할 때 해당 엔티티를 반환한다.")
 	void findOneSummonerByDb() {
 		//given
 		String summonerName = "푸켓푸켓";
@@ -52,150 +53,72 @@ class SummonerServiceUnitTest {
 		List<Summoner> oneSummoner = SummonerServiceTestUpSet.getSameNameSummoners(summonerName, 1);
 		given(summonerRepository.findSummonerByName(summonerName)).willReturn(oneSummoner);
 		//when
-		SummonerDto summonerDto = summonerService.findDbSummoner(summonerName);
+		SummonerDto summonerDto = summonerService.findOldSummoner(summonerName);
 		//then
 		assertThat(summonerDto.getName()).isEqualTo(summonerName);
 	}
 	
 	@Test
-	@DisplayName("findDbSummoner : DB에 특정 닉네임이 존재하지 않을 때 예외가 발생한다.")
+	@DisplayName("findOldSummoner : DB에 특정 닉네임이 존재하지 않을 때 null을 리턴한다.")
 	void findZeroSummonerByDb() {
 		//given
 		String summonerName = "푸켓푸켓";
 		
 		List<Summoner> zeroSummoner = SummonerServiceTestUpSet.getSameNameSummoners(summonerName, 0);
 		given(summonerRepository.findSummonerByName(summonerName)).willReturn(zeroSummoner);
-		//when & then
-		EmptyResultDataAccessException e = assertThrows(EmptyResultDataAccessException.class, ()->{
-			summonerService.findDbSummoner(summonerName);
-		});
-		assertThat(e.getActualSize()).isEqualTo(0);
+
+		//when
+		SummonerDto summonerDto = summonerService.findOldSummoner(summonerName);
+
+		//then
+		assertThat(summonerDto).isNull();
 	}
-	
-	@Test
-	@DisplayName("findDbSummoner : DB에 특정 닉네임이 2개 이상 존재할 때 예외가 발생한다.")
-	void findSummonersByDb() {
+
+	@ValueSource(booleans = {true, false})
+	@ParameterizedTest
+	@DisplayName("findOldSummoner : DB에 특정 닉네임이 둘 이상 존재할 때 API 요청으로 업데이트 후 해당 닉네임에 해당하는 유저를 반환한다.")
+	void findSummonersByDb(boolean isExistRealSummoner) {
 		//given
 		String summonerName = "푸켓푸켓";
 		
 		List<Summoner> summoners = SummonerServiceTestUpSet.getSameNameSummoners(summonerName, 3);
 		given(summonerRepository.findSummonerByName(summonerName)).willReturn(summoners);
-		//when & then
-		IncorrectResultSizeDataAccessException e = assertThrows(IncorrectResultSizeDataAccessException.class, ()->{
-			summonerService.findDbSummoner(summonerName);
-		});
-		assertThat(e.getActualSize()).isEqualTo(summoners.size());
-		assertThat(e.getExpectedSize()).isEqualTo(1);
-	}
-	
-	
-	//----------------------updateDbSummoner() 메소드 Test Case------------------------------------
-	
-	@Test
-	@DisplayName("updateDbSummoner : DB에서 같은 닉네임을 가지는 모든 유저가 실제 존재하는 유저일 경우 모두 갱신한다.")
-	public void updateDbSummonerWithAllExist() {
-		//given
-		String summonerName = "푸켓푸켓";
-		
-		List<Summoner> sameNameSummoners = SummonerServiceTestUpSet.getSameNameSummoners(summonerName, 3);
-		given(summonerRepository.findSummonerByName(summonerName)).willReturn(sameNameSummoners);
-		
-		for(Summoner summoner : sameNameSummoners) {
+		for(int i = 0; i < summoners.size(); i++){
+			Summoner summoner = summoners.get(i);
+
 			given(riotRestApi.getSummonerById(summoner.getSummonerId()))
-			.willReturn(SummonerServiceTestUpSet.getRealSummoner(summoner));
+					.willReturn(SummonerServiceTestUpSet.changeSummonerName(summoner, isExistRealSummoner && (i==0)));
 		}
+
 		//when
-		summonerService.updateDbSummoner(summonerName);
+		SummonerDto summonerDto = summonerService.findOldSummoner(summonerName);
+
 		//then
-		for(Summoner summoner : sameNameSummoners) {
-			verify(riotRestApi, times(1)).getSummonerById(summoner.getSummonerId());
-			assertThat(summoner.getName()).isNotEqualTo(summonerName);
+		if(isExistRealSummoner){
+			assertThat(summonerDto.getName()).isEqualTo(summonerName);
+		}else{
+			assertThat(summonerDto).isNull();
 		}
-		
+
 	}
-	
-	
-	@Test
-	@DisplayName("updateDbSummoner : 업데이트 해야할 유저 중 한명 이상 존재하지 않는 유저일 경우 DB에서 해당 유저 데이터를 삭제한다.")
-	public void updateDbSummonersWithNoExist() {
-		//given
-		String summonerName = "푸켓푸켓";
-		
-		List<Summoner> sameNameSummoners = SummonerServiceTestUpSet.getSameNameSummoners(summonerName, 3);
-		given(summonerRepository.findSummonerByName(summonerName)).willReturn(sameNameSummoners);
-		
-		for(int i=0;i<sameNameSummoners.size();i++) {
-			Summoner summoner = sameNameSummoners.get(i);
-			if(i%2==0) {
-				given(riotRestApi.getSummonerById(summoner.getSummonerId()))
-				.willReturn(SummonerServiceTestUpSet.getRealSummoner(summoner));
-			}else {
-				given(riotRestApi.getSummonerById(summoner.getSummonerId()))
-				.willThrow(new WebClientResponseException(
-						HttpStatus.BAD_REQUEST.value(), 
-						HttpStatus.BAD_REQUEST.getReasonPhrase(),
-						null, null, null));
-			}
-		}
-		//when
-		summonerService.updateDbSummoner(summonerName);
-		//then
-		for(int i=0;i<sameNameSummoners.size();i++) {
-			Summoner summoner = sameNameSummoners.get(i);
-			if(i%2==0) {
-				assertThat(summoner.getName()).isNotEqualTo(summonerName);
-			}else {
-				verify(summonerRepository, times(1)).deleteSummoner(summoner);
-			}
-		}
-	}
-	
-	@Test
-	@DisplayName("updateDbSummoner : 업데이트 진행 중 API 요청 최대 횟수 초과한 경우 http 429 에러를 발생시키고 종료된다.")
-	public void updateDbSummonerWithTooManyRequest() {
-		//given
-		String summonerName = "푸켓푸켓";
-		
-		List<Summoner> sameNameSummoners = SummonerServiceTestUpSet.getSameNameSummoners(summonerName, 4);
-		given(summonerRepository.findSummonerByName(summonerName)).willReturn(sameNameSummoners);
-		
-		for(int i=0;i<sameNameSummoners.size();i++) {
-			Summoner summoner = sameNameSummoners.get(i);
-			if(i>=(sameNameSummoners.size()/2)) {
-				given(riotRestApi.getSummonerById(summoner.getSummonerId()))
-				.willThrow(new WebClientResponseException(
-						HttpStatus.TOO_MANY_REQUESTS.value(), 
-						HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), 
-						null, null, null));
-				break;
-			}
-			given(riotRestApi.getSummonerById(summoner.getSummonerId()))
-			.willReturn(SummonerServiceTestUpSet.getRealSummoner(summoner));
-		}
-		//when & then
-		WebClientResponseException e = assertThrows(WebClientResponseException.class, ()->{
-			summonerService.updateDbSummoner(summonerName);
-		});
-		assertThat(e.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
-		verify(riotRestApi, times(sameNameSummoners.size()/2 + 1)).getSummonerById(any());
-	}
-	
-	
+
 	//----------------------renewSummoner() 메소드 Test Case------------------------------------
 	
 	@Test
-	@DisplayName("renewSummoner : DB에 존재하는 소환사 데이터를 API를 통해 최신 데이터로 갱신한다.")
+	@DisplayName("findRecentSummoner : DB에 존재하는 소환사 데이터를 API를 통해 최신 데이터로 갱신한다.")
 	public void renewSummonerByExistDB() {
 		//given
 		String summonerName = "푸켓푸켓";
 		
-		Summoner apiSummoner = SummonerServiceTestUpSet.getSummoner(summonerName);
+		Summoner apiSummoner = SummonerServiceTestUpSet.getSummonerByName(summonerName);
 		given(riotRestApi.getSummonerByName(summonerName)).willReturn(apiSummoner);
 		
-		Summoner dbSummoner = SummonerServiceTestUpSet.getSummoner(summonerName);
+		Summoner dbSummoner = SummonerServiceTestUpSet.getSummonerByName(summonerName);
 		given(summonerRepository.findSummonerById(apiSummoner.getSummonerId())).willReturn(dbSummoner);
+
 		//when
-		SummonerDto renewSummoner = summonerService.renewSummoner(summonerName);
+		SummonerDto renewSummoner = summonerService.findRecentSummoner(summonerName);
+
 		//then
 		assertThat(renewSummoner.getSummonerId()).isEqualTo(apiSummoner.getSummonerId());
 		assertThat(renewSummoner.getName()).isEqualTo(apiSummoner.getName());
@@ -209,18 +132,18 @@ class SummonerServiceUnitTest {
 	}
 	
 	@Test
-	@DisplayName("renewSummoner : DB에 존재하지 않는 소환사 데이터를 API를 통해 새로 저장한다.")
+	@DisplayName("findRecentSummoner : DB에 존재하지 않는 소환사 데이터를 API를 통해 새로 저장한다.")
 	public void renewSummonerByNotExistDB() {
 		//given
 		String summonerName = "푸켓푸켓";
 		
-		Summoner apiSummoner = SummonerServiceTestUpSet.getSummoner(summonerName);
+		Summoner apiSummoner = SummonerServiceTestUpSet.getSummonerByName(summonerName);
 		given(riotRestApi.getSummonerByName(summonerName)).willReturn(apiSummoner);
 		
 		given(summonerRepository.findSummonerById(apiSummoner.getSummonerId()))
 		.willThrow(EmptyResultDataAccessException.class);
 		//when
-		SummonerDto renewSummoner = summonerService.renewSummoner(summonerName);
+		SummonerDto renewSummoner = summonerService.findRecentSummoner(summonerName);
 		//then
 		assertThat(renewSummoner.getSummonerId()).isEqualTo(apiSummoner.getSummonerId());
 		assertThat(renewSummoner.getName()).isEqualTo(apiSummoner.getName());
@@ -230,7 +153,7 @@ class SummonerServiceUnitTest {
 	}
 	
 	@Test
-	@DisplayName("renewSummoner : 잘못된 API 요청으로 실패한 경우 예외를 발생시킨다.")
+	@DisplayName("findRecentSummoner : 잘못된 API 요청으로 실패한 경우 예외를 발생시킨다.")
 	public void renewSummonerByImproperRequest() {
 		//given
 		String summonerName = "푸켓푸켓";
@@ -242,7 +165,7 @@ class SummonerServiceUnitTest {
 						null, null, null));
 		//when & then
 		WebClientResponseException e = assertThrows(WebClientResponseException.class,
-				()->summonerService.renewSummoner(summonerName));
+				()->summonerService.findRecentSummoner(summonerName));
 		
 		assertThat(e.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		
@@ -251,12 +174,12 @@ class SummonerServiceUnitTest {
 	}
 	
 	@Test
-	@DisplayName("renewSummoner : 다수의 클라이언트가 같은 데이터 DB에 저장할 때 처음 요청만 저장하고 나머지는 예외를 발생시킨다.")
+	@DisplayName("findRecentSummoner : 다수의 클라이언트가 같은 데이터 DB에 저장할 때 처음 요청만 저장하고 나머지는 예외를 발생시킨다.")
 	public void renewSummonerByOverlapData() {
 		//given
 		String summonerName = "푸켓푸켓";
 		
-		Summoner apiSummoner = SummonerServiceTestUpSet.getSummoner(summonerName);
+		Summoner apiSummoner = SummonerServiceTestUpSet.getSummonerByName(summonerName);
 		given(riotRestApi.getSummonerByName(summonerName)).willReturn(apiSummoner);
 		
 		given(summonerRepository.findSummonerById(apiSummoner.getSummonerId())).willThrow(EmptyResultDataAccessException.class);
@@ -264,10 +187,33 @@ class SummonerServiceUnitTest {
 		willThrow(DataIntegrityViolationException.class).given(summonerRepository).saveSummoner(apiSummoner);
 		//when & then
 		assertThrows(DataIntegrityViolationException.class,()->{
-			summonerService.renewSummoner(summonerName);
+			summonerService.findRecentSummoner(summonerName);
 		});
 		verify(riotRestApi, times(1)).getSummonerByName(anyString());
 		verify(summonerRepository, times(1)).findSummonerById(anyString());
 		verify(summonerRepository, times(1)).saveSummoner(any(Summoner.class));
+	}
+
+	//----------------------renewSummoner() 메소드 Test Case------------------------------------
+
+	@Test
+	@DisplayName("rollbackLastMatchId : 파라미터로 전달받은 summonerId에 해당하는 소환사가 DB에 존재할 경우 lastMatchId 필드 값을 갱신한다.")
+	public void rollbackLastMatchIdTest() {
+
+		//given
+		String summonerId = "summonerId";
+		String beforeLastMatchId = "beforeLastMatchId";
+
+		Summoner summoner = SummonerServiceTestUpSet.getSummonerById(summonerId);
+
+		assertThat(summoner.getLastMatchId()).isNotEqualTo(beforeLastMatchId);
+
+		given(summonerRepository.findSummonerById(summonerId)).willReturn(summoner);
+
+		//when
+		summonerService.rollbackLastMatchId(summonerId, beforeLastMatchId);
+
+		//then
+		assertThat(summoner.getLastMatchId()).isEqualTo(beforeLastMatchId);
 	}
 }

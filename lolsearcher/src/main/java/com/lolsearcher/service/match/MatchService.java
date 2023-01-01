@@ -6,12 +6,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
+import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import com.lolsearcher.constant.CacheConstants;
-import com.lolsearcher.exception.match.InCorrectPerksDataException;
 import com.lolsearcher.model.dto.match.ParticipantDto;
 import com.lolsearcher.model.dto.match.perk.PerksDto;
 import com.lolsearcher.model.entity.match.Member;
-import com.lolsearcher.model.entity.match.PerkStats;
 import com.lolsearcher.repository.match.MatchRepository;
 import com.lolsearcher.service.producer.FailMatchIdProducerService;
 import com.lolsearcher.service.producer.ProducerService;
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.api.riotgames.RiotRestAPI;
@@ -30,9 +28,6 @@ import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.repository.summoner.SummonerRepository;
 import reactor.core.publisher.Mono;
-
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
 
 import static com.lolsearcher.constant.KafkaConstants.*;
 import static com.lolsearcher.constant.RiotGamesConstants.MATCH_DEFAULT_COUNT;
@@ -52,39 +47,26 @@ public class MatchService {
 	private final CacheManager redisCacheManager;
 
 
-	@Transactional
-	public List<String> getRecentMatchIds(String summonerId)
-			throws WebClientResponseException, NoResultException, NonUniqueResultException {
+	@SuppressWarnings("DataFlowIssue")
+	@JpaTransactional
+	public List<MatchDto> getApiMatches(String summonerId) {
 
 		Summoner summoner = summonerRepository.findSummonerById(summonerId);
 
-		List<String> recentMatchIds = new ArrayList<>();
-		List<String> matchIds = riotApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId());
+		List<String> recentMatchIds = getRecentMatchIds(summoner);
 
-		if(matchIds.size()!=0) {
-			summoner.setLastMatchId(matchIds.get(0)); //last match id 를 최신 정보로 갱신
-		}
-		for(String matchId : matchIds) {
-			if(matchRepository.findMatchById(matchId) == null) {
-				recentMatchIds.add(matchId);
-			}
-		}
-		return recentMatchIds;
-	}
-
-	@SuppressWarnings("DataFlowIssue")
-	@Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
-	public List<MatchDto> getRenewMatches(List<String> matchIds) throws WebClientResponseException, InCorrectPerksDataException {
-
-		if(matchIds.size() == 0){
+		if(recentMatchIds.size() == 0){
 			return new ArrayList<>();
 		}
 
-		List<Match> successMatches = new ArrayList<>(MATCH_DEFAULT_COUNT);
-		List<String> failMatchIds = new ArrayList<>(matchIds.size());
+		String beforeLastMatchId = summoner.getLastMatchId(); //병렬 처리에서 롤백을 위한 값 => 다른 스레드, 다른 트랜잭션이기 때문에 해당 트랜잭션에서 롤백 안됌
+		summoner.setLastMatchId(recentMatchIds.get(0)); //last match id 를 최신 정보로 갱신
 
-		int count = 0;
-		for(String matchId : matchIds){
+		List<Match> successMatches = new ArrayList<>(MATCH_DEFAULT_COUNT);
+		List<String> failMatchIds = new ArrayList<>(recentMatchIds.size());
+
+		int subscribeCount = 0;
+		for(String matchId : recentMatchIds){
 			Match cachedMatch = redisCacheManager.getCache(CacheConstants.MATCH_KEY).get(matchId, Match.class);
 
 			if(cachedMatch != null){
@@ -97,7 +79,6 @@ public class MatchService {
 			matchMono
 					.onErrorResume(e -> {
 						WebClientResponseException webClientResponseException = (WebClientResponseException) e;
-
 						if(webClientResponseException.getStatusCode() != TOO_MANY_REQUESTS) {
 							throw webClientResponseException;
 						}
@@ -107,34 +88,28 @@ public class MatchService {
 					})
 					.filter(Objects::nonNull)
 					.subscribe(match -> {
-						try{
-							addAdditionalValue(match);
-							successMatches.add(match);
-							System.out.println("#####");
-							redisCacheManager.getCache(CacheConstants.MATCH_KEY).put(match.getMatchId(), match);
-							System.out.println("!!!!!!");
-						}catch (NonUniqueResultException | NoResultException e){
-							throw new InCorrectPerksDataException(1);
-						}
+						successMatches.add(match);
+
+						redisCacheManager.getCache(CacheConstants.MATCH_KEY).put(match.getMatchId(), match);
 					});
 
-			if(++count >= MATCH_DEFAULT_COUNT){
+			if(++subscribeCount >= MATCH_DEFAULT_COUNT){
 				break;
 			}
 		}
 
-		waitResponseComplete(matchIds, successMatches, failMatchIds);
+		waitResponseComplete(recentMatchIds, successMatches, failMatchIds);
 
 		//카프카에 데이터 저장하는 로직 => 멀티 스레드로 병렬 처리
-		sendSuccessMatchToKafka(successMatches);
-		sendFailMatchIdToKafka(failMatchIds);
+		sendSuccessMatchToKafka(successMatches, summonerId, beforeLastMatchId);
+		sendFailMatchIdToKafka(failMatchIds, summonerId, beforeLastMatchId);
 
 		return getMatchDtoList(successMatches);
 	}
 
 
-	@Transactional(readOnly = true)
-	public List<MatchDto> getOldMatches(MatchParam param){
+	@JpaTransactional(readOnly = true)
+	public List<MatchDto> getDbMatches(MatchParam param){
 
 		List<Match> matches = matchRepository.findMatches(
 				param.getSummonerId(), param.getGameType(), param.getChampion(), param.getCount()
@@ -147,19 +122,18 @@ public class MatchService {
 		}
 		return oldMatches;
 	}
-	
 
-	private void addAdditionalValue(Match successMatch) throws NonUniqueResultException, NoResultException {
-		List<Member> members = successMatch.getMembers();
+	private List<String> getRecentMatchIds(Summoner summoner) {
 
-		for(Member member : members){
-			PerkStats perkStats = member.getPerks().getPerkStats();
+		List<String> recentMatchIds = new ArrayList<>();
+		List<String> matchIds = riotApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId());
 
-			PerkStats dbPerkStats =
-					matchRepository.findPerkStats(perkStats.getDefense(), perkStats.getFlex(), perkStats.getOffense());
-
-			perkStats.setId(dbPerkStats.getId());
+		for(String matchId : matchIds) {
+			if(matchRepository.findMatchById(matchId) == null) {
+				recentMatchIds.add(matchId);
+			}
 		}
+		return recentMatchIds;
 	}
 
 	private void waitResponseComplete(List<String> matchIds, List<Match> successMatches, List<String> failMatchIds) {
@@ -172,16 +146,22 @@ public class MatchService {
 			if(matchIds.size() == successMatches.size() + failMatchIds.size()){
 				return;
 			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
-	private void sendFailMatchIdToKafka(List<String> failMatchIds) {
+	private void sendFailMatchIdToKafka(List<String> failMatchIds, String summonerId, String beforeLastMatchId) {
 
 		try{
 			FailMatchIdProducerService producerService =
 					(FailMatchIdProducerService) kafkaProducerServices.get(FAIL_MATCH_ID_PRODUCER_SERVICE_NAME);
 
-			executorService.submit(()-> producerService.sendBatch(failMatchIds));
+			executorService.submit(()-> producerService.send(failMatchIds, summonerId, beforeLastMatchId));
 		}catch (NullPointerException e){
 			log.error("{}의 이름을 가진 프로듀서 서비스가 존재하지 않음.", FAIL_MATCH_ID_PRODUCER_SERVICE_NAME);
 			log.error(failMatchIds.toString());
@@ -191,12 +171,12 @@ public class MatchService {
 		}
 	}
 
-	private void sendSuccessMatchToKafka(List<Match> successMatches) {
+	private void sendSuccessMatchToKafka(List<Match> successMatches, String summonerId, String beforeLastMatchId) {
 		try{
 			SuccessMatchProducerService producerService =
 					(SuccessMatchProducerService) kafkaProducerServices.get(SUCCESS_MATCH_PRODUCER_SERVICE_NAME);
 
-			executorService.submit(()-> producerService.sendBatch(successMatches));
+			executorService.submit(()-> producerService.send(successMatches, summonerId, beforeLastMatchId));
 		}catch (NullPointerException e){
 			log.error("{}의 이름을 가진 프로듀서 서비스가 존재하지 않음.", SUCCESS_MATCH_PRODUCER_SERVICE_NAME);
 			log.error(successMatches.toString());

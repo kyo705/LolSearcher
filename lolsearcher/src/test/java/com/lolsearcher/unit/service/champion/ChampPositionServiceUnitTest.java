@@ -27,13 +27,13 @@ import com.lolsearcher.service.statistic.ChampionService;
 class ChampPositionServiceUnitTest {
 
 	@Mock
-	JpaChampionRepository championReository;
+	JpaChampionRepository championRepository;
 	
 	ChampionService championService;
 	
 	@BeforeEach
 	void setup() {
-		championService = new ChampionService(championReository);
+		championService = new ChampionService(championRepository);
 	}
 	
 	@Test
@@ -58,7 +58,7 @@ class ChampPositionServiceUnitTest {
 		champPositions.add(champPosition1);
 		champPositions.add(champPosition2);
 		
-		when(championReository.findChampPositions("MIDDLE")).thenReturn(champPositions);
+		when(championRepository.findChampPositions("MIDDLE")).thenReturn(champPositions);
 		
 		//when
 		List<ChampPositionDto> champPositionDtos = championService.getChampions(position);
@@ -96,7 +96,7 @@ class ChampPositionServiceUnitTest {
 		championItems.add(champitem2);
 		championItems.add(champitem3);
 		
-		when(championReository.findChampItems(championId))
+		when(championRepository.findChampItems(championId))
 		.thenReturn(championItems);
 		
 		//Mock 객체 리턴 값 2
@@ -113,7 +113,7 @@ class ChampPositionServiceUnitTest {
 		championEnemys.add(champEnemy1);
 		championEnemys.add(champEnemy2);
 		
-		when(championReository.findChampEnemies("제드")).thenReturn(championEnemys);
+		when(championRepository.findChampEnemies("제드")).thenReturn(championEnemys);
 		
 		//when
 		TotalChampDto totalChampDto = championService.getChampionDetail(championId);

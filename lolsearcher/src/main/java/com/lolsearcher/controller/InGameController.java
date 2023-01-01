@@ -24,7 +24,7 @@ public class InGameController {
 	public ModelAndView inGame(@RequestAttribute String name) {
 		ModelAndView mv = new ModelAndView();
 		
-		SummonerDto summonerDto = summonerService.findDbSummoner(name);
+		SummonerDto summonerDto = summonerService.findOldSummoner(name);
 
 		InGameDto inGameDto = inGameService.getInGame(summonerDto.getSummonerId());
 

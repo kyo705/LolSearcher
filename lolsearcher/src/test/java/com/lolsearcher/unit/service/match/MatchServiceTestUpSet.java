@@ -1,18 +1,16 @@
 package com.lolsearcher.unit.service.match;
 
+import com.lolsearcher.model.dto.parameter.MatchParam;
+import com.lolsearcher.model.entity.match.Match;
+import com.lolsearcher.model.entity.summoner.Summoner;
+import org.junit.jupiter.params.provider.Arguments;
+import reactor.core.publisher.Mono;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
-import com.lolsearcher.model.dto.parameter.MatchParam;
-import org.junit.jupiter.params.provider.Arguments;
-
-import com.lolsearcher.model.dto.match.SuccessMatchesAndFailMatchIds;
-import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.entity.match.Match;
-
+import static com.lolsearcher.constant.RiotGamesConstants.MATCH_DEFAULT_COUNT;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class MatchServiceTestUpSet {
@@ -21,62 +19,17 @@ public class MatchServiceTestUpSet {
 		return Summoner.builder()
 				.name("닉네임" + summonerId)
 				.summonerId(summonerId)
-				.lastMatchId("matchid1")
+				.lastMatchId("initMatchid")
 				.puuid("puuid" + summonerId)
 				.build();
 	}
 
-	protected static List<String> getMatchIds(int start, int end) {
+	protected static List<String> getMatchIds(int matchIdCount) {
 		List<String> matchIds = new ArrayList<>();
-		for(int i = start; i <= end; i++) {
+		for(int i = 0; i < matchIdCount; i++) {
 			matchIds.add("matchId"+i);
 		}
 		return matchIds;
-	}
-
-	protected static SuccessMatchesAndFailMatchIds getSuccessMatchesAndFailMatchIds(List<String> allMatchIds, int limitedCount) {
-		SuccessMatchesAndFailMatchIds successMatchesAndFailMatchIds = new SuccessMatchesAndFailMatchIds();
-
-		List<Match> matches = new ArrayList<>(allMatchIds.size());
-		for(int i=0;i<limitedCount;i++){
-			String matchId = allMatchIds.get(i);
-			matches.add(generateMatch(matchId));
-		}
-		List<String> failMatchIds = allMatchIds.subList(limitedCount, allMatchIds.size());
-
-		successMatchesAndFailMatchIds.setSuccessMatches(matches);
-		successMatchesAndFailMatchIds.setFailMatchIds(failMatchIds);
-		
-		return successMatchesAndFailMatchIds;
-	}
-	
-	protected static Map<String, Match> getExistedMatches(List<Integer> mids) {
-		Map<String, Match> existedMatches = new HashMap<>();
-		for(int mid : mids) {
-			Match match = new Match();
-			match.setMatchId("matchId"+mid);
-
-			existedMatches.put("matchId"+mid, match);
-		}
-		return existedMatches;
-	}
-
-	private static Match generateMatch(String matchId){
-		Match match = new Match();
-		match.setMatchId(matchId);
-
-		return match;
-	}
-
-	protected static List<String> getNewMatchIds(List<String> allMatchIds, Map<String, Match> existedMatches) {
-		List<String> newMatchIds = new ArrayList<>();
-		for(String matchId : allMatchIds){
-			if(existedMatches.containsKey(matchId)){
-				continue;
-			}
-			newMatchIds.add(matchId);
-		}
-		return newMatchIds;
 	}
 
 	protected static List<Match> getDBMatches(MatchParam matchParam) {
@@ -85,9 +38,11 @@ public class MatchServiceTestUpSet {
 
 	protected static Stream<Arguments> getMatchIdsParameter() {
 		return Stream.of(
-				arguments(0, 10, List.of(3,4,5), 5),
-				arguments(0, 10, List.of(3,4,5), 0),
-				arguments(0, 20, List.of(3,4,15), 10)
+				arguments(MATCH_DEFAULT_COUNT+1),
+				arguments(MATCH_DEFAULT_COUNT),
+				arguments(MATCH_DEFAULT_COUNT-1),
+				arguments(MATCH_DEFAULT_COUNT-5),
+				arguments(MATCH_DEFAULT_COUNT+10)
 		);
 	}
 
@@ -110,5 +65,12 @@ public class MatchServiceTestUpSet {
 								.build()
 				)
 		);
+	}
+
+	protected static Mono<Match> getMatchMono(String matchId) {
+		Match match = new Match();
+		match.setMatchId(matchId);
+
+		return Mono.just(match);
 	}
 }

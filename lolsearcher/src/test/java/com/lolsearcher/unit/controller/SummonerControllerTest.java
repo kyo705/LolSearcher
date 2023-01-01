@@ -71,7 +71,7 @@ public class SummonerControllerTest {
 		params.setName(name);
 		params.setSummonerId(summoner.getSummonerId());
 		
-		given(summonerService.findDbSummoner(name)).willReturn(summoner);
+		given(summonerService.findOldSummoner(name)).willReturn(summoner);
 		//when && then
 		mockMvc.perform(post("/summoner").param("name", name).requestAttr("name", name))
 		.andExpect(status().is(HttpStatus.OK.value()))
@@ -92,8 +92,8 @@ public class SummonerControllerTest {
 		String name = "존재하지 않는 소환사";
 		String noNameView ="/error/name";
 		
-		given(summonerService.findDbSummoner(name)).willThrow(NoSummonerException.class);
-		given(summonerService.renewSummoner(name)).willThrow(new WebClientResponseException(
+		given(summonerService.findOldSummoner(name)).willThrow(NoSummonerException.class);
+		given(summonerService.findRecentSummoner(name)).willThrow(new WebClientResponseException(
 				HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(),null, null, null));
 		//when && then
 		mockMvc.perform(post("/summoner").param("name", name).requestAttr("name", name))
@@ -113,14 +113,14 @@ public class SummonerControllerTest {
 						.name(name)
 						.build();
 		
-		given(summonerService.findDbSummoner(name)).willThrow(NoSummonerException.class).willReturn(summoner);
-		given(summonerService.renewSummoner(name)).willThrow(DataIntegrityViolationException.class);
+		given(summonerService.findOldSummoner(name)).willThrow(NoSummonerException.class).willReturn(summoner);
+		given(summonerService.findRecentSummoner(name)).willThrow(DataIntegrityViolationException.class);
 		//when && then
 		mockMvc.perform(post("/summoner").param("name", name).requestAttr("name", name))
 		.andExpect(status().isOk())
 		.andExpect(view().name(view));
 		
-		verify(summonerService, times(1)).findDbSummoner(name);
+		verify(summonerService, times(1)).findOldSummoner(name);
 	}
 	
 	@DisplayName("소환사 이름이 DB에 없을 경우 게임서버에 API 요청으로 가져와 View로 전달한다.")
@@ -134,17 +134,16 @@ public class SummonerControllerTest {
 						.name(name)
 						.build();
 		
-		given(summonerService.findDbSummoner(name)).willThrow(NoSummonerException.class);
-		given(summonerService.renewSummoner(name)).willReturn(summoner);
+		given(summonerService.findOldSummoner(name)).willThrow(NoSummonerException.class);
+		given(summonerService.findRecentSummoner(name)).willReturn(summoner);
 		//when && then
 		mockMvc.perform(post("/summoner").param("name", name).requestAttr("name", name))
 		.andExpect(status().is(HttpStatus.OK.value()))
 		.andExpect(view().name(view))
 		.andExpect(result -> assertThat(result.getModelAndView().getModel().get("summoner")).isEqualTo(summoner));
 		
-		verify(summonerService, times(1)).renewSummoner(name);
+		verify(summonerService, times(1)).findRecentSummoner(name);
 		verify(rankService, times(1)).setLeague(summoner.getSummonerId());
-		verify(matchService, times(1)).getRecentMatchIds(summoner.getSummonerId());
 	}
 	
 	@DisplayName("똑같은 소환사 이름을 가진 유저가 DB 2명 이상일 경우에 DB 업데이트 후 실제 유저 데이터를 View로 전달한다.")
@@ -158,18 +157,16 @@ public class SummonerControllerTest {
 						.name(name)
 						.build();
 		
-		given(summonerService.findDbSummoner(name)).willThrow(MoreSummonerException.class);
-		given(summonerService.renewSummoner(name)).willReturn(summoner);
+		given(summonerService.findOldSummoner(name)).willThrow(MoreSummonerException.class);
+		given(summonerService.findRecentSummoner(name)).willReturn(summoner);
 		//when && then
 		mockMvc.perform(post("/summoner").param("name", name).requestAttr("name", name))
 		.andExpect(status().isOk())
 		.andExpect(view().name(view))
 		.andExpect(result -> assertThat(result.getModelAndView().getModel().get("summoner")).isEqualTo(summoner));
-		
-		verify(summonerService, times(1)).updateDbSummoner(name);
-		verify(summonerService, times(1)).renewSummoner(name);
+
+		verify(summonerService, times(1)).findRecentSummoner(name);
 		verify(rankService, times(0)).setLeague(summoner.getSummonerId());
-		verify(matchService, times(0)).getRecentMatchIds(summoner.getSummonerId());
 	}
 	
 	@DisplayName("클라이언트가 갱신 요청을 했을 때 갱신 기간이 5분 이하일 경우 갱신을 하지 않는다.")
@@ -184,16 +181,16 @@ public class SummonerControllerTest {
 						.lastRenewTimeStamp(System.currentTimeMillis())
 						.build();
 		
-		given(summonerService.findDbSummoner(name)).willReturn(summoner);
+		given(summonerService.findOldSummoner(name)).willReturn(summoner);
 		//when && then
 		mockMvc.perform(post("/summoner").param("name", name).param("renew", "true").requestAttr("name", name))
 		.andExpect(status().isOk())
 		.andExpect(view().name(view))
 		.andExpect(result -> assertThat(result.getModelAndView().getModel().get("summoner")).isEqualTo(summoner));
 		
-		verify(summonerService, times(0)).renewSummoner(name);
+		verify(summonerService, times(0)).findRecentSummoner(name);
 		verify(rankService, times(0)).setLeague(any());
-		verify(matchService, times(0)).getRenewMatches(any());
+		verify(matchService, times(0)).getApiMatches(any());
 	}
 	
 	@DisplayName("클라이언트가 갱신 요청을 했을 때 갱신 기간이 5분 이상일 경우 갱신한다.")
@@ -208,16 +205,15 @@ public class SummonerControllerTest {
 						.lastRenewTimeStamp(System.currentTimeMillis()-6*60*1000)
 						.build();
 		
-		given(summonerService.findDbSummoner(name)).willReturn(summoner);
-		given(summonerService.renewSummoner(name)).willReturn(summoner);
+		given(summonerService.findOldSummoner(name)).willReturn(summoner);
+		given(summonerService.findRecentSummoner(name)).willReturn(summoner);
 		//when && then
 		mockMvc.perform(post("/summoner").param("name", name).param("renew", "true").requestAttr("name", name))
 		.andExpect(status().isOk())
 		.andExpect(view().name(view))
 		.andExpect(result -> assertThat(result.getModelAndView().getModel().get("summoner")).isEqualTo(summoner));
 		
-		verify(summonerService, times(1)).renewSummoner(name);
+		verify(summonerService, times(1)).findRecentSummoner(name);
 		verify(rankService, times(1)).setLeague(summoner.getSummonerId());
-		verify(matchService, times(1)).getRecentMatchIds(summoner.getSummonerId());
 	}
 }

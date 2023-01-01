@@ -2,13 +2,11 @@ package com.lolsearcher.service.rank;
 
 import java.util.List;
 
+import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import com.lolsearcher.constant.RankConstants;
 import com.lolsearcher.repository.rank.RankRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.api.riotgames.RiotRestAPI;
 import com.lolsearcher.model.dto.rank.RankDto;
@@ -24,7 +22,7 @@ public class RankService {
 
 	private final RankRepository rankRepository;
 	
-	@Transactional(readOnly = true)
+	@JpaTransactional(readOnly = true)
 	public TotalRanks getLeague(String summonerId){
 		RankCompKey soloRankKey = new RankCompKey(summonerId, RankConstants.SOLO_RANK, RankConstants.SEASON_ID);
 		RankCompKey flexRankKey = new RankCompKey(summonerId, RankConstants.FLEX_RANK, RankConstants.SEASON_ID);
@@ -42,8 +40,8 @@ public class RankService {
 		return ranksDto;
 	}
 	
-	@Transactional
-	public TotalRanks setLeague(String summonerId) throws WebClientResponseException, DataIntegrityViolationException {
+	@JpaTransactional
+	public TotalRanks setLeague(String summonerId){
 		TotalRanks totalRanks = new TotalRanks();
 		
 		List<Rank> apiRanks = riotApi.getLeague(summonerId);

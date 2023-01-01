@@ -14,7 +14,7 @@ public class JpaMostChampRepository implements MostChampRepository {
     private final EntityManager em;
     @SuppressWarnings("rawtypes")
     @Override
-    public List<String> findMostChampionIds(String summonerId, int queue, int season) {
+    public List<String> findMostChampionIds(String summonerId, int queue, int season, int limitCount) {
         final int count = 5;
 
         List<String> championIds = new ArrayList<>();

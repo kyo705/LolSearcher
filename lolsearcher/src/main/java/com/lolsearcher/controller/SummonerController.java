@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.lolsearcher.constant.RenewMsConstants;
-import com.lolsearcher.exception.summoner.MoreSummonerException;
-import com.lolsearcher.exception.summoner.NoSummonerException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.lolsearcher.model.dto.match.MatchDto;
@@ -42,12 +39,12 @@ public class SummonerController {
 			@RequestAttribute(name = "name") String name /* 필터된 닉네임 */
 	) {
 		boolean isRenew = false;
-		SummonerDto summoner = getSummoner(name);
+		SummonerDto summoner = summonerService.findOldSummoner(name);
 		
 		if((summoner==null) || (requestParam.isRenew() &&
 				System.currentTimeMillis() - summoner.getLastRenewTimeStamp() >= RenewMsConstants.SUMMONER_RENEW_MS)) {
 
-			summoner = summonerService.renewSummoner(name);
+			summoner = summonerService.findRecentSummoner(name);
 			isRenew = true;
 		}
 		//요청 파라미터 값 갱신
@@ -70,17 +67,6 @@ public class SummonerController {
 		return mv;
 	}
 	
-	private SummonerDto getSummoner(String name) throws WebClientResponseException, DataIntegrityViolationException {
-		try {
-			return summonerService.findDbSummoner(name);
-		}catch (NoSummonerException e) {
-			return null;
-		}catch(MoreSummonerException e) {
-			summonerService.updateDbSummoner(name);
-			return summonerService.renewSummoner(name);
-		}
-	}
-	
 	private TotalRanks getRanks(String summonerId, boolean isRenew) {
 		if(!isRenew) {
 			return rankService.getLeague(summonerId);
@@ -96,13 +82,11 @@ public class SummonerController {
 		List<MatchDto> matches = new ArrayList<>();
 		
 		if(isRenew) {
-			List<String> recentMatchIds = matchService.getRecentMatchIds(request.getSummonerId());
-
-			matches.addAll(matchService.getRenewMatches(recentMatchIds));
+			matches.addAll(matchService.getApiMatches(request.getSummonerId()));
 		}
 		MatchParam matchParam = getMatchParam(request);
 
-		matches.addAll(matchService.getOldMatches(matchParam));
+		matches.addAll(matchService.getDbMatches(matchParam));
 
 		sortMatches(matches);
 

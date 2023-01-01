@@ -21,8 +21,8 @@ public class Summoner {
 	private String puuid;
 	private String name;
 	private String lastMatchId;
-	private int profileIconId;
 	private long revisionDate;
+	private int profileIconId;
 	private long summonerLevel;
 	private long lastRenewTimeStamp;
 	private long lastInGameSearchTimeStamp;

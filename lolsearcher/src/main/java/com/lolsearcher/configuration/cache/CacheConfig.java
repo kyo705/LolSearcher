@@ -28,7 +28,7 @@ public class CacheConfig {
     private Long MATCH_TTL;
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory){
+    public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory){
 
         RedisCacheConfiguration config = RedisCacheConfiguration
                 .defaultCacheConfig()
@@ -36,8 +36,10 @@ public class CacheConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
         Map<String, RedisCacheConfiguration> entityCacheConfigs = new HashMap<>();
-        entityCacheConfigs.put(CacheConstants.IN_GAME_KEY, RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(IN_GAME_TTL)));
-        entityCacheConfigs.put(CacheConstants.MATCH_KEY, RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(MATCH_TTL)));
+        entityCacheConfigs.put(CacheConstants.IN_GAME_KEY,
+                RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(IN_GAME_TTL)));
+        entityCacheConfigs.put(CacheConstants.MATCH_KEY,
+                RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(MATCH_TTL)));
 
         return RedisCacheManager
                 .RedisCacheManagerBuilder

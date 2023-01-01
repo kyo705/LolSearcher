@@ -30,7 +30,7 @@ public class InGameControllerExceptionHandler {
         log.error(e.getMessage());
         log.info("'{}'는 현재 게임 중이 아닙니다.", name);
 
-        SummonerDto summonerDto = summonerService.findDbSummoner(name);
+        SummonerDto summonerDto = summonerService.findOldSummoner(name);
 
         ModelAndView mv = new ModelAndView();
         mv.addObject("summoner", summonerDto);

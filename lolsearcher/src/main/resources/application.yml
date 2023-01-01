@@ -12,10 +12,10 @@ spring:
     hikari:
       maximum-pool-size: 25
       connection-timeout: 3000
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: ${datasource.url}
-    username: ${datasource.username}
-    password: ${datasource.password}
+    driver-class-name: org.h2.Driver #org.mariadb.jdbc.Driver
+    url: jdbc:h2:mem:testdb #${datasource.url}
+    username: sa #${datasource.username}
+    password: #${datasource.password}
   jpa:
     show-sql: true
     hibernate:

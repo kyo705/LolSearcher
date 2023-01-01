@@ -20,18 +20,27 @@ public class SummonerServiceTestUpSet {
 		return summoners;
 	}
 	
-	protected static Summoner getRealSummoner(Summoner summoner) {
-		return Summoner.builder()
-				.summonerId(summoner.getSummonerId())
-				.name("닉네임"+summoner.getSummonerId())
-				.build();
-	}
-	
-	protected static Summoner getSummoner(String name) {
+	protected static Summoner getSummonerByName(String name) {
 		return Summoner.builder()
 				.summonerId("id"+name)
 				.name(name)
 				.lastRenewTimeStamp(System.currentTimeMillis())
 				.build();
+	}
+
+	protected static Summoner getSummonerById(String summonerId) {
+		return Summoner.builder()
+				.summonerId(summonerId)
+				.name(summonerId + "닉네임")
+				.lastMatchId("renewedLastMatchId")
+				.build();
+	}
+
+	protected static Summoner changeSummonerName(Summoner summoner, boolean isNotChange) {
+		if(isNotChange){
+			return summoner;
+		}
+		summoner.setName("변화된 닉네임");
+		return summoner;
 	}
 }
