@@ -8,8 +8,4 @@ public interface IpBanService {
 	boolean isExceedBanCount(String ip);
 	
 	void registerBanList(String user_ip);
-	
-	void resetBanCount(String user_ip);
-	
-	void removeBanList(String user_ip);
 }

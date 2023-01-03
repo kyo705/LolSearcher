@@ -1,6 +1,6 @@
 package com.lolsearcher.repository.mostchamp;
 
-import com.lolsearcher.model.dto.mostchamp.MostChampDto;
+import com.lolsearcher.model.response.front.mostchamp.MostChampDto;
 
 import java.util.List;
 

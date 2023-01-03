@@ -1,17 +1,18 @@
 package com.lolsearcher.service.match;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.api.riotgames.RiotRestAPI;
 import com.lolsearcher.constant.CacheConstants;
-import com.lolsearcher.model.dto.match.ParticipantDto;
-import com.lolsearcher.model.dto.match.perk.PerksDto;
+import com.lolsearcher.constant.GameType;
+import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.model.entity.match.Member;
+import com.lolsearcher.model.entity.summoner.Summoner;
+import com.lolsearcher.model.request.front.RequestMatchDto;
+import com.lolsearcher.model.response.front.match.MatchDto;
+import com.lolsearcher.model.response.front.match.ParticipantDto;
+import com.lolsearcher.model.response.front.match.perk.PerksDto;
 import com.lolsearcher.repository.match.MatchRepository;
+import com.lolsearcher.repository.summoner.SummonerRepository;
 import com.lolsearcher.service.producer.FailMatchIdProducerService;
 import com.lolsearcher.service.producer.ProducerService;
 import com.lolsearcher.service.producer.SuccessMatchProducerService;
@@ -20,17 +21,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-
-import com.lolsearcher.api.riotgames.RiotRestAPI;
-import com.lolsearcher.model.dto.match.MatchDto;
-import com.lolsearcher.model.dto.parameter.MatchParam;
-import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.entity.match.Match;
-import com.lolsearcher.repository.summoner.SummonerRepository;
 import reactor.core.publisher.Mono;
 
-import static com.lolsearcher.constant.KafkaConstants.*;
-import static com.lolsearcher.constant.RiotGamesConstants.MATCH_DEFAULT_COUNT;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+
+import static com.lolsearcher.constant.BeanNameConstants.FAIL_MATCH_ID_PRODUCER_SERVICE_NAME;
+import static com.lolsearcher.constant.BeanNameConstants.SUCCESS_MATCH_PRODUCER_SERVICE_NAME;
+import static com.lolsearcher.constant.LolSearcherConstants.ALL;
+import static com.lolsearcher.constant.LolSearcherConstants.MATCH_DEFAULT_COUNT;
 import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 
 @Slf4j
@@ -49,9 +51,9 @@ public class MatchService {
 
 	@SuppressWarnings("DataFlowIssue")
 	@JpaTransactional
-	public List<MatchDto> getApiMatches(String summonerId) {
+	public List<MatchDto> getApiMatches(RequestMatchDto matchInfo) {
 
-		Summoner summoner = summonerRepository.findSummonerById(summonerId);
+		Summoner summoner = summonerRepository.findSummonerById(matchInfo.getSummonerId());
 
 		List<String> recentMatchIds = getRecentMatchIds(summoner);
 
@@ -101,18 +103,18 @@ public class MatchService {
 		waitResponseComplete(recentMatchIds, successMatches, failMatchIds);
 
 		//카프카에 데이터 저장하는 로직 => 멀티 스레드로 병렬 처리
-		sendSuccessMatchToKafka(successMatches, summonerId, beforeLastMatchId);
-		sendFailMatchIdToKafka(failMatchIds, summonerId, beforeLastMatchId);
+		sendSuccessMatchToKafka(successMatches, matchInfo.getSummonerId(), beforeLastMatchId);
+		sendFailMatchIdToKafka(failMatchIds, matchInfo.getSummonerId(), beforeLastMatchId);
 
-		return getMatchDtoList(successMatches);
+		return getMatchDtoList(successMatches, matchInfo);
 	}
 
 
 	@JpaTransactional(readOnly = true)
-	public List<MatchDto> getDbMatches(MatchParam param){
+	public List<MatchDto> getDbMatches(RequestMatchDto matchInfo){
 
 		List<Match> matches = matchRepository.findMatches(
-				param.getSummonerId(), param.getGameType(), param.getChampion(), param.getCount()
+				matchInfo.getSummonerId(), matchInfo.getQueueId(), matchInfo.getChampionId(), matchInfo.getCount()
 		);
 
 		List<MatchDto> oldMatches = new ArrayList<>(matches.size());
@@ -186,14 +188,47 @@ public class MatchService {
 		}
 	}
 
-	private List<MatchDto> getMatchDtoList(List<Match> successMatches) {
-		List<MatchDto> recentMatches = new ArrayList<>(successMatches.size());
+	private List<MatchDto> getMatchDtoList(List<Match> successMatches, RequestMatchDto matchInfo) {
 
+		List<MatchDto> recentMatches = new ArrayList<>(matchInfo.getCount());
+
+		int size = matchInfo.getCount();
 		for(Match successMatch : successMatches) {
+			if(size == 0){
+				break;
+			}
+			if(!isCorrespondWithCondition(successMatch, matchInfo)){
+				continue;
+			}
 			MatchDto matchDto = getMatchDto(successMatch);
 			recentMatches.add(matchDto);
+
+			size--;
 		}
 		return recentMatches;
+	}
+
+	private boolean isCorrespondWithCondition(Match successMatch, RequestMatchDto matchInfo) {
+
+		String summonerId = matchInfo.getSummonerId();
+		int queueId = matchInfo.getQueueId();
+		String championId = matchInfo.getChampionId();
+
+		if(successMatch.getQueueId() != queueId && queueId != GameType.ALL_QUEUE_ID.getQueueId()){
+			return false;
+		}
+		if(championId.equals(ALL)){
+			return true;
+		}
+		for(Member member : successMatch.getMembers()){
+			if(!member.getSummonerId().equals(summonerId)){
+				continue;
+			}
+			if(member.getChampionName().equals(championId)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private MatchDto getMatchDto(Match successMatch) {

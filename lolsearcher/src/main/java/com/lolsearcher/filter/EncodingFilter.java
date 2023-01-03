@@ -1,5 +1,7 @@
 package com.lolsearcher.filter;
 
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -8,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+@Component
 public class EncodingFilter implements Filter{
 	
 	@Override

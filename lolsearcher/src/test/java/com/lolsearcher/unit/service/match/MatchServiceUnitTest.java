@@ -2,10 +2,10 @@ package com.lolsearcher.unit.service.match;
 
 import com.lolsearcher.api.riotgames.RiotRestAPI;
 import com.lolsearcher.constant.CacheConstants;
-import com.lolsearcher.model.dto.match.MatchDto;
-import com.lolsearcher.model.dto.parameter.MatchParam;
+import com.lolsearcher.model.response.front.match.MatchDto;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.entity.match.Match;
+import com.lolsearcher.model.request.front.RequestMatchDto;
 import com.lolsearcher.repository.match.MatchRepository;
 import com.lolsearcher.repository.summoner.SummonerRepository;
 import com.lolsearcher.service.match.MatchService;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-import static com.lolsearcher.constant.RiotGamesConstants.MATCH_DEFAULT_COUNT;
+import static com.lolsearcher.constant.LolSearcherConstants.MATCH_DEFAULT_COUNT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +37,7 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class MatchServiceUnitTest {
+
 	@Mock private Map<String, ProducerService> producerServices;
 	@Mock private ExecutorService executorService;
 	@Mock private RiotRestAPI riotRestApi;
@@ -58,11 +59,12 @@ public class MatchServiceUnitTest {
 	@DisplayName("getApiMatches : 조건에 맞는 Summoner 객체가 DB에 없을 경우 예외가 발생한다.")
 	void getRenewMatchesByNotExistingSummonerInDB() {
 		//given
-		String SummonerId = "summonerId";
-		given(summonerRepository.findSummonerById(SummonerId)).willThrow(NoResultException.class);
+		RequestMatchDto matchInfo = MatchServiceTestUpSet.getRequestMatchInfo();
+		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willThrow(NoResultException.class);
+
 		//when & then
 		assertThrows(NoResultException.class, ()->{
-			matchService.getApiMatches(SummonerId);
+			matchService.getApiMatches(matchInfo);
 		});
 	}
 
@@ -70,11 +72,12 @@ public class MatchServiceUnitTest {
 	@DisplayName("getApiMatches : 조건에 맞는 Summoner 객체가 DB에 둘 이상 존재할 경우 예외가 발생한다.")
 	void getRenewMatchesByExistingSummonersInDB() {
 		//given
-		String SummonerId = "summonerId";
-		given(summonerRepository.findSummonerById(SummonerId)).willThrow(NonUniqueResultException.class);
+		RequestMatchDto matchInfo = MatchServiceTestUpSet.getRequestMatchInfo();
+		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willThrow(NonUniqueResultException.class);
+
 		//when & then
 		assertThrows(NonUniqueResultException.class, ()->{
-			matchService.getApiMatches(SummonerId);
+			matchService.getApiMatches(matchInfo);
 		});
 	}
 
@@ -82,18 +85,19 @@ public class MatchServiceUnitTest {
 	@DisplayName("getApiMatches : matchId를 가져오는 API 요청이 실패한 경우 예외가 발생한다.")
 	void getRenewMatchesByTooManyRequestMatchId() {
 		//given
-		String summonerId = "summonerId";
-		Summoner summoner = MatchServiceTestUpSet.getSummoner(summonerId);
+		RequestMatchDto matchInfo = MatchServiceTestUpSet.getRequestMatchInfo();
+		Summoner summoner = MatchServiceTestUpSet.getSummoner(matchInfo.getSummonerId());
 
-		given(summonerRepository.findSummonerById(summonerId)).willReturn(summoner);
+		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willReturn(summoner);
 		given(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId()))
 				.willThrow(new WebClientResponseException(
 						HttpStatus.TOO_MANY_REQUESTS.value(),
 						HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
 						null, null, null));
+
 		//when & then
 		WebClientResponseException e = assertThrows(WebClientResponseException.class, ()->{
-			matchService.getApiMatches(summonerId);
+			matchService.getApiMatches(matchInfo);
 		});
 		assertThat(e.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
 	}
@@ -104,13 +108,13 @@ public class MatchServiceUnitTest {
 	@DisplayName("getApiMatches : API를 통해 새로운 Match 데이터를 가져오는데 성공하면 Summoner 객체의 lastMatchId가 최신으로 갱신된다.")
 	void getRenewMatchesBySuccess(int matchIdCount) {
 		//given
-		String summonerId = "summonerId";
-		Summoner summoner = MatchServiceTestUpSet.getSummoner(summonerId);
+		RequestMatchDto matchInfo = MatchServiceTestUpSet.getRequestMatchInfo();
+		Summoner summoner = MatchServiceTestUpSet.getSummoner(matchInfo.getSummonerId());
 		String beforeLastMatchId = summoner.getLastMatchId();
 
 		List<String> matchIds = MatchServiceTestUpSet.getMatchIds(matchIdCount);
 
-		given(summonerRepository.findSummonerById(summonerId)).willReturn(summoner);
+		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willReturn(summoner);
 		given(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId())).willReturn(matchIds);
 		given(redisCacheManager.getCache(CacheConstants.MATCH_KEY)).willReturn(new ConcurrentMapCache("No Cache"));
 
@@ -122,7 +126,7 @@ public class MatchServiceUnitTest {
 		}
 
 		//when
-		List<MatchDto> renewMatches = matchService.getApiMatches(summonerId);
+		List<MatchDto> renewMatches = matchService.getApiMatches(matchInfo);
 
 		//then
 		String afterLastMatchId = summoner.getLastMatchId();
@@ -137,17 +141,17 @@ public class MatchServiceUnitTest {
 	@DisplayName("getApiMatches : API를 통해 새로운 Match 데이터를 0개 가져온다면 Summoner 객체의 lastMatchId가 최신으로 갱신되지 않는다.")
 	void getRenewMatchesByZero() {
 		//given
-		String summonerId = "summonerId";
-		Summoner summoner = MatchServiceTestUpSet.getSummoner(summonerId);
+		RequestMatchDto matchInfo = MatchServiceTestUpSet.getRequestMatchInfo();
+		Summoner summoner = MatchServiceTestUpSet.getSummoner(matchInfo.getSummonerId());
 		String beforeLastMatchId = summoner.getLastMatchId();
 
 		List<String> matchIds = MatchServiceTestUpSet.getMatchIds(0);
 
-		given(summonerRepository.findSummonerById(summonerId)).willReturn(summoner);
+		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willReturn(summoner);
 		given(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId())).willReturn(matchIds);
 
 		//when
-		List<MatchDto> renewMatches = matchService.getApiMatches(summonerId);
+		List<MatchDto> renewMatches = matchService.getApiMatches(matchInfo);
 
 		//then
 		String afterLastMatchId = summoner.getLastMatchId();
@@ -159,19 +163,20 @@ public class MatchServiceUnitTest {
 	@ParameterizedTest
 	@MethodSource("com.lolsearcher.unit.service.match.MatchServiceTestUpSet#getMatchParameter")
 	@DisplayName("getDbMatches : 조건에 맞는 Match 데이터들을 DB에서 조회한다.")
-	void getOldMatchesBySuccess(MatchParam matchParam) {
+	void getOldMatchesBySuccess(RequestMatchDto matchParam) {
 		//given
+		RequestMatchDto matchInfo = MatchServiceTestUpSet.getRequestMatchInfo();
 		List<Match> matches = MatchServiceTestUpSet.getDBMatches(matchParam);
 
 		given(matchRepository.findMatches(
 				matchParam.getSummonerId(),
-				matchParam.getGameType(),
-				matchParam.getChampion(),
+				matchParam.getQueueId(),
+				matchParam.getChampionId(),
 				matchParam.getCount()
 		)).willReturn(matches);
 
 		//when
-		List<MatchDto> oldMatches = matchService.getDbMatches(matchParam);
+		List<MatchDto> oldMatches = matchService.getDbMatches(matchInfo);
 
 		//then
 		for(int i=0;i<oldMatches.size();i++){

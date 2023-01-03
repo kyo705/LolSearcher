@@ -1,6 +1,9 @@
 package com.lolsearcher.integration.cache;
 
-import com.lolsearcher.model.dto.ingame.InGameDto;
+import com.lolsearcher.constant.GameType;
+import com.lolsearcher.constant.LolSearcherConstants;
+import com.lolsearcher.model.request.front.RequestMatchDto;
+import com.lolsearcher.model.response.front.ingame.InGameDto;
 import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import reactor.core.publisher.Mono;
@@ -33,6 +36,17 @@ public class CacheTestUpSet {
 
         return Summoner.builder()
                 .summonerId(summonerId)
+                .build();
+    }
+
+    protected static RequestMatchDto getRequestMatchDto(String summonerId) {
+
+        return RequestMatchDto.builder()
+                .summonerId(summonerId)
+                .championId(LolSearcherConstants.ALL)
+                .count(LolSearcherConstants.MATCH_DEFAULT_COUNT)
+                .queueId(GameType.ALL_QUEUE_ID.getQueueId())
+                .renew(true)
                 .build();
     }
 }

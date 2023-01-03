@@ -4,6 +4,7 @@ import com.lolsearcher.api.riotgames.RiotRestAPI;
 import com.lolsearcher.config.EmbeddedRedisConfig;
 import com.lolsearcher.constant.CacheConstants;
 import com.lolsearcher.model.entity.summoner.Summoner;
+import com.lolsearcher.model.request.front.RequestMatchDto;
 import com.lolsearcher.repository.match.MatchRepository;
 import com.lolsearcher.repository.summoner.SummonerRepository;
 import com.lolsearcher.service.match.MatchService;
@@ -49,6 +50,7 @@ public class MatchDataCacheTest {
 
         //given
         String summonerId = "summonerId1";
+        RequestMatchDto requestMatchDto = CacheTestUpSet.getRequestMatchDto(summonerId);
 
         Summoner summoner = CacheTestUpSet.getSummoner(summonerId);
         given(summonerRepository.findSummonerById(summonerId)).willReturn(summoner);
@@ -63,7 +65,7 @@ public class MatchDataCacheTest {
         }
 
         //when
-        matchService.getApiMatches(summonerId);
+        matchService.getApiMatches(requestMatchDto);
 
         //then
         for(String matchId : matchIds){
@@ -77,6 +79,7 @@ public class MatchDataCacheTest {
 
         //given
         String summonerId = "summonerId1";
+        RequestMatchDto requestMatchDto = CacheTestUpSet.getRequestMatchDto(summonerId);
 
         Summoner summoner = CacheTestUpSet.getSummoner(summonerId);
         given(summonerRepository.findSummonerById(summonerId)).willReturn(summoner);
@@ -90,7 +93,7 @@ public class MatchDataCacheTest {
             given(riotRestAPI.getMatchByNonBlocking(matchId)).willReturn(CacheTestUpSet.getMatchMono(matchId));
         }
 
-        matchService.getApiMatches(summonerId);
+        matchService.getApiMatches(requestMatchDto);
 
         for(String matchId : matchIds){
             assertThat(cacheManager.getCache(CacheConstants.MATCH_KEY).get(matchId)).isNotNull();

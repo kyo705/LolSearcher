@@ -1,27 +1,26 @@
 package com.lolsearcher.unit.service.champion;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import com.lolsearcher.model.response.front.championstatic.ChampPositionDto;
+import com.lolsearcher.model.response.front.championstatic.TotalChampStatDto;
+import com.lolsearcher.model.entity.champion.enemy.ChampEnemy;
+import com.lolsearcher.model.entity.champion.enemy.ChampEnemyCompKey;
+import com.lolsearcher.model.entity.champion.item.ChampItem;
+import com.lolsearcher.model.entity.champion.item.ChampItemCompKey;
 import com.lolsearcher.model.entity.champion.position.ChampPosition;
+import com.lolsearcher.model.entity.champion.position.ChampPositionCompKey;
+import com.lolsearcher.repository.champion.JpaChampionRepository;
+import com.lolsearcher.service.statistic.ChampionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.lolsearcher.model.dto.championstatic.ChampPositionDto;
-import com.lolsearcher.model.dto.championstatic.TotalChampDto;
-import com.lolsearcher.model.entity.champion.position.ChampPositionCompKey;
-import com.lolsearcher.model.entity.champion.enemy.ChampEnemy;
-import com.lolsearcher.model.entity.champion.enemy.ChampEnemyCompKey;
-import com.lolsearcher.model.entity.champion.item.ChampItem;
-import com.lolsearcher.model.entity.champion.item.ChampItemCompKey;
-import com.lolsearcher.repository.champion.JpaChampionRepository;
-import com.lolsearcher.service.statistic.ChampionService;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ChampPositionServiceUnitTest {
@@ -116,15 +115,15 @@ class ChampPositionServiceUnitTest {
 		when(championRepository.findChampEnemies("제드")).thenReturn(championEnemys);
 		
 		//when
-		TotalChampDto totalChampDto = championService.getChampionDetail(championId);
+		TotalChampStatDto totalChampStatDto = championService.getChampionDetail(championId);
 		
 		//then
-		assertThat(totalChampDto.getChampItems().size()).isEqualTo(3);
-		assertThat(totalChampDto.getChampItems().get(0).getItemId())
+		assertThat(totalChampStatDto.getChampItems().size()).isEqualTo(3);
+		assertThat(totalChampStatDto.getChampItems().get(0).getItemId())
 		.isEqualTo(30);
 		
-		assertThat(totalChampDto.getChampEnemies().size()).isEqualTo(2);
-		assertThat(totalChampDto.getChampEnemies().get(0).getEnemyChampionId())
+		assertThat(totalChampStatDto.getChampEnemies().size()).isEqualTo(2);
+		assertThat(totalChampStatDto.getChampEnemies().get(0).getEnemyChampionId())
 		.isEqualTo("카타리나");
 	}
 }

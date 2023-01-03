@@ -2,7 +2,7 @@ package com.lolsearcher.unit.service.ingame;
 
 import com.lolsearcher.api.riotgames.RiotRestAPI;
 import com.lolsearcher.exception.ingame.NoInGameException;
-import com.lolsearcher.model.dto.ingame.InGameDto;
+import com.lolsearcher.model.response.front.ingame.InGameDto;
 import com.lolsearcher.service.ingame.InGameService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,14 +33,13 @@ public class InGameServiceUnitTest {
 	@Test
 	void getInGameWithNoData(){
 		//given
-		String summonerId = "summonerId";
+		String summonerId = "summonerId1";
+
 		given(riotRestApi.getInGameBySummonerId(summonerId))
 				.willReturn(null);
 
 		//when & then
-		NoInGameException e = assertThrows(NoInGameException.class, ()->{
-			inGameService.getInGame(summonerId);
-		});
+		NoInGameException e = assertThrows(NoInGameException.class, ()-> inGameService.getInGame(summonerId));
 		assertThat(e.getExpectedSize()).isEqualTo(1);
 		assertThat(e.getActualSize()).isEqualTo(0);
 	}
@@ -49,12 +48,14 @@ public class InGameServiceUnitTest {
 	@Test
 	void getInGameWithSuccess(){
 		//given
-		String summonerId = "summonerId";
+		String summonerId = "summonerId1";
 
-		InGameDto inGameDto = new InGameDto();
-		inGameDto.setGameId(1);
-		inGameDto.setGameMode("classic");
-		inGameDto.setGameLength(5000);
+		InGameDto inGameDto = InGameDto
+				.builder()
+				.gameId(1)
+				.gameMode("classic")
+				.gameLength(5000)
+				.build();
 
 		given(riotRestApi.getInGameBySummonerId(summonerId))
 				.willReturn(inGameDto);
@@ -70,7 +71,8 @@ public class InGameServiceUnitTest {
 	@Test
 	void getInGameWithAnyOtherException(){
 		//given
-		String summonerId = "summonerId";
+		String summonerId = "summonerId1";
+
 		given(riotRestApi.getInGameBySummonerId(summonerId))
 				.willThrow(
 						new WebClientResponseException(
@@ -81,9 +83,9 @@ public class InGameServiceUnitTest {
 				);
 
 		//when & then
-		WebClientResponseException e = assertThrows(WebClientResponseException.class, ()->{
-			inGameService.getInGame(summonerId);
-		});
+		WebClientResponseException e = assertThrows(WebClientResponseException.class,
+				()-> inGameService.getInGame(summonerId));
+
 		assertThat(e.getStatusCode().value()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS.value());
 	}
 }

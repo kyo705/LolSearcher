@@ -16,8 +16,7 @@ public class LolsearcherDeniedHandler implements AccessDeniedHandler {
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
-		
-		System.out.println(request.getServletPath());
+
 		String url = request.getServletPath();
 		
 		if(url.subSequence(1, 4).equals("api")) {

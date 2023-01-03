@@ -1,7 +1,7 @@
 package com.lolsearcher.unit.service.mostchamp;
 
-import com.lolsearcher.model.dto.parameter.MostChampParam;
-import com.lolsearcher.model.dto.mostchamp.MostChampDto;
+import com.lolsearcher.model.response.front.mostchamp.MostChampDto;
+import com.lolsearcher.model.request.front.RequestMostChampDto;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.ArrayList;
@@ -10,11 +10,11 @@ import java.util.stream.Stream;
 
 public class MostChampServiceTestUpSet {
 
-    protected static List<String> getMostChampIds(MostChampParam mostChampParam) {
+    protected static List<String> getMostChampIds() {
         return List.of("Varus", "Taliyah", "Swain");
     }
 
-    protected static List<MostChampDto> getMostChamps(List<String> mostChampionIds, MostChampParam mostChampParam) {
+    protected static List<MostChampDto> getMostChamps(List<String> mostChampionIds) {
         List<MostChampDto> mostChampDtos = new ArrayList<>(mostChampionIds.size());
 
         for(int i=0; i<mostChampionIds.size(); i++){
@@ -36,7 +36,7 @@ public class MostChampServiceTestUpSet {
     protected static Stream<Arguments> getMostChampParameter() {
         return Stream.of(
                 Arguments.arguments(
-                        MostChampParam.builder()
+                        RequestMostChampDto.builder()
                                 .season(22)
                                 .summonerId("summonerId1")
                                 .gameQueue(420)

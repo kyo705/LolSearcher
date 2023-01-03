@@ -1,6 +1,6 @@
 package com.lolsearcher.unit.service.rank;
 
-import static com.lolsearcher.constant.RankConstants.SOLO_RANK;
+import static com.lolsearcher.constant.LolSearcherConstants.SOLO_RANK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,8 +27,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.api.riotgames.RiotRestAPI;
-import com.lolsearcher.model.dto.rank.RankDto;
-import com.lolsearcher.model.dto.rank.TotalRanks;
+import com.lolsearcher.model.response.front.rank.RankDto;
+import com.lolsearcher.model.response.front.rank.TotalRankDtos;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.entity.rank.RankCompKey;
 import com.lolsearcher.service.rank.RankService;
@@ -59,14 +59,14 @@ public class RankServiceUnitTest {
 		given(rankRepository.findRank(flexRankKey)).willReturn(flexRank);
 
 		//when
-		TotalRanks totalRanks = rankService.getLeague(summonerId);
+		TotalRankDtos totalRankDtos = rankService.getOldRanks(summonerId);
 
 		//then
-		if(totalRanks.getSolorank()!=null) {
-			assertEquals(totalRanks.getSolorank(), new RankDto(soloRank));
+		if(totalRankDtos.getSolorank()!=null) {
+			assertEquals(totalRankDtos.getSolorank(), new RankDto(soloRank));
 		}
-		if(totalRanks.getTeamrank()!=null) {
-			assertEquals(totalRanks.getTeamrank(), new RankDto(flexRank));
+		if(totalRankDtos.getTeamrank()!=null) {
+			assertEquals(totalRankDtos.getTeamrank(), new RankDto(flexRank));
 		}
 	}
 	
@@ -83,22 +83,22 @@ public class RankServiceUnitTest {
 		given(riotRestApi.getLeague(summonerId)).willReturn(ranks);
 
 		//when
-		TotalRanks totalRanks = rankService.setLeague(summonerId);
+		TotalRankDtos totalRankDtos = rankService.getRenewRanks(summonerId);
 
 		//then
 		for(Rank rank : ranks) {
 			if(rank.getCk().getQueueType().equals(SOLO_RANK)) {
-				assertThat(totalRanks.getSolorank().getWins()).isEqualTo(rank.getWins());
-				assertThat(totalRanks.getSolorank().getLosses()).isEqualTo(rank.getLosses());
+				assertThat(totalRankDtos.getSolorank().getWins()).isEqualTo(rank.getWins());
+				assertThat(totalRankDtos.getSolorank().getLosses()).isEqualTo(rank.getLosses());
 
-				assertThat(totalRanks.getSolorank().getRank()).isEqualTo(rank.getRank());
-				assertThat(totalRanks.getSolorank().getTier()).isEqualTo(rank.getTier());
+				assertThat(totalRankDtos.getSolorank().getRank()).isEqualTo(rank.getRank());
+				assertThat(totalRankDtos.getSolorank().getTier()).isEqualTo(rank.getTier());
 			}else {
-				assertThat(totalRanks.getTeamrank().getWins()).isEqualTo(rank.getWins());
-				assertThat(totalRanks.getTeamrank().getLosses()).isEqualTo(rank.getLosses());
+				assertThat(totalRankDtos.getTeamrank().getWins()).isEqualTo(rank.getWins());
+				assertThat(totalRankDtos.getTeamrank().getLosses()).isEqualTo(rank.getLosses());
 
-				assertThat(totalRanks.getTeamrank().getRank()).isEqualTo(rank.getRank());
-				assertThat(totalRanks.getTeamrank().getTier()).isEqualTo(rank.getTier());
+				assertThat(totalRankDtos.getTeamrank().getRank()).isEqualTo(rank.getRank());
+				assertThat(totalRankDtos.getTeamrank().getTier()).isEqualTo(rank.getTier());
 			}
 		}
 		verify(rankRepository, times(ranks.size())).saveRank(any());
@@ -117,7 +117,7 @@ public class RankServiceUnitTest {
 
 		//when & then
 		assertThrows(DataIntegrityViolationException.class,()->{
-			rankService.setLeague(summonerId);
+			rankService.getRenewRanks(summonerId);
 			});
 		verify(rankRepository, times(1)).saveRank(any());
 	}
@@ -134,7 +134,7 @@ public class RankServiceUnitTest {
 
 		//when & then
 		WebClientResponseException e = assertThrows(WebClientResponseException.class,
-				()->rankService.setLeague(summonerId));
+				()->rankService.getRenewRanks(summonerId));
 		assertThat(e.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
 		verify(rankRepository, times(0)).saveRank(any());
 	}

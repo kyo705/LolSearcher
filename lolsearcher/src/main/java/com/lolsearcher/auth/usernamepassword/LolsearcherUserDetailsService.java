@@ -1,7 +1,6 @@
 package com.lolsearcher.auth.usernamepassword;
 
-import javax.transaction.Transactional;
-
+import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +17,7 @@ public class LolsearcherUserDetailsService implements UserDetailsService {
 
 	private final UserRepository userRepository;
 
-	@Transactional
+	@JpaTransactional
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		try {

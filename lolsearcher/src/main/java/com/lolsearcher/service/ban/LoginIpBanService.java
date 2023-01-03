@@ -1,62 +1,43 @@
 package com.lolsearcher.service.ban;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.lolsearcher.constant.BanConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import com.lolsearcher.filter.LoginBanFilter;
-import com.lolsearcher.scheduler.dto.Timer;
-import com.lolsearcher.scheduler.job.RemovingBannedIpJob;
-import com.lolsearcher.scheduler.service.SchedulerService;
+import static com.lolsearcher.constant.LolSearcherConstants.LOGIN_BAN_COUNT;
+import static com.lolsearcher.constant.CacheConstants.LOGIN_ABUSING_KEY;
+import static com.lolsearcher.constant.CacheConstants.LOGIN_BAN_KEY;
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class LoginIpBanService implements IpBanService {
 
-	private final Map<String, Integer> banCount = new ConcurrentHashMap<>();
-	
-	private final SchedulerService schedulerService;
-	private final LoginBanFilter loginBanFilter;
+	private final CacheManager rediscCacheManager;
 
 	@Override
 	public boolean isExceedBanCount(String ip) {
-		banCount.put(ip, banCount.getOrDefault(ip, 0)+1);
 
-		if(banCount.get(ip)>= BanConstants.LOGIN_BAN_COUNT) {
-			return true;
+		Cache loginAbusingCache = rediscCacheManager.getCache(LOGIN_ABUSING_KEY);
+
+		assert loginAbusingCache != null;
+
+		if(loginAbusingCache.get(ip) == null){
+			loginAbusingCache.put(ip, 1);
+		}else{
+			loginAbusingCache.put(ip, (Integer) loginAbusingCache.get(ip).get() + 1);
 		}
-		return false;
+
+		return (Integer) loginAbusingCache.get(ip).get() >= LOGIN_BAN_COUNT;
 	}
 	
 	@Override
 	public void registerBanList(String user_ip) {
-		loginBanFilter.addBanList(user_ip);
-		
-		Timer timer = new Timer();
-		timer.setCallbackData(user_ip);
-		timer.setInitialOffsetMs(1000*60*10); //10분
-		timer.setRepeatIntervalMs(0);
-		timer.setRunForever(false);
-		timer.setTotalFireCount(1);
+		requireNonNull(rediscCacheManager.getCache(LOGIN_BAN_KEY)).put(user_ip, System.currentTimeMillis());
 
-		log.info("스레드 : {} 에서 실행", Thread.currentThread());
-		schedulerService.schedule(RemovingBannedIpJob.class, timer);
-	}
-
-	@Override
-	public void resetBanCount(String user_ip) {
-		banCount.remove(user_ip);
-	}
-
-	@Override
-	public void removeBanList(String user_ip) {
-		log.info("IP : '{}' 벤 목록에서 삭제 시도", user_ip);
-		loginBanFilter.removeBanList(user_ip);
-		log.info("IP : '{}' 벤 목록에서 삭제 성공", user_ip);
+		requireNonNull(rediscCacheManager.getCache(LOGIN_ABUSING_KEY)).evictIfPresent(user_ip);
 	}
 }

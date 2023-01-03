@@ -1,21 +1,19 @@
 package com.lolsearcher.service.openapi;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.NoResultException;
-
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.model.response.front.match.MatchDto;
+import com.lolsearcher.model.response.front.rank.RankDto;
+import com.lolsearcher.model.entity.match.Match;
+import com.lolsearcher.model.entity.rank.Rank;
+import com.lolsearcher.model.entity.summoner.Summoner;
+import com.lolsearcher.model.response.openapi.ResponseSummonerDto;
+import com.lolsearcher.repository.restapi.RestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.lolsearcher.model.dto.match.MatchDto;
-import com.lolsearcher.model.dto.rank.RankDto;
-import com.lolsearcher.model.dto.summoner.SummonerDto;
-import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.entity.match.Match;
-import com.lolsearcher.model.entity.rank.Rank;
-import com.lolsearcher.repository.restapi.RestRepository;
+import javax.persistence.NoResultException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -25,25 +23,27 @@ public class RestApiService {
 	private final RestRepository restRepository;
 
 	@JpaTransactional
-	public SummonerDto getSummonerById(String id) throws NoResultException {
+	public ResponseSummonerDto getSummonerById(String id) throws NoResultException {
 		Summoner summoner = restRepository.getSummonerById(id);
 		
-		return new SummonerDto(summoner);
+		return changeSummonerDto(summoner);
 	}
 
 	@JpaTransactional
-	public SummonerDto getSummonerByName(String name) throws NoResultException {
+	public ResponseSummonerDto getSummonerByName(String name) throws NoResultException {
 		Summoner summoner = restRepository.getSummonerByName(name);
 		
-		return new SummonerDto(summoner);
+		return changeSummonerDto(summoner);
 	}
 
 	@JpaTransactional
 	public RankDto getRankById(String id, String type, int season) {
 		Rank rank = restRepository.getRank(id, type, season);
 		
-		return new RankDto(rank);
+		return chagneRankDto(rank);
 	}
+
+
 
 	@JpaTransactional
 	public List<RankDto> getRanksById(String id, int season) {
@@ -68,20 +68,19 @@ public class RestApiService {
 		return new MatchDto(match);
 	}
 
-	@JpaTransactional
-	public void setMatches(List<Match> matches) {
-		for(Match match : matches) {
-			if(restRepository.getMatch(match.getMatchId())==null) {
-				restRepository.setMatch(match);
-			}
-		}
+	private ResponseSummonerDto changeSummonerDto(Summoner summoner) {
+		return ResponseSummonerDto.builder()
+				.summonerId(summoner.getSummonerId())
+				.puuId(summoner.getPuuid())
+				.name(summoner.getSummonerName())
+				.profileIconId(summoner.getProfileIconId())
+				.summonerLevel(summoner.getSummonerLevel())
+				.lastRenewTimeStamp(summoner.getLastRenewTimeStamp())
+				.build();
 	}
 
-	@JpaTransactional
-	public void setOneMatch(Match match) {
-		if(restRepository.getMatch(match.getMatchId())==null) {
-			restRepository.setMatch(match);
-		}
+	private RankDto chagneRankDto(Rank rank) {
+		return null;
 	}
 
 }

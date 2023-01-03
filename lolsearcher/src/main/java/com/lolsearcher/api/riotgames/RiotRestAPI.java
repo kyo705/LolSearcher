@@ -2,7 +2,7 @@ package com.lolsearcher.api.riotgames;
 
 import java.util.List;
 
-import com.lolsearcher.model.dto.ingame.InGameDto;
+import com.lolsearcher.model.response.front.ingame.InGameDto;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.model.entity.rank.Rank;
