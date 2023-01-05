@@ -1,6 +1,6 @@
 package com.lolsearcher.unit.service.ingame;
 
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.exception.ingame.NoInGameException;
 import com.lolsearcher.model.response.front.ingame.InGameDto;
 import com.lolsearcher.service.ingame.InGameService;
@@ -22,11 +22,11 @@ public class InGameServiceUnitTest {
 
 	InGameService inGameService;
 	@Mock
-    RiotRestAPI riotRestApi;
+    RiotGamesAPI riotGamesApi;
 	
 	@BeforeEach
 	void upset() {
-		inGameService = new InGameService(riotRestApi);
+		inGameService = new InGameService(riotGamesApi);
 	}
 
 	@DisplayName("인게임 데이터가 없을 경우 예외가 발생한다.")
@@ -35,7 +35,7 @@ public class InGameServiceUnitTest {
 		//given
 		String summonerId = "summonerId1";
 
-		given(riotRestApi.getInGameBySummonerId(summonerId))
+		given(riotGamesApi.getInGameBySummonerId(summonerId))
 				.willReturn(null);
 
 		//when & then
@@ -57,7 +57,7 @@ public class InGameServiceUnitTest {
 				.gameLength(5000)
 				.build();
 
-		given(riotRestApi.getInGameBySummonerId(summonerId))
+		given(riotGamesApi.getInGameBySummonerId(summonerId))
 				.willReturn(inGameDto);
 
 		//when
@@ -73,7 +73,7 @@ public class InGameServiceUnitTest {
 		//given
 		String summonerId = "summonerId1";
 
-		given(riotRestApi.getInGameBySummonerId(summonerId))
+		given(riotGamesApi.getInGameBySummonerId(summonerId))
 				.willThrow(
 						new WebClientResponseException(
 								HttpStatus.TOO_MANY_REQUESTS.value(),

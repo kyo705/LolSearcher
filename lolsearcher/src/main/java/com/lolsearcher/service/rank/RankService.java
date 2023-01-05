@@ -7,7 +7,7 @@ import com.lolsearcher.repository.rank.RankRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.model.response.front.rank.RankDto;
 import com.lolsearcher.model.response.front.rank.TotalRankDtos;
 import com.lolsearcher.model.entity.rank.Rank;
@@ -19,7 +19,7 @@ import static com.lolsearcher.constant.LolSearcherConstants.*;
 @Service
 public class RankService {
 	
-	private final RiotRestAPI riotApi;
+	private final RiotGamesAPI riotApi;
 
 	private final RankRepository rankRepository;
 	

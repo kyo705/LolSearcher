@@ -1,6 +1,6 @@
 package com.lolsearcher.unit.service.match;
 
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.constant.CacheConstants;
 import com.lolsearcher.model.response.front.match.MatchDto;
 import com.lolsearcher.model.entity.summoner.Summoner;
@@ -40,7 +40,7 @@ public class MatchServiceUnitTest {
 
 	@Mock private Map<String, ProducerService> producerServices;
 	@Mock private ExecutorService executorService;
-	@Mock private RiotRestAPI riotRestApi;
+	@Mock private RiotGamesAPI riotGamesApi;
 	@Mock private SummonerRepository summonerRepository;
 	@Mock private MatchRepository matchRepository;
 	@Mock private CacheManager redisCacheManager;
@@ -49,7 +49,7 @@ public class MatchServiceUnitTest {
 	
 	@BeforeEach
 	void upset() {
-		matchService = new MatchService(producerServices, executorService, riotRestApi,
+		matchService = new MatchService(producerServices, executorService, riotGamesApi,
 				summonerRepository, matchRepository, redisCacheManager);
 	}
 	
@@ -63,9 +63,8 @@ public class MatchServiceUnitTest {
 		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willThrow(NoResultException.class);
 
 		//when & then
-		assertThrows(NoResultException.class, ()->{
-			matchService.getApiMatches(matchInfo);
-		});
+		assertThrows(NoResultException.class,
+				()-> matchService.getApiMatches(matchInfo));
 	}
 
 	@Test
@@ -76,9 +75,8 @@ public class MatchServiceUnitTest {
 		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willThrow(NonUniqueResultException.class);
 
 		//when & then
-		assertThrows(NonUniqueResultException.class, ()->{
-			matchService.getApiMatches(matchInfo);
-		});
+		assertThrows(NonUniqueResultException.class,
+				()-> matchService.getApiMatches(matchInfo));
 	}
 
 	@Test
@@ -89,16 +87,15 @@ public class MatchServiceUnitTest {
 		Summoner summoner = MatchServiceTestUpSet.getSummoner(matchInfo.getSummonerId());
 
 		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willReturn(summoner);
-		given(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId()))
+		given(riotGamesApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId()))
 				.willThrow(new WebClientResponseException(
 						HttpStatus.TOO_MANY_REQUESTS.value(),
 						HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
 						null, null, null));
 
 		//when & then
-		WebClientResponseException e = assertThrows(WebClientResponseException.class, ()->{
-			matchService.getApiMatches(matchInfo);
-		});
+		WebClientResponseException e = assertThrows(WebClientResponseException.class,
+				()-> matchService.getApiMatches(matchInfo));
 		assertThat(e.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
 	}
 
@@ -115,14 +112,14 @@ public class MatchServiceUnitTest {
 		List<String> matchIds = MatchServiceTestUpSet.getMatchIds(matchIdCount);
 
 		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willReturn(summoner);
-		given(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId())).willReturn(matchIds);
+		given(riotGamesApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId())).willReturn(matchIds);
 		given(redisCacheManager.getCache(CacheConstants.MATCH_KEY)).willReturn(new ConcurrentMapCache("No Cache"));
 
 		given(matchRepository.findMatchById(any())).willReturn(null);
 
 		for(int i=0; i < Math.min(matchIds.size(), MATCH_DEFAULT_COUNT); i++) {
 			String matchId = matchIds.get(i);
-			given(riotRestApi.getMatchByNonBlocking(matchId)).willReturn(MatchServiceTestUpSet.getMatchMono(matchId));
+			given(riotGamesApi.getMatchByNonBlocking(matchId)).willReturn(MatchServiceTestUpSet.getMatchMono(matchId));
 		}
 
 		//when
@@ -148,7 +145,7 @@ public class MatchServiceUnitTest {
 		List<String> matchIds = MatchServiceTestUpSet.getMatchIds(0);
 
 		given(summonerRepository.findSummonerById(matchInfo.getSummonerId())).willReturn(summoner);
-		given(riotRestApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId())).willReturn(matchIds);
+		given(riotGamesApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId())).willReturn(matchIds);
 
 		//when
 		List<MatchDto> renewMatches = matchService.getApiMatches(matchInfo);

@@ -1,6 +1,6 @@
 package com.lolsearcher.integration.cache;
 
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.config.EmbeddedRedisConfig;
 import com.lolsearcher.constant.CacheConstants;
 import com.lolsearcher.model.entity.summoner.Summoner;
@@ -32,7 +32,7 @@ public class MatchDataCacheTest {
     @Autowired
     private MatchService matchService;
     @MockBean
-    private RiotRestAPI riotRestAPI;
+    private RiotGamesAPI riotGamesAPI;
     @MockBean
     private MatchRepository matchRepository;
     @MockBean
@@ -56,12 +56,12 @@ public class MatchDataCacheTest {
         given(summonerRepository.findSummonerById(summonerId)).willReturn(summoner);
 
         List<String> matchIds = CacheTestUpSet.getMatchIds();
-        given(riotRestAPI.getAllMatchIds(any(), any())).willReturn(matchIds);
+        given(riotGamesAPI.getAllMatchIds(any(), any())).willReturn(matchIds);
 
         for(String matchId : matchIds){
             assertThat(cacheManager.getCache(CacheConstants.MATCH_KEY).get(matchId)).isNull();
 
-            given(riotRestAPI.getMatchByNonBlocking(matchId)).willReturn(CacheTestUpSet.getMatchMono(matchId));
+            given(riotGamesAPI.getMatchByNonBlocking(matchId)).willReturn(CacheTestUpSet.getMatchMono(matchId));
         }
 
         //when
@@ -85,12 +85,12 @@ public class MatchDataCacheTest {
         given(summonerRepository.findSummonerById(summonerId)).willReturn(summoner);
 
         List<String> matchIds = CacheTestUpSet.getMatchIds();
-        given(riotRestAPI.getAllMatchIds(any(), any())).willReturn(matchIds);
+        given(riotGamesAPI.getAllMatchIds(any(), any())).willReturn(matchIds);
 
         for(String matchId : matchIds){
             assertThat(cacheManager.getCache(CacheConstants.MATCH_KEY).get(matchId)).isNull();
 
-            given(riotRestAPI.getMatchByNonBlocking(matchId)).willReturn(CacheTestUpSet.getMatchMono(matchId));
+            given(riotGamesAPI.getMatchByNonBlocking(matchId)).willReturn(CacheTestUpSet.getMatchMono(matchId));
         }
 
         matchService.getApiMatches(requestMatchDto);

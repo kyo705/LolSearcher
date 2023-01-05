@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.model.response.front.summoner.SummonerDto;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.repository.summoner.SummonerRepository;
@@ -23,7 +23,7 @@ import static com.lolsearcher.constant.LolSearcherConstants.SUMMONER_RENEW_MS;
 @Service
 public class SummonerService {
 	
-	private final RiotRestAPI riotApi;
+	private final RiotGamesAPI riotApi;
 	private final SummonerRepository summonerRepository;
 	
 	@JpaTransactional(noRollbackFor = WebClientResponseException.class)

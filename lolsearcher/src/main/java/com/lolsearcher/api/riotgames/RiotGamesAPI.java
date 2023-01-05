@@ -8,7 +8,7 @@ import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.model.entity.rank.Rank;
 import reactor.core.publisher.Mono;
 
-public interface RiotRestAPI {
+public interface RiotGamesAPI {
 	
 	Summoner getSummonerByName(String summonerName);
 	
@@ -18,7 +18,7 @@ public interface RiotRestAPI {
 	
 	List<String> getAllMatchIds(String puuid, String lastMatchId);
 	
-	List<String> getMatchIds(String puuid, int queue, String type, int start, int count, String lastmatchid);
+	List<String> getMatchIds(String puuid, int start, int count, String lastMatchId);
 
 	Mono<Match> getMatchByNonBlocking(String matchId);
 

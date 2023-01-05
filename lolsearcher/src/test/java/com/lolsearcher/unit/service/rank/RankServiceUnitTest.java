@@ -26,7 +26,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.model.response.front.rank.RankDto;
 import com.lolsearcher.model.response.front.rank.TotalRankDtos;
 import com.lolsearcher.model.entity.rank.Rank;
@@ -37,12 +37,12 @@ import com.lolsearcher.service.rank.RankService;
 public class RankServiceUnitTest {
 	
 	private RankService rankService;
-	@Mock private RiotRestAPI riotRestApi;
+	@Mock private RiotGamesAPI riotGamesApi;
 	@Mock private RankRepository rankRepository;
 	
 	@BeforeEach
 	void upset() {
-		rankService = new RankService(riotRestApi, rankRepository);
+		rankService = new RankService(riotGamesApi, rankRepository);
 	}
 	
 	//----------------------getLeague() 메소드 Test Case------------------------------------
@@ -80,7 +80,7 @@ public class RankServiceUnitTest {
 
 		//given
 		String summonerId = "summonerId";
-		given(riotRestApi.getLeague(summonerId)).willReturn(ranks);
+		given(riotGamesApi.getLeague(summonerId)).willReturn(ranks);
 
 		//when
 		TotalRankDtos totalRankDtos = rankService.getRenewRanks(summonerId);
@@ -111,14 +111,13 @@ public class RankServiceUnitTest {
 
 		//given
 		String summonerId = "summonerId";
-		given(riotRestApi.getLeague(summonerId)).willReturn(ranks);
+		given(riotGamesApi.getLeague(summonerId)).willReturn(ranks);
 		
 		willThrow(DataIntegrityViolationException.class).given(rankRepository).saveRank(any());
 
 		//when & then
-		assertThrows(DataIntegrityViolationException.class,()->{
-			rankService.getRenewRanks(summonerId);
-			});
+		assertThrows(DataIntegrityViolationException.class,
+				()-> rankService.getRenewRanks(summonerId));
 		verify(rankRepository, times(1)).saveRank(any());
 	}
 	
@@ -128,7 +127,7 @@ public class RankServiceUnitTest {
 
 		//given
 		String summonerId = "summonerId";
-		given(riotRestApi.getLeague(summonerId)).willThrow(new WebClientResponseException(
+		given(riotGamesApi.getLeague(summonerId)).willThrow(new WebClientResponseException(
 				HttpStatus.TOO_MANY_REQUESTS.value(), HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
 				null, null, null));
 

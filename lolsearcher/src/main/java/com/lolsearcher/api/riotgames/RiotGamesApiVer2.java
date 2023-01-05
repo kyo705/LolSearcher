@@ -29,10 +29,11 @@ import static com.lolsearcher.constant.BeanNameConstants.ASIA_WEB_CLIENT_NAME;
 import static com.lolsearcher.constant.BeanNameConstants.KR_WEB_CLIENT_NAME;
 import static com.lolsearcher.constant.LolSearcherConstants.CURRENT_SEASON_ID;
 import static com.lolsearcher.constant.LolSearcherConstants.MATCH_ID_DEFAULT_COUNT;
+import static com.lolsearcher.constant.UriConstants.*;
 
 @RequiredArgsConstructor
 @Component
-public class RiotRestApiVer2 implements RiotRestAPI{
+public class RiotGamesApiVer2 implements RiotGamesAPI {
 
 	@Value("${riot_api_key}")
 	private String key;
@@ -41,12 +42,11 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 
 
 	@Override
-	public Summoner getSummonerById(String id) {
-		String uri = "/lol/summoner/v4/summoners/" + id + "?api_key=" + key;
+	public Summoner getSummonerById(String summonerId) {
 
 		SummonerDto summonerDto = webclients.get(KR_WEB_CLIENT_NAME)
 				.get()
-				.uri(uri)
+				.uri(RIOTGAMES_SUMMONER_WITH_ID_URI, summonerId, key)
 				.retrieve()
 				.bodyToMono(SummonerDto.class)
 				.block();
@@ -56,11 +56,10 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 
 	@Override
 	public Summoner getSummonerByName(String summonerName) {
-		String uri = "/lol/summoner/v4/summoners/by-name/"+summonerName+"?api_key="+key;
 
 		SummonerDto summonerDto = webclients.get(KR_WEB_CLIENT_NAME)
 				.get()
-				.uri(uri)
+				.uri(RIOTGAMES_SUMMONER_WITH_NAME_URI, summonerName, key)
 				.retrieve()
 				.bodyToMono(SummonerDto.class)
 				.block();
@@ -70,11 +69,10 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	
 	@Override
 	public List<Rank> getLeague(String summonerId) {
-		String uri = "/lol/league/v4/entries/by-summoner/"+summonerId+"?api_key="+key;
 
 		List<RankDto> rankDtos = webclients.get(KR_WEB_CLIENT_NAME)
 				.get()
-				.uri(uri)
+				.uri(RIOTGAMES_RANK_WITH_ID_URI, summonerId, key)
 				.retrieve()
 				.bodyToFlux(RankDto.class)
 				.collectList()
@@ -85,11 +83,11 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 
 	@Override
 	public List<String> getAllMatchIds(String puuid, String lastMatchId) {
-		return getMatchIds(puuid, -1, "all", 0, -1, lastMatchId);
+		return getMatchIds(puuid, 0, -1, lastMatchId);
 	}
 	
 	@Override
-	public List<String> getMatchIds(String puuid, int queue, String type, int start, int totalCount, String lastMatchId) {
+	public List<String> getMatchIds(String puuid, int start, int totalCount, String lastMatchId) {
 
 		List<String> matchIds = new ArrayList<>();
 
@@ -100,11 +98,9 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 				count = totalCount;
 			}
 
-			String uri = getMatchIdsUri(queue, puuid, start, count);
-
 			String[] apiMatchIds = webclients.get(ASIA_WEB_CLIENT_NAME)
 					.get()
-					.uri(uri)
+					.uri(RIOTGAMES_MATCHIDS_WITH_PUUID_URI, puuid, start, count, key)
 					.retrieve()
 					.bodyToMono(String[].class)
 					.block();
@@ -127,11 +123,9 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	@Override
 	public Mono<Match> getMatchByNonBlocking(String matchId) {
 
-		String uri = "/lol/match/v5/matches/"+matchId+"?api_key="+key;
-
 		return webclients.get(ASIA_WEB_CLIENT_NAME)
 				.get()
-				.uri(uri)
+				.uri(RIOTGAMES_MATCH_WITH_ID_URI, matchId, key)
 				.retrieve()
 				.bodyToMono(TotalMatchDto.class)
 				.flatMap(totalMatchDto -> Mono.just(getMatch(totalMatchDto)));
@@ -145,12 +139,10 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 	@Cacheable(cacheManager = "redisCacheManager", key = "#summonerId", value = CacheConstants.IN_GAME_KEY)
 	@Override
 	public com.lolsearcher.model.response.front.ingame.InGameDto getInGameBySummonerId(String summonerId) {
-		String uri = "/lol/spectator/v4/active-games/by-summoner/" +
-				summonerId + "?api_key=" + key;
 
 		InGameDto inGameDto = webclients.get(KR_WEB_CLIENT_NAME)
 				.get()
-				.uri(uri)
+				.uri(RIOTGAMES_INGAME_WITH_ID_URI, summonerId, key)
 				.retrieve()
 				.bodyToMono(InGameDto.class)
 				.block();
@@ -217,16 +209,6 @@ public class RiotRestApiVer2 implements RiotRestAPI{
 		perks.setPerkStats(perkStats); //연관 관계 설정
 
 		return perks;
-	}
-
-	private String getMatchIdsUri(int queue, String puuid, int start, int count) {
-		StringBuilder uri = new StringBuilder("/lol/match/v5/matches/by-puuid/"+puuid+"/ids?");
-		if(queue != -1) {
-			uri.append("queue=").append(queue).append("&");
-		}
-		uri.append("start=").append(start).append("&count=").append(count).append("&api_key=").append(key);
-
-		return uri.toString();
 	}
 
 

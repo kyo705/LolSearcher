@@ -1,7 +1,7 @@
 package com.lolsearcher.service.match;
 
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.constant.CacheConstants;
 import com.lolsearcher.constant.GameType;
 import com.lolsearcher.model.entity.match.Match;
@@ -43,7 +43,7 @@ public class MatchService {
 	@SuppressWarnings("rawtypes")
 	private final Map<String, ProducerService> kafkaProducerServices;
 	private final ExecutorService executorService;
-	private final RiotRestAPI riotApi;
+	private final RiotGamesAPI riotApi;
 	private final SummonerRepository summonerRepository;
 	private final MatchRepository matchRepository;
 	private final CacheManager redisCacheManager;

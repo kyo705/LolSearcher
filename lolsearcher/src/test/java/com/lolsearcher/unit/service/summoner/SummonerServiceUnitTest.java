@@ -1,6 +1,6 @@
 package com.lolsearcher.unit.service.summoner;
 
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.request.front.RequestSummonerDto;
 import com.lolsearcher.model.response.front.summoner.SummonerDto;
@@ -26,14 +26,14 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class SummonerServiceUnitTest {
-	@Mock private RiotRestAPI riotRestApi;
+	@Mock private RiotGamesAPI riotGamesApi;
 	@Mock private SummonerRepository summonerRepository;
 	
 	private SummonerService summonerService;
 	
 	@BeforeEach
 	void upset() {
-		summonerService = new SummonerService(riotRestApi, summonerRepository);
+		summonerService = new SummonerService(riotGamesApi, summonerRepository);
 	}
 
 	//----------------------findDbSummoner() 메소드 Test Case------------------------------------
@@ -65,7 +65,7 @@ class SummonerServiceUnitTest {
 		Summoner apiSummoner = SummonerServiceTestUpSet.getSummonerByNameWithRenewedRecently(summonerInfo.getSummonerName());
 
 		given(summonerRepository.findSummonerByName(summonerInfo.getSummonerName())).willReturn(zeroSummoner);
-		given(riotRestApi.getSummonerByName(summonerInfo.getSummonerName())).willReturn(apiSummoner);
+		given(riotGamesApi.getSummonerByName(summonerInfo.getSummonerName())).willReturn(apiSummoner);
 
 		//when
 		SummonerDto summonerDto = summonerService.getSummonerDto(summonerInfo);
@@ -84,7 +84,7 @@ class SummonerServiceUnitTest {
 		List<Summoner> zeroSummoner = SummonerServiceTestUpSet.getSameNameSummoners(summonerInfo.getSummonerName(), 0);
 
 		given(summonerRepository.findSummonerByName(summonerInfo.getSummonerName())).willReturn(zeroSummoner);
-		given(riotRestApi.getSummonerByName(summonerInfo.getSummonerName()))
+		given(riotGamesApi.getSummonerByName(summonerInfo.getSummonerName()))
 				.willThrow(new WebClientResponseException(
 						HttpStatus.BAD_REQUEST.value(),
 						HttpStatus.BAD_REQUEST.getReasonPhrase(),
@@ -112,7 +112,7 @@ class SummonerServiceUnitTest {
 		for(int i = 0; i < summoners.size(); i++){
 			Summoner summoner = summoners.get(i);
 
-			given(riotRestApi.getSummonerById(summoner.getSummonerId()))
+			given(riotGamesApi.getSummonerById(summoner.getSummonerId()))
 					.willReturn(SummonerServiceTestUpSet.changeSummonerName(summoner, i==0));
 		}
 
@@ -122,7 +122,7 @@ class SummonerServiceUnitTest {
 		//then
 		assertThat(summonerDto.getName()).isEqualTo(summonerInfo.getSummonerName());
 		assertThat(summonerDto.isRenewed()).isEqualTo(false);
-		verify(riotRestApi, times(0)).getSummonerByName(any());
+		verify(riotGamesApi, times(0)).getSummonerByName(any());
 	}
 
 	@Test
@@ -136,10 +136,10 @@ class SummonerServiceUnitTest {
 		List<Summoner> summoners = SummonerServiceTestUpSet.getSameNameSummoners(summonerInfo.getSummonerName(), 3);
 		given(summonerRepository.findSummonerByName(summonerInfo.getSummonerName())).willReturn(summoners);
 		for (Summoner summoner : summoners) {
-			given(riotRestApi.getSummonerById(summoner.getSummonerId()))
+			given(riotGamesApi.getSummonerById(summoner.getSummonerId()))
 					.willReturn(SummonerServiceTestUpSet.changeSummonerName(summoner, false));
 		}
-		given(riotRestApi.getSummonerByName(summonerInfo.getSummonerName()))
+		given(riotGamesApi.getSummonerByName(summonerInfo.getSummonerName()))
 				.willReturn(SummonerServiceTestUpSet.getSummonerByNameWithRenewedRecently(summonerInfo.getSummonerName()));
 
 		//when
@@ -148,7 +148,7 @@ class SummonerServiceUnitTest {
 		//then
 		assertThat(summonerDto.getName()).isEqualTo(summonerInfo.getSummonerName());
 		assertThat(summonerDto.isRenewed()).isEqualTo(true);
-		verify(riotRestApi, times(1)).getSummonerByName(any());
+		verify(riotGamesApi, times(1)).getSummonerByName(any());
 		verify(summonerRepository, times(1)).saveSummoner(any());
 	}
 
@@ -164,10 +164,10 @@ class SummonerServiceUnitTest {
 		given(summonerRepository.findSummonerByName(summonerInfo.getSummonerName())).willReturn(summoners);
 
 		for (Summoner summoner : summoners) {
-			given(riotRestApi.getSummonerById(summoner.getSummonerId()))
+			given(riotGamesApi.getSummonerById(summoner.getSummonerId()))
 					.willReturn(SummonerServiceTestUpSet.changeSummonerName(summoner, false));
 		}
-		given(riotRestApi.getSummonerByName(summonerInfo.getSummonerName()))
+		given(riotGamesApi.getSummonerByName(summonerInfo.getSummonerName()))
 				.willThrow(new WebClientResponseException(
 						HttpStatus.BAD_REQUEST.value(),
 						HttpStatus.BAD_REQUEST.getReasonPhrase(),
@@ -200,8 +200,8 @@ class SummonerServiceUnitTest {
 		assertThat(renewSummoner.getLastRenewTimeStamp()).isEqualTo(dbSummoner.getLastRenewTimeStamp());
 
 		assertThat(renewSummoner.isRenewed()).isEqualTo(false);
-		verify(riotRestApi, times(0)).getSummonerByName(any());
-		verify(riotRestApi, times(0)).getSummonerById(any());
+		verify(riotGamesApi, times(0)).getSummonerByName(any());
+		verify(riotGamesApi, times(0)).getSummonerById(any());
 	}
 	
 	@Test
@@ -215,7 +215,7 @@ class SummonerServiceUnitTest {
 		given(summonerRepository.findSummonerByName(summonerName)).willReturn(List.of(dbSummoner));
 
 		Summoner apiSummoner = SummonerServiceTestUpSet.getSummonerByNameWithRenewedRecently(summonerName);
-		given(riotRestApi.getSummonerByName(summonerName)).willReturn(apiSummoner);
+		given(riotGamesApi.getSummonerByName(summonerName)).willReturn(apiSummoner);
 
 		//when
 		SummonerDto renewSummoner = summonerService.getSummonerDto(summonerInfo);

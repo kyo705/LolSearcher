@@ -1,6 +1,6 @@
 package com.lolsearcher.service.ingame;
 
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.exception.ingame.NoInGameException;
 import com.lolsearcher.exception.summoner.NoExistSummonerException;
 import com.lolsearcher.model.response.front.ingame.InGameDto;
@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @Service
 public class InGameService {
 
-	private final RiotRestAPI riotGames;
+	private final RiotGamesAPI riotGames;
 
 	public InGameDto getInGame(String summonerId) {
 

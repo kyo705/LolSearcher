@@ -2,7 +2,7 @@ package com.lolsearcher.integration.cache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.api.riotgames.RiotRestAPI;
+import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.config.EmbeddedRedisConfig;
 import com.lolsearcher.config.MockWebServerConfig;
 import com.lolsearcher.constant.CacheConstants;
@@ -28,7 +28,7 @@ public class RiotGamesApiCacheTest {
     @Autowired
     private MockWebServer mockWebServer;
     @Autowired
-    private RiotRestAPI riotRestAPI;
+    private RiotGamesAPI riotGamesAPI;
 
     @BeforeEach
     public void upSet() {
@@ -52,7 +52,7 @@ public class RiotGamesApiCacheTest {
         );
 
         //when
-        riotRestAPI.getInGameBySummonerId(summonerId);
+        riotGamesAPI.getInGameBySummonerId(summonerId);
 
         //then
         assertThat(cacheManager.getCache(CacheConstants.IN_GAME_KEY).get(summonerId)).isNotNull();
@@ -73,7 +73,7 @@ public class RiotGamesApiCacheTest {
                         .setBody(objectMapper.writeValueAsString(CacheTestUpSet.createInGameDto(summonerId)))
         );
 
-        riotRestAPI.getInGameBySummonerId(summonerId);
+        riotGamesAPI.getInGameBySummonerId(summonerId);
 
         assertThat(cacheManager.getCache(CacheConstants.IN_GAME_KEY).get(summonerId)).isNotNull();
 
