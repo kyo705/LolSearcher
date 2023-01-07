@@ -1,39 +1,36 @@
 package com.lolsearcher.model.entity.match;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.lolsearcher.constant.LolSearcherConstants.THE_NUMBER_OF_TEAMS;
+
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "MATCHES")
+@Table(name = "MATCHES", indexes = {@Index(columnList = "game_id")})
 public class Match implements Serializable {
 
 	@Id
-	@Column(name = "ID")
-	private String matchId;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+	private String gameId; /* REST API로 받아올 때 필요한 고유한 match id */
 	private long gameDuration;
 	private long gameEndTimestamp;
 	private int queueId;
-	private int season;
+	private int seasonId;
+	private String version;
 
 	@JsonManagedReference
-	@BatchSize(size = 100)
+	@BatchSize(size = 200) /* match 100개 => team 200팀 */
 	@OneToMany(mappedBy = "match", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<Member> members = new ArrayList<>(10);
+	private List<Team> teams = new ArrayList<>(THE_NUMBER_OF_TEAMS);
 
-	public void addMember(Member member) {
-		this.members.add(member);
-	}
-	public void removeMember(Member member) {
-		this.members.remove(member);
-	}
 }

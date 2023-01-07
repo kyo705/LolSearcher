@@ -9,25 +9,12 @@ import java.io.Serializable;
 @Data
 @Entity
 public class Perks implements Serializable {
-    @EmbeddedId
-    MemberCompKey memberCompKey;
 
-    @Column(name = "PERK_STATS_ID")
-    private int perkStatsId;
-
-    @ManyToOne
-    @JoinColumn(name = "PERK_STATS_ID", referencedColumnName = "ID", insertable = false, updatable = false)
-    private PerkStats perkStats;
-
-    @JsonBackReference
-    @OneToOne
-    @MapsId
-    @JoinColumns({
-            @JoinColumn(name = "MATCH_ID", referencedColumnName = "MATCH_ID"),
-            @JoinColumn(name = "NUM", referencedColumnName = "NUM")
-    })
-    private Member member;
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    private long summaryMemberId;
+    private Integer perkStatsId;
     private short mainPerkStyle;
     private short subPerkStyle;
     private short mainPerk1;
@@ -60,8 +47,29 @@ public class Perks implements Serializable {
     private short subPerk2Var2;
     private short subPerk2Var3;
 
-    public void setMember(Member member){
-        this.member = member;
-        member.setPerks(this);
+    @ManyToOne
+    @JoinColumn(name = "perk_stats_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private PerkStats perkStats;
+
+    @JsonBackReference
+    @OneToOne
+    @JoinColumn(name = "summary_member_id", referencedColumnName = "id")
+    private SummaryMember summaryMember;
+
+    public void setSummaryMember(SummaryMember summaryMember) throws IllegalAccessException {
+
+        if(summaryMember.getPerks() != null){
+            throw new IllegalAccessException("이미 연관관계 설정이 된 SummaryMember 객체입니다.");
+        }
+        this.summaryMember = summaryMember;
+        summaryMember.setPerks(this);
+    }
+
+    public void setPerkStats(PerkStats perkStats) throws IllegalAccessException {
+
+        if(this.perkStats != null){
+            throw new IllegalAccessException("이미 PerkStats 값이 설정되었습니다.");
+        }
+        this.perkStats = perkStats;
     }
 }
