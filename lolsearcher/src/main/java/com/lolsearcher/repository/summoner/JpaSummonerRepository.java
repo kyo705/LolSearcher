@@ -39,6 +39,25 @@ public class JpaSummonerRepository implements SummonerRepository {
 	}
 
 	@Override
+	public void updateSummoner(Summoner oldSummoner, Summoner newSummoner) {
+
+		if(oldSummoner.getRevisionDate() == newSummoner.getRevisionDate()){
+			return;
+		}
+		oldSummoner.setRevisionDate(newSummoner.getRevisionDate());
+		oldSummoner.setSummonerName(newSummoner.getSummonerName());
+		oldSummoner.setProfileIconId(newSummoner.getProfileIconId());
+		oldSummoner.setSummonerLevel(newSummoner.getSummonerLevel());
+		oldSummoner.setLastRenewTimeStamp(newSummoner.getLastRenewTimeStamp());
+	}
+
+	@Override
+	public void updateSummonerLastMatchId(Summoner summoner, String lastMatchId) {
+
+		summoner.setLastMatchId(lastMatchId);
+	}
+
+	@Override
 	public void deleteSummoner(Summoner summoner) {
 		String jpql = "DELETE FROM Summoner s WHERE s.id = :id";
 		

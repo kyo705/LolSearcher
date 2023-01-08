@@ -11,8 +11,11 @@ public interface SummonerRepository {
 	Summoner findSummonerById(String summonerId);
 	
 	List<Summoner> findSummonerByName(String summonerName);
+
+	void updateSummoner(Summoner oldSummoner, Summoner newSummoner);
+
+	void updateSummonerLastMatchId(Summoner summoner, String beforeLastMatchId);
 	
 	void deleteSummoner(Summoner summoner);
 
-	
 }

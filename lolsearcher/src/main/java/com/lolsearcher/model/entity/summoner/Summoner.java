@@ -10,14 +10,12 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(indexes = {@Index(columnList = "ID"), @Index(columnList = "summonerName")})
+@Table(indexes = {@Index(columnList = "summoner_id"), @Index(columnList = "summoner_name")})
 public class Summoner {
-	@Id
-	@Column(name = "PRIMARY_ID")
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
 
-	@Column(name = "ID")
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 	private String summonerId;
 	private String accountId;
 	private String puuid;
@@ -27,5 +25,4 @@ public class Summoner {
 	private int profileIconId;
 	private long summonerLevel;
 	private long lastRenewTimeStamp;
-	private long lastInGameSearchTimeStamp;
 }

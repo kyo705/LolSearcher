@@ -3,6 +3,7 @@ package com.lolsearcher.service.summoner;
 import java.util.List;
 
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.model.factory.ResponseDtoFactory;
 import com.lolsearcher.model.request.front.RequestSummonerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,10 +42,10 @@ public class SummonerService {
 		if(dbSummoners.size()==1){
 			dbSummoner = dbSummoners.get(0);
 		} else if(dbSummoners.size() >= 2){
-			dbSummoner = updateIncorrectSummoners(dbSummoners, summonerName);
+			dbSummoner = updateIncorrectNameSummoners(dbSummoners, summonerName);
 
 			if(dbSummoner != null){
-				return getSummonerDto(dbSummoner, true);
+				return ResponseDtoFactory.getSummonerDto(dbSummoner, true);
 			}
 		}
 
@@ -59,78 +60,66 @@ public class SummonerService {
 					summonerRepository.saveSummoner(apiSummoner);
 					dbSummoner = apiSummoner;
 				}else {
-					renewDbSummoner(dbSummoner, apiSummoner);
+					summonerRepository.updateSummoner(dbSummoner, apiSummoner);
 				}
 			}catch (WebClientResponseException e){
-				if(e.getStatusCode() == HttpStatus.BAD_REQUEST && dbSummoner != null) {
-					//해당 계정 닉네임 업데이트
-					Summoner apiSummoner = riotApi.getSummonerById(dbSummoner.getSummonerId());
-
-					renewDbSummoner(dbSummoner, apiSummoner);
-					log.info("소환사 계정 : {} 는 닉네임이 '{}' -> '{}'으로 변경됨",
-							dbSummoner.getSummonerId(), dbSummoner.getSummonerName(), apiSummoner.getSummonerName());
-				}
 				log.error(e.getMessage());
+
+				if(e.getStatusCode() == HttpStatus.BAD_REQUEST && dbSummoner != null) { //dbSummoner의 닉네임에 대한 실제 유저가 존재하지 않는 경우
+					updateIncorrectNameSummoner(dbSummoner);
+				}
 				throw e; /* 갱신된 값은 클라이언트가 요청한 닉네임이 아니기 때문에 갱신만 하고 예외를 발생시킴 */
 			}
 		}
-
-		return getSummonerDto(dbSummoner, renewed);
+		return ResponseDtoFactory.getSummonerDto(dbSummoner, renewed);
 	}
 
 	@JpaTransactional(propagation = Propagation.REQUIRES_NEW)
 	public void rollbackLastMatchId(String summonerId, String beforeLastMatchId) {
 
 		Summoner summoner = summonerRepository.findSummonerById(summonerId);
-
-		summoner.setLastMatchId(beforeLastMatchId);
+		summonerRepository.updateSummonerLastMatchId(summoner, beforeLastMatchId);
 	}
 
-	private Summoner updateIncorrectSummoners(List<Summoner> incorrectSummoners, String wantedSummonerName) {
+	private Summoner updateIncorrectNameSummoners(List<Summoner> incorrectSummoners, String wantedSummonerName) {
 
 		Summoner correctSummoner = null;
 
 		for(Summoner incorrectSummoner : incorrectSummoners) {
-			try {
-				Summoner renewedSummoner = riotApi.getSummonerById(incorrectSummoner.getSummonerId());
-				renewDbSummoner(incorrectSummoner, renewedSummoner);
 
-				if(renewedSummoner.getSummonerName().equals(wantedSummonerName)){
-					correctSummoner = renewedSummoner;
-				}
-			}catch(WebClientResponseException e) {
-				if(e.getStatusCode()==HttpStatus.BAD_REQUEST) {
-					log.error("'{}' 닉네임에 해당하는 유저는 게임 내에 존재하지 않음", incorrectSummoner.getSummonerName());
-					summonerRepository.deleteSummoner(incorrectSummoner);
-				}else {
-					log.error(e.getMessage());
-					throw e;
-				}
+			Summoner updatedSummoner = updateIncorrectNameSummoner(incorrectSummoner, wantedSummonerName);
+			if(updatedSummoner != null){
+				correctSummoner = updatedSummoner;
 			}
 		}
 		return correctSummoner;
 	}
-	
-	
-	private void renewDbSummoner(Summoner before, Summoner after) {
-		before.setRevisionDate(after.getRevisionDate());
-		before.setSummonerName(after.getSummonerName());
-		before.setProfileIconId(after.getProfileIconId());
-		before.setSummonerLevel(after.getSummonerLevel());
-		before.setLastRenewTimeStamp(after.getLastRenewTimeStamp());
+
+	private void updateIncorrectNameSummoner(Summoner dbSummoner){
+		updateIncorrectNameSummoner(dbSummoner, "NOT_WANTED_NAME");
 	}
 
-	private SummonerDto getSummonerDto(Summoner dbSummoner, boolean renewed) {
+	private Summoner updateIncorrectNameSummoner(Summoner dbSummoner, String findSummonerName) {
 
-		return SummonerDto
-				.builder()
-				.summonerId(dbSummoner.getSummonerId())
-				.puuId(dbSummoner.getPuuid())
-				.renewed(renewed)
-				.name(dbSummoner.getSummonerName())
-				.profileIconId(dbSummoner.getProfileIconId())
-				.summonerLevel(dbSummoner.getSummonerLevel())
-				.lastRenewTimeStamp(dbSummoner.getLastRenewTimeStamp())
-				.build();
+		try {
+			Summoner apiSummoner = riotApi.getSummonerById(dbSummoner.getSummonerId());
+
+			summonerRepository.updateSummoner(dbSummoner, apiSummoner);
+			log.info("소환사 계정 : {} 는 닉네임이 '{}' -> '{}'으로 변경됨",
+					dbSummoner.getSummonerId(), dbSummoner.getSummonerName(), apiSummoner.getSummonerName());
+
+			if(apiSummoner.getSummonerName().equals(findSummonerName)){
+				return apiSummoner;
+			}
+		}catch (WebClientResponseException e){
+			if(e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+				log.error("SummonerId : {} 인 유저는 현재 존재하지 않음.", dbSummoner.getSummonerId());
+				summonerRepository.deleteSummoner(dbSummoner);
+				log.info("SummonerId : {} 인 유저 DB에서 삭제 완료", dbSummoner.getSummonerId());
+			}else {
+				log.error(e.getMessage());
+			}
+		}
+		return null;
 	}
 }
