@@ -1,7 +1,7 @@
 package com.lolsearcher.controller.rank;
 
-import com.lolsearcher.model.response.front.rank.TotalRankDtos;
 import com.lolsearcher.model.request.front.RequestRankDto;
+import com.lolsearcher.model.response.front.rank.RankDto;
 import com.lolsearcher.service.rank.RankService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -18,7 +19,7 @@ public class RankController {
     private final RankService rankService;
 
     @PostMapping("/summoner/rank")
-    public TotalRankDtos getRankDto(@RequestBody @Valid RequestRankDto rankInfo){
+    public Map<String, RankDto> getRankDto(@RequestBody @Valid RequestRankDto rankInfo){
 
         String summonerId = rankInfo.getSummonerId();
         boolean renew = rankInfo.isRenew();

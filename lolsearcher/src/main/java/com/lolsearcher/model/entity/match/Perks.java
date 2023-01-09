@@ -12,9 +12,9 @@ public class Perks implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private long summaryMemberId;
-    private Integer perkStatsId;
+    private Long id;
+    private Long summaryMemberId; /* Foreign Key */
+    private Integer perkStatsId; /* Foreign Key */
     private short mainPerkStyle;
     private short subPerkStyle;
     private short mainPerk1;

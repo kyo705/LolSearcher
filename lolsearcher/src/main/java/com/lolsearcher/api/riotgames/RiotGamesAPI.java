@@ -1,29 +1,29 @@
 package com.lolsearcher.api.riotgames;
 
-import java.util.List;
-
-import com.lolsearcher.model.response.front.ingame.InGameDto;
-import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.entity.match.Match;
-import com.lolsearcher.model.entity.rank.Rank;
+import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameDto;
+import com.lolsearcher.model.request.riot.match.RiotGamesTotalMatchDto;
+import com.lolsearcher.model.request.riot.rank.RiotGamesRankDto;
+import com.lolsearcher.model.request.riot.summoner.RiotGamesSummonerDto;
 import reactor.core.publisher.Mono;
 
-public interface RiotGamesAPI {
-	
-	Summoner getSummonerByName(String summonerName);
-	
-	Summoner getSummonerById(String id);
+import java.util.List;
 
-	List<Rank> getLeague(String summonerId);
+public interface RiotGamesAPI {
+
+	RiotGamesSummonerDto getSummonerByName(String summonerName);
+
+	RiotGamesSummonerDto getSummonerById(String id);
+
+	List<RiotGamesRankDto> getLeague(String summonerId);
 	
 	List<String> getAllMatchIds(String puuid, String lastMatchId);
 	
 	List<String> getMatchIds(String puuid, int start, int count, String lastMatchId);
 
-	Mono<Match> getMatchByNonBlocking(String matchId);
+	Mono<RiotGamesTotalMatchDto> getMatchByNonBlocking(String matchId);
 
-	Match getMatchByBlocking(String matchId);
+	RiotGamesTotalMatchDto getMatchByBlocking(String matchId);
 
-	InGameDto getInGameBySummonerId(String summonerId);
+	RiotGamesInGameDto getInGameBySummonerId(String summonerId);
 
 }

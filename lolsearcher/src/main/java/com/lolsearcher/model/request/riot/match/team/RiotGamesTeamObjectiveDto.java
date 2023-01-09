@@ -1,9 +1,11 @@
 package com.lolsearcher.model.request.riot.match.team;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class ObjectiveDto {
+@Getter
+@Setter
+public class RiotGamesTeamObjectiveDto {
     private boolean first;
     private int kills;
 }

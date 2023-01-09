@@ -3,14 +3,18 @@ package com.lolsearcher.service.match;
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.constant.CacheConstants;
-import com.lolsearcher.constant.GameType;
+import com.lolsearcher.constant.LolSearcherConstants;
+import com.lolsearcher.constant.enumeration.GameType;
+import com.lolsearcher.exception.common.IncorrectDataVersionException;
 import com.lolsearcher.model.entity.match.Match;
-import com.lolsearcher.model.entity.match.Member;
+import com.lolsearcher.model.entity.match.SummaryMember;
+import com.lolsearcher.model.entity.match.Team;
 import com.lolsearcher.model.entity.summoner.Summoner;
+import com.lolsearcher.model.factory.EntityFactory;
+import com.lolsearcher.model.factory.ResponseDtoFactory;
 import com.lolsearcher.model.request.front.RequestMatchDto;
+import com.lolsearcher.model.request.riot.match.RiotGamesTotalMatchDto;
 import com.lolsearcher.model.response.front.match.MatchDto;
-import com.lolsearcher.model.response.front.match.ParticipantDto;
-import com.lolsearcher.model.response.front.match.perk.PerksDto;
 import com.lolsearcher.repository.match.MatchRepository;
 import com.lolsearcher.repository.summoner.SummonerRepository;
 import com.lolsearcher.service.producer.FailMatchIdProducerService;
@@ -26,12 +30,10 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 import static com.lolsearcher.constant.BeanNameConstants.FAIL_MATCH_ID_PRODUCER_SERVICE_NAME;
 import static com.lolsearcher.constant.BeanNameConstants.SUCCESS_MATCH_PRODUCER_SERVICE_NAME;
-import static com.lolsearcher.constant.LolSearcherConstants.ALL;
 import static com.lolsearcher.constant.LolSearcherConstants.MATCH_DEFAULT_COUNT;
 import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 
@@ -62,42 +64,52 @@ public class MatchService {
 		}
 
 		String beforeLastMatchId = summoner.getLastMatchId(); //병렬 처리에서 롤백을 위한 값 => 다른 스레드, 다른 트랜잭션이기 때문에 해당 트랜잭션에서 롤백 안됌
-		summoner.setLastMatchId(recentMatchIds.get(0)); //last match id 를 최신 정보로 갱신
+		summonerRepository.updateSummonerLastMatchId(summoner, recentMatchIds.get(0)); //last match id 를 최신 정보로 갱신
 
 		List<Match> successMatches = new ArrayList<>(MATCH_DEFAULT_COUNT);
 		List<String> failMatchIds = new ArrayList<>(recentMatchIds.size());
 
 		int subscribeCount = 0;
 		for(String matchId : recentMatchIds){
+			if(subscribeCount++ >= MATCH_DEFAULT_COUNT){
+				break;
+			}
 			Match cachedMatch = redisCacheManager.getCache(CacheConstants.MATCH_KEY).get(matchId, Match.class);
 
 			if(cachedMatch != null){
 				successMatches.add(cachedMatch);
 				continue;
 			}
+			Mono<RiotGamesTotalMatchDto> matchMono = riotApi.getMatchByNonBlocking(matchId);
 
-			Mono<Match> matchMono = riotApi.getMatchByNonBlocking(matchId);
-
-			matchMono
-					.onErrorResume(e -> {
-						WebClientResponseException webClientResponseException = (WebClientResponseException) e;
-						if(webClientResponseException.getStatusCode() != TOO_MANY_REQUESTS) {
-							throw webClientResponseException;
-						}
+			matchMono.onErrorResume(e -> {
+				if(e instanceof WebClientResponseException){
+					if(((WebClientResponseException) e).getStatusCode() == TOO_MANY_REQUESTS) {
+						log.error("너무 많은 API 요청 시도로 인해 MATCH ID : {} 의 요청이 실패했습니다.", matchId);
 						failMatchIds.add(matchId);
+						return Mono.empty();
+					}
+				}
+				log.error(e.getMessage());
+				throw new RuntimeException(e);
 
-						return Mono.just(null);
-					})
-					.filter(Objects::nonNull)
-					.subscribe(match -> {
-						successMatches.add(match);
+			}).flatMap(riotGamesMatchDto -> {
+				String requestDataVersion = riotGamesMatchDto.getMetadata().getDataVersion();
 
-						redisCacheManager.getCache(CacheConstants.MATCH_KEY).put(match.getMatchId(), match);
-					});
+				if(!requestDataVersion.equals(LolSearcherConstants.MATCH_DATA_VERSION)){
+					throw new IncorrectDataVersionException(requestDataVersion);
+				}
+				try {
+					return Mono.just(EntityFactory.getMatchFromRestApiDto(riotGamesMatchDto));
+				} catch (IllegalAccessException e) {
+					log.error("API 데이터를 Entity 객체로 변환할 수 없음.");
+					throw new RuntimeException(e);
+				}
+			}).subscribe(match -> {
+				successMatches.add(match);
 
-			if(++subscribeCount >= MATCH_DEFAULT_COUNT){
-				break;
-			}
+				redisCacheManager.getCache(CacheConstants.MATCH_KEY).put(match.getId(), match);
+			});
 		}
 
 		waitResponseComplete(recentMatchIds, successMatches, failMatchIds);
@@ -106,7 +118,7 @@ public class MatchService {
 		sendSuccessMatchToKafka(successMatches, matchInfo.getSummonerId(), beforeLastMatchId);
 		sendFailMatchIdToKafka(failMatchIds, matchInfo.getSummonerId(), beforeLastMatchId);
 
-		return getMatchDtoList(successMatches, matchInfo);
+		return getMatchDtos(successMatches, matchInfo);
 	}
 
 
@@ -119,7 +131,7 @@ public class MatchService {
 
 		List<MatchDto> oldMatches = new ArrayList<>(matches.size());
 		for(Match match : matches) {
-			MatchDto matchDto = getMatchDto(match);
+			MatchDto matchDto = ResponseDtoFactory.getResponseMatchDto(match);
 			oldMatches.add(matchDto);
 		}
 		return oldMatches;
@@ -131,7 +143,7 @@ public class MatchService {
 		List<String> matchIds = riotApi.getAllMatchIds(summoner.getPuuid(), summoner.getLastMatchId());
 
 		for(String matchId : matchIds) {
-			if(matchRepository.findMatchById(matchId) == null) {
+			if(matchRepository.findMatchByGameId(matchId) == null) {
 				recentMatchIds.add(matchId);
 			}
 		}
@@ -188,7 +200,7 @@ public class MatchService {
 		}
 	}
 
-	private List<MatchDto> getMatchDtoList(List<Match> successMatches, RequestMatchDto matchInfo) {
+	private List<MatchDto> getMatchDtos(List<Match> successMatches, RequestMatchDto matchInfo) {
 
 		List<MatchDto> recentMatches = new ArrayList<>(matchInfo.getCount());
 
@@ -200,7 +212,7 @@ public class MatchService {
 			if(!isCorrespondWithCondition(successMatch, matchInfo)){
 				continue;
 			}
-			MatchDto matchDto = getMatchDto(successMatch);
+			MatchDto matchDto = ResponseDtoFactory.getResponseMatchDto(successMatch);
 			recentMatches.add(matchDto);
 
 			size--;
@@ -212,39 +224,25 @@ public class MatchService {
 
 		String summonerId = matchInfo.getSummonerId();
 		int queueId = matchInfo.getQueueId();
-		String championId = matchInfo.getChampionId();
+		int championId = matchInfo.getChampionId();
 
 		if(successMatch.getQueueId() != queueId && queueId != GameType.ALL_QUEUE_ID.getQueueId()){
 			return false;
 		}
-		if(championId.equals(ALL)){
+		if(championId == -1){
 			return true;
 		}
-		for(Member member : successMatch.getMembers()){
-			if(!member.getSummonerId().equals(summonerId)){
-				continue;
-			}
-			if(member.getChampionName().equals(championId)){
-				return true;
+
+		for(Team team : successMatch.getTeams()){
+			for(SummaryMember member : team.getMembers()){
+				if(!member.getSummonerId().equals(summonerId)){
+					continue;
+				}
+				if(member.getPickChampionId() == championId){
+					return true;
+				}
 			}
 		}
 		return false;
-	}
-
-	private MatchDto getMatchDto(Match successMatch) {
-		MatchDto matchDto = new MatchDto(successMatch);
-		List<ParticipantDto> members = new ArrayList<>();
-
-		for(Member member : successMatch.getMembers()){
-			ParticipantDto participantDto = new ParticipantDto(member);
-
-			PerksDto perksDto = new PerksDto(member.getPerks());
-			participantDto.setPerksDto(perksDto);
-
-			members.add(participantDto);
-		}
-		matchDto.setMembers(members);
-
-		return matchDto;
 	}
 }

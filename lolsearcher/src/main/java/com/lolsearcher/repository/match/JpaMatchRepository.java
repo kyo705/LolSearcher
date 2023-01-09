@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NonUniqueResultException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -14,78 +15,95 @@ public class JpaMatchRepository implements MatchRepository {
     private final EntityManager em;
 
     @Override
-    public Match findMatchById(String matchId) {
-        return em.find(Match.class, matchId);
-    }
-
-    @Override
     public void saveMatch(Match match) {
-        if(em.find(Match.class, match.getMatchId())==null) {
+        if(em.find(Match.class, match.getId())==null) {
             em.persist(match);
         }
     }
 
     @Override
-    public List<Match> findMatches(String summonerId, int gameType, String champion, int count) {
-        List<Match> matchList;
-        if(gameType==-1) {
-            if(champion.equals("all")) {
+    public Match findMatchByGameId(String matchId) {
+
+        String jpql = "SELECT m FROM Match m WHERE m.gameId = :matchId";
+
+        List<Match> matches = em.createQuery(jpql, Match.class)
+                .setParameter("matchId", matchId)
+                .getResultList();
+
+        if(matches.size() == 0){
+            return null;
+        }
+        if(matches.size() == 1){
+            return matches.get(0);
+        }
+        throw new NonUniqueResultException();
+    }
+
+    @Override
+    public List<Match> findMatches(String summonerId, int queueId, int championId, int count) {
+
+        if(queueId==-1) {
+            if(championId == -1) {
 
                 String jpql = "SELECT DISTINCT m FROM Match m "
-                        + "WHERE m.matchId IN "
-                        + "(SELECT DISTINCT t.ck.matchId FROM Member t WHERE t.summonerId = :summonerId) "
+                        + "INNER JOIN Team t ON m.id = t.matchId "
+                        + "INNER JOIN SummaryMember s ON t.id = s.teamId "
+                        + "WHERE s.summonerId = :summonerId"
                         + "ORDER BY m.gameEndTimestamp DESC";
 
-                matchList = em.createQuery(jpql, Match.class)
+                return em.createQuery(jpql, Match.class)
                         .setParameter("summonerId", summonerId)
                         .setFirstResult(0)
                         .setMaxResults(count)
                         .getResultList();
             }else {
-                String jpql = "SELECT DISTINCT m FROM Match m "
-                        + "WHERE m.matchId IN "
-                        + "(SELECT DISTINCT t.ck.matchId from Member t "
-                        + "WHERE t.summonerId = :summonerId AND t.championId = :championId) "
+
+                String jpql = "SELECT m FROM Match m "
+                        + "INNER JOIN Team t ON m.id = t.matchId "
+                        + "INNER JOIN SummaryMember s ON t.id = s.teamId "
+                        + "WHERE s.summonerId = :summonerId AND s.championId = :championId"
                         + "ORDER BY m.gameEndTimestamp DESC";
 
-                matchList = em.createQuery(jpql, Match.class)
+                return em.createQuery(jpql, Match.class)
                         .setParameter("summonerId", summonerId)
-                        .setParameter("championId", champion)
+                        .setParameter("championId", championId)
                         .setFirstResult(0)
                         .setMaxResults(count)
                         .getResultList();
             }
         }else {
-            if(champion.equals("all")) {
-                String jpql = "SELECT DISTINCT m FROM Match m "
-                        + "WHERE m.queueId = :queueId AND m.matchId IN "
-                        + "(SELECT DISTINCT t.ck.matchId from Member t where t.summonerId = :summonerId) "
+            if(championId == -1) {
+
+                String jpql = "SELECT m FROM Match m "
+                        + "INNER JOIN Team t ON m.id = t.matchId "
+                        + "INNER JOIN SummaryMember s ON t.id = s.teamId "
+                        + "WHERE s.summonerId = :summonerId AND m.queueId = :queueId"
                         + "ORDER BY m.gameEndTimestamp DESC";
 
-                matchList = em.createQuery(jpql, Match.class)
+                return em.createQuery(jpql, Match.class)
                         .setParameter("summonerId", summonerId)
-                        .setParameter("queueId", gameType)
+                        .setParameter("queueId", queueId)
                         .setFirstResult(0)
                         .setMaxResults(count)
                         .getResultList();
 
             }else {
-                String jpql = "SELECT DISTINCT m FROM Match m "
-                        + "WHERE m.queueId = :queueId AND m.matchId IN "
-                        + "(SELECT DISTINCT t.ck.matchId from Member t "
-                        + "WHERE t.championId = :championId AND t.summonerId = :summonerId) "
+
+                String jpql = "SELECT m FROM Match m "
+                        + "INNER JOIN Team t ON m.id = t.matchId "
+                        + "INNER JOIN SummaryMember s ON t.id = s.teamId "
+                        + "WHERE s.summonerId = :summonerId AND s.championId = :championId AND m.queueId = :queueId"
                         + "ORDER BY m.gameEndTimestamp DESC";
 
-                matchList = em.createQuery(jpql, Match.class)
+                return em.createQuery(jpql, Match.class)
                         .setParameter("summonerId", summonerId)
-                        .setParameter("championId", champion)
-                        .setParameter("queueId", gameType)
+                        .setParameter("championId", championId)
+                        .setParameter("queueId", queueId)
                         .setFirstResult(0)
                         .setMaxResults(count)
                         .getResultList();
             }
         }
-        return matchList;
     }
 
     @Override

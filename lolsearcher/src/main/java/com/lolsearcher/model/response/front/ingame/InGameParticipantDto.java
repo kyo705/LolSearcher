@@ -9,11 +9,9 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @Data
-public class CurrentGameParticipantDto implements Serializable {
-	
-	private int num;
+public class InGameParticipantDto implements Serializable {
+
 	private long championId;
-	private PerksDto perks;
 	private long profileIconId;
 	private boolean bot;
 	private long teamId;
@@ -21,5 +19,6 @@ public class CurrentGameParticipantDto implements Serializable {
 	private String summonerId;
 	private long spell1Id;
 	private long spell2Id;
+	private InGamePerksDto perks;
 
 }

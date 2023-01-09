@@ -3,8 +3,10 @@ package com.lolsearcher.service.summoner;
 import java.util.List;
 
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.model.factory.EntityFactory;
 import com.lolsearcher.model.factory.ResponseDtoFactory;
 import com.lolsearcher.model.request.front.RequestSummonerDto;
+import com.lolsearcher.model.request.riot.summoner.RiotGamesSummonerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -54,7 +56,8 @@ public class SummonerService {
 
 			renewed = true;
 			try{
-				Summoner apiSummoner = riotApi.getSummonerByName(summonerName);
+				RiotGamesSummonerDto apiSummonerDto = riotApi.getSummonerByName(summonerName);
+				Summoner apiSummoner = EntityFactory.getSummonerFromRestApiDto(apiSummonerDto);
 
 				if(dbSummoner == null){
 					summonerRepository.saveSummoner(apiSummoner);
@@ -102,7 +105,8 @@ public class SummonerService {
 	private Summoner updateIncorrectNameSummoner(Summoner dbSummoner, String findSummonerName) {
 
 		try {
-			Summoner apiSummoner = riotApi.getSummonerById(dbSummoner.getSummonerId());
+			RiotGamesSummonerDto apiSummonerDto = riotApi.getSummonerById(dbSummoner.getSummonerId());
+			Summoner apiSummoner = EntityFactory.getSummonerFromRestApiDto(apiSummonerDto);
 
 			summonerRepository.updateSummoner(dbSummoner, apiSummoner);
 			log.info("소환사 계정 : {} 는 닉네임이 '{}' -> '{}'으로 변경됨",

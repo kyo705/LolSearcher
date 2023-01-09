@@ -12,18 +12,18 @@ public class SummaryMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) /* mariaDB 사용중 */
-    private long id;
-    private long teamId;
+    private Long id;
+    private Long teamId; /* Foreign Key */
     private String summonerId;
     private int banChampionId;
     private int pickChampionId;
-    private String position;
+    private short positionId;
     private short championLevel; /* level : 1 ~ 18 */
     private short minionKills; /* lineMinionKills + NeutralMinionKills */
     private short kills;
     private short deaths;
     private short assists;
-    private short item0;  /* item 리스트(item0 ~ item6)를 반정규화한 이유 : 1 게임당 70개의 레코드 발생, 아이템의 순서가 중요 */
+    private short item0;  /* item 리스트(item0 ~ item6)를 반정규화한 이유 : 아이템의 순서가 중요 */
     private short item1;
     private short item2;
     private short item3;
@@ -41,10 +41,7 @@ public class SummaryMember {
 
     @BatchSize(size = 100)
     @ManyToOne
-    @JoinColumn(
-            name = "team_id" /* 현재 테이블의 컬럼 이름을 지정하는 속성값 */,
-            referencedColumnName = "id" /* join할 테이블의 컬럼명을 선택하는 속성값 */
-    )
+    @JoinColumn(name = "team_id", referencedColumnName = "id")
     private Team team;
 
     public void setTeam(Team team) throws IllegalAccessException {

@@ -23,8 +23,8 @@ public class InGameDto implements Serializable {
 	private long gameLength;
 	private String platformId;
 	private String gameMode;
-	private List<BannedChampionDto> bannedChampions = new ArrayList<>();
+	private List<InGameBannedChampionDto> bannedChampions = new ArrayList<>();
 	private long gameQueueConfigId;
-	private List<CurrentGameParticipantDto> participants = new ArrayList<>();
+	private List<InGameParticipantDto> participants = new ArrayList<>();
 }
 

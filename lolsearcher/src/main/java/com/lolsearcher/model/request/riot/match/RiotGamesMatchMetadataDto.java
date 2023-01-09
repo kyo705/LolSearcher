@@ -1,11 +1,13 @@
 package com.lolsearcher.model.request.riot.match;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-@Data
-public class MatchMetadataDto {
+@Getter
+@Setter
+public class RiotGamesMatchMetadataDto {
     private String dataVersion;
     private String matchId;
     private List<String> participants;

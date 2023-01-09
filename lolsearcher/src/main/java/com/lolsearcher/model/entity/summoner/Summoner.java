@@ -15,7 +15,7 @@ public class Summoner {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 	private String summonerId;
 	private String accountId;
 	private String puuid;

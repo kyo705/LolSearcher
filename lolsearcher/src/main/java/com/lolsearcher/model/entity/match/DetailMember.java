@@ -10,8 +10,8 @@ public class DetailMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private long summaryMemberId; /* Foreign Key */
+    private Long id;
+    private Long summaryMemberId; /* Foreign Key */
     private int goldEarned;
     private int goldSpent;
     private int totalDamageDealt;

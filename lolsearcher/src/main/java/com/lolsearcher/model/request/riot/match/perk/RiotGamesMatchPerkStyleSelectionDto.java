@@ -1,9 +1,11 @@
 package com.lolsearcher.model.request.riot.match.perk;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class PerkStyleSelectionDto {
+@Getter
+@Setter
+public class RiotGamesMatchPerkStyleSelectionDto {
 	private short perk;
 	private short var1;
 	private short var2;

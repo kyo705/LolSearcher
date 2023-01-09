@@ -1,12 +1,14 @@
 package com.lolsearcher.model.request.riot.match;
 
-import com.lolsearcher.model.request.riot.match.team.TeamDto;
-import lombok.Data;
+import com.lolsearcher.model.request.riot.match.team.RiotGamesTeamDto;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-@Data
-public class MatchDto {
+@Getter
+@Setter
+public class RiotGamesMatchDto {
     private long gameCreation;
     private long gameDuration;
     private long gameEndTimestamp;
@@ -17,9 +19,9 @@ public class MatchDto {
     private String gameType;
     private String gameVersion;
     private int mapId;
-    private List<ParticipantDto>  participants;
+    private List<RiotGamesParticipantDto>  participants;
     private String platformId;
     private int queueId;
-    private List<TeamDto> teams;
+    private List<RiotGamesTeamDto> teams;
     private String tournamentCode;
 }
