@@ -7,13 +7,12 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(indexes = {@Index(columnList = "summoner_id")})
+@Table(indexes = {@Index(columnList = "summonerId")})
 public class SummaryMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) /* mariaDB 사용중 */
     private Long id;
-    private Long teamId; /* Foreign Key */
     private String summonerId;
     private int banChampionId;
     private int pickChampionId;
@@ -32,7 +31,7 @@ public class SummaryMember {
     private short item6;
 
     @BatchSize(size = 1000)
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "summaryMember", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Perks perks;  /* 해당 게임의 특정 유저가 선택한 스펠, 룬 특성 */
 
     @BatchSize(size = 1000)
@@ -41,7 +40,7 @@ public class SummaryMember {
 
     @BatchSize(size = 100)
     @ManyToOne
-    @JoinColumn(name = "team_id", referencedColumnName = "id")
+    @JoinColumn(name = "teamId", referencedColumnName = "id")
     private Team team;
 
     public void setTeam(Team team) throws IllegalAccessException {

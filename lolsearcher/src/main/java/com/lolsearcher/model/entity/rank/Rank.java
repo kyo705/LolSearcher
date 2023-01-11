@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Builder
 @Data
 @Entity
-@Table(name = "ranks", indexes = {@Index(columnList = "summoner_id, season_id, queue_type", unique = true)})
+@Table(name = "ranks", indexes = {@Index(columnList = "summonerId, seasonId, queueType", unique = true)})
 public class Rank {
 
 	@Id

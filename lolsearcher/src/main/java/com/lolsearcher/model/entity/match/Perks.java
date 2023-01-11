@@ -13,8 +13,6 @@ public class Perks implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long summaryMemberId; /* Foreign Key */
-    private Integer perkStatsId; /* Foreign Key */
     private short mainPerkStyle;
     private short subPerkStyle;
     private short mainPerk1;
@@ -48,12 +46,12 @@ public class Perks implements Serializable {
     private short subPerk2Var3;
 
     @ManyToOne
-    @JoinColumn(name = "perk_stats_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "perkStatsId", referencedColumnName = "id", insertable = false, updatable = false)
     private PerkStats perkStats;
 
     @JsonBackReference
     @OneToOne
-    @JoinColumn(name = "summary_member_id", referencedColumnName = "id")
+    @JoinColumn(name = "summaryMemberId", referencedColumnName = "id")
     private SummaryMember summaryMember;
 
     public void setSummaryMember(SummaryMember summaryMember) throws IllegalAccessException {

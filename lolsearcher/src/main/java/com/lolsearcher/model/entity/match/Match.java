@@ -15,7 +15,7 @@ import static com.lolsearcher.constant.LolSearcherConstants.THE_NUMBER_OF_TEAMS;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "MATCHES", indexes = {@Index(columnList = "game_id", unique = true)})
+@Table(name = "MATCHES", indexes = {@Index(columnList = "matchId", unique = true)})
 public class Match implements Serializable {
 
 	@Id

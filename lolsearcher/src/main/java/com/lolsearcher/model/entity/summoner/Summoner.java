@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(indexes = {@Index(columnList = "summoner_id"), @Index(columnList = "summoner_name")})
+@Table(indexes = {@Index(columnList = "summonerId"), @Index(columnList = "summonerName")})
 public class Summoner {
 
 	@Id

@@ -18,15 +18,13 @@ public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private Long matchId; /* Foreign Key */
     @Column(scale = 3)
     private byte gameResult;    /*  0 : win,  1 : loss,  2 : draw  */
     private short teamPositionId; /* 100 : red, 200 : blue */
 
     @BatchSize(size = 100)
     @ManyToOne
-    @JoinColumn(name = "match_id", referencedColumnName = "id")
+    @JoinColumn(name = "matchId", referencedColumnName = "id")
     private Match match;
 
     @BatchSize(size = 1000)

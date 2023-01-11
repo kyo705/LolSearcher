@@ -11,7 +11,6 @@ public class DetailMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long summaryMemberId; /* Foreign Key */
     private int goldEarned;
     private int goldSpent;
     private int totalDamageDealt;
@@ -27,7 +26,7 @@ public class DetailMember {
     private short wardsPlaced;
 
     @OneToOne
-    @JoinColumn(name = "summary_member_id", referencedColumnName = "id")
+    @JoinColumn(name = "summaryMemberId", referencedColumnName = "id")
     private SummaryMember summaryMember;
 
     public void setSummaryMember(SummaryMember summaryMember) throws IllegalAccessException {

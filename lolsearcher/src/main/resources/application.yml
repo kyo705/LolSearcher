@@ -12,10 +12,10 @@ spring:
     hikari:
       maximum-pool-size: 25
       connection-timeout: 3000
-    driver-class-name: org.h2.Driver #org.mariadb.jdbc.Driver
-    url: jdbc:h2:mem:testdb #${datasource.url}
-    username: sa #${datasource.username}
-    password: #${datasource.password}
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${datasource.url}
+    username: ${datasource.username}
+    password: ${datasource.password}
   jpa:
     show-sql: true
     hibernate:
@@ -61,6 +61,12 @@ lolsearcher:
     ttl:
       ingame: 120 # 2min
       match: 1440 # 1day
+      search-ban: 1440 # 1day
+      search-abusing: 3600 # 1hour
+      login-ban: 300 # 5min
+      login-abusing: 300 # 5min
+      champions: 0 #eternal
+      join-certification: 300 #5min
   kafka:
     topics:
       fail_match_id:
