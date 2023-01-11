@@ -14,8 +14,7 @@ public class TimeTraceAop {
 	private  final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Around("execution(* com.lolsearcher..*(..)) "
-			+ "&& !target(com.lolsearcher.configuration.LolSearcherConfig) "
-			+ "&& !target(com.lolsearcher.configuration.security.SecurityConfig) ")
+			+ "&& !target(com.lolsearcher.configuration.LolSearcherConfig) ")
 	public Object execute(ProceedingJoinPoint joinpoint) throws Throwable {
 		long start = System.currentTimeMillis();
 		log.info("START : '{}'", joinpoint.toShortString());

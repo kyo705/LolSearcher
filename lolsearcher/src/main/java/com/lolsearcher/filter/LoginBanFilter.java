@@ -2,7 +2,6 @@ package com.lolsearcher.filter;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +13,6 @@ import static com.lolsearcher.constant.UriConstants.LOGIN_URI;
 import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
-@Component
 public class LoginBanFilter implements Filter {
 
 	private final CacheManager cacheManager;

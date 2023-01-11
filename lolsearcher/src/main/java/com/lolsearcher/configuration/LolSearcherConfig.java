@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -48,6 +47,7 @@ public class LolSearcherConfig {
 	public PlatformTransactionManager jpaTransactionManager(EntityManagerFactory entityManagerFactory) {
 		JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
 		jpaTransactionManager.setEntityManagerFactory(entityManagerFactory);
+
 		return jpaTransactionManager;
 	}
 
@@ -55,16 +55,9 @@ public class LolSearcherConfig {
 	public ExecutorService matchSavingThreadPool() {
 		return Executors.newFixedThreadPool(54);
 	}
-	
-	//-------------------- 시큐리티 관련 @bean 등록 ----------------------------
-	
+
 	@Bean
 	public BCryptPasswordEncoder encodePwd() {
 		return new BCryptPasswordEncoder();
 	}
-	@Bean
-	public HttpSessionEventPublisher httpSessionEventPublisher() {
-	    return new HttpSessionEventPublisher();
-	}
-
 }
