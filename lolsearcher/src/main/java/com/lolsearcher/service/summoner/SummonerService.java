@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import com.lolsearcher.model.factory.EntityFactory;
-import com.lolsearcher.model.factory.ResponseDtoFactory;
+import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
 import com.lolsearcher.model.request.front.RequestSummonerDto;
 import com.lolsearcher.model.request.riot.summoner.RiotGamesSummonerDto;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class SummonerService {
 			dbSummoner = updateIncorrectNameSummoners(dbSummoners, summonerName);
 
 			if(dbSummoner != null){
-				return ResponseDtoFactory.getSummonerDto(dbSummoner, true);
+				return FrontServerResponseDtoFactory.getSummonerDto(dbSummoner, true);
 			}
 		}
 
@@ -74,7 +74,7 @@ public class SummonerService {
 				throw e; /* 갱신된 값은 클라이언트가 요청한 닉네임이 아니기 때문에 갱신만 하고 예외를 발생시킴 */
 			}
 		}
-		return ResponseDtoFactory.getSummonerDto(dbSummoner, renewed);
+		return FrontServerResponseDtoFactory.getSummonerDto(dbSummoner, renewed);
 	}
 
 	@JpaTransactional(propagation = Propagation.REQUIRES_NEW)

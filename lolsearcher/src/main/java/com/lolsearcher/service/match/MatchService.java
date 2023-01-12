@@ -11,7 +11,7 @@ import com.lolsearcher.model.entity.match.SummaryMember;
 import com.lolsearcher.model.entity.match.Team;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.factory.EntityFactory;
-import com.lolsearcher.model.factory.ResponseDtoFactory;
+import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
 import com.lolsearcher.model.request.front.RequestMatchDto;
 import com.lolsearcher.model.request.riot.match.RiotGamesTotalMatchDto;
 import com.lolsearcher.model.response.front.match.MatchDto;
@@ -107,18 +107,23 @@ public class MatchService {
 				}
 			}).subscribe(match -> {
 				successMatches.add(match);
-
 				redisCacheManager.getCache(CacheConstants.MATCH_KEY).put(match.getId(), match);
 			});
 		}
 
 		waitResponseComplete(recentMatchIds, successMatches, failMatchIds);
 
+		List<MatchDto> matchDtos = getMatchDtos(successMatches, matchInfo);
 		//카프카에 데이터 저장하는 로직 => 멀티 스레드로 병렬 처리
-		sendSuccessMatchToKafka(successMatches, matchInfo.getSummonerId(), beforeLastMatchId);
-		sendFailMatchIdToKafka(failMatchIds, matchInfo.getSummonerId(), beforeLastMatchId);
+		for(Match successMatch : successMatches){
+			matchRepository.saveMatch(successMatch);
+		}
 
-		return getMatchDtos(successMatches, matchInfo);
+
+		//sendSuccessMatchToKafka(successMatches, matchInfo.getSummonerId(), beforeLastMatchId);
+		//sendFailMatchIdToKafka(failMatchIds, matchInfo.getSummonerId(), beforeLastMatchId);
+
+		return matchDtos;
 	}
 
 
@@ -131,7 +136,7 @@ public class MatchService {
 
 		List<MatchDto> oldMatches = new ArrayList<>(matches.size());
 		for(Match match : matches) {
-			MatchDto matchDto = ResponseDtoFactory.getResponseMatchDto(match);
+			MatchDto matchDto = FrontServerResponseDtoFactory.getResponseMatchDto(match);
 			oldMatches.add(matchDto);
 		}
 		return oldMatches;
@@ -212,7 +217,7 @@ public class MatchService {
 			if(!isCorrespondWithCondition(successMatch, matchInfo)){
 				continue;
 			}
-			MatchDto matchDto = ResponseDtoFactory.getResponseMatchDto(successMatch);
+			MatchDto matchDto = FrontServerResponseDtoFactory.getResponseMatchDto(successMatch);
 			recentMatches.add(matchDto);
 
 			size--;

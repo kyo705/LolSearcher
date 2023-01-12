@@ -1,21 +1,23 @@
 package com.lolsearcher.model.factory;
 
 import com.lolsearcher.model.entity.match.*;
+import com.lolsearcher.model.entity.mostchamp.MostChampStat;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameBannedChampionDto;
-import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameParticipantDto;
 import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameDto;
+import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameParticipantDto;
 import com.lolsearcher.model.request.riot.ingame.RiotGamesInGamePerksDto;
 import com.lolsearcher.model.response.front.ingame.InGameBannedChampionDto;
-import com.lolsearcher.model.response.front.ingame.InGameParticipantDto;
 import com.lolsearcher.model.response.front.ingame.InGameDto;
+import com.lolsearcher.model.response.front.ingame.InGameParticipantDto;
 import com.lolsearcher.model.response.front.ingame.InGamePerksDto;
 import com.lolsearcher.model.response.front.match.*;
+import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
 import com.lolsearcher.model.response.front.rank.RankDto;
 import com.lolsearcher.model.response.front.summoner.SummonerDto;
 
-public class ResponseDtoFactory {
+public class FrontServerResponseDtoFactory {
 
     public static SummonerDto getSummonerDto(Summoner summoner, boolean renewed) {
 

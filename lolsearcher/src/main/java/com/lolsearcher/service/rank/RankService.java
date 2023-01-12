@@ -6,11 +6,12 @@ import com.lolsearcher.exception.rank.IncorrectSummonerRankSizeException;
 import com.lolsearcher.exception.rank.NonUniqueRankTypeException;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.factory.EntityFactory;
-import com.lolsearcher.model.factory.ResponseDtoFactory;
+import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
 import com.lolsearcher.model.request.riot.rank.RiotGamesRankDto;
 import com.lolsearcher.model.response.front.rank.RankDto;
 import com.lolsearcher.repository.rank.RankRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 import static com.lolsearcher.constant.LolSearcherConstants.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class RankService {
@@ -37,7 +39,7 @@ public class RankService {
 			throw new IncorrectSummonerRankSizeException(ranks.size());
 		}
 		for(Rank rank : ranks){
-			RankDto rankDto = ResponseDtoFactory.getRankDto(rank);
+			RankDto rankDto = FrontServerResponseDtoFactory.getRankDto(rank);
 
 			if(rankDtos.containsKey(rankDto.getQueueType())){
 				throw new NonUniqueRankTypeException(rankDto.getQueueType()); /* 가져온 두 개 이하의 데이터 중 중복타입이 있으면 안됌 */
@@ -61,7 +63,7 @@ public class RankService {
 			Rank apiRank = EntityFactory.getRankFromRestApiDto(apiRankDto);
 			rankRepository.saveRank(apiRank);
 
-			RankDto rankDto = ResponseDtoFactory.getRankDto(apiRank);
+			RankDto rankDto = FrontServerResponseDtoFactory.getRankDto(apiRank);
 			if(rankDtos.containsKey(rankDto.getQueueType())){
 				throw new NonUniqueRankTypeException(rankDto.getQueueType()); /* 가져온 두 개 이하의 데이터 중 중복타입이 있으면 안됌 */
 			}

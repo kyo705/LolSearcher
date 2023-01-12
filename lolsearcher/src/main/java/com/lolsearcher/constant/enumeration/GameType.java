@@ -1,4 +1,4 @@
-package com.lolsearcher.constant;
+package com.lolsearcher.constant.enumeration;
 
 import lombok.Getter;
 

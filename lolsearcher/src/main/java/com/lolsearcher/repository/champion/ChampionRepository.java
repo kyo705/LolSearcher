@@ -6,12 +6,12 @@ import com.lolsearcher.model.entity.champion.position.ChampPosition;
 import com.lolsearcher.model.entity.champion.enemy.ChampEnemy;
 import com.lolsearcher.model.entity.champion.item.ChampItem;
 
-public interface ChampionReository {
+public interface ChampionRepository {
 
-	List<ChampPosition> findChampPositions(String position);
+	List<ChampPosition> findChampPositions(int positionId);
 
-	List<ChampItem> findChampItems(String champion);
+	List<ChampItem> findChampItems(int championId);
 
-	List<ChampEnemy> findChampEnemies(String champion);
+	List<ChampEnemy> findChampEnemies(int championId);
 
 }

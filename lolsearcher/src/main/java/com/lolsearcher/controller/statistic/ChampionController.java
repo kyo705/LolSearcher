@@ -1,5 +1,6 @@
 package com.lolsearcher.controller.statistic;
 
+import com.lolsearcher.constant.enumeration.PositionStatus;
 import com.lolsearcher.exception.champion.NoExistChampionException;
 import com.lolsearcher.exception.champion.NoExistPositionException;
 import com.lolsearcher.model.response.front.championstatic.ChampPositionDto;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 import static com.lolsearcher.constant.CacheConstants.CHAMPION_LIST_KEY;
-import static com.lolsearcher.constant.LolSearcherConstants.*;
 import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
@@ -27,39 +27,47 @@ public class ChampionController {
 	@PostMapping(path = "/champions")
 	public List<ChampPositionDto> getChampions(@RequestBody(required = false) String position) {
 
-		String validPosition = validatePosition(position);
+		int validPositionId = validatePosition(position);
 		
-		return championService.getChampions(validPosition);
+		return championService.getChampions(validPositionId);
 	}
 
 	@PostMapping(path = "/champions/detail")
-	public TotalChampStatDto championDetail(@RequestBody String champion) {
+	public TotalChampStatDto championDetail(@RequestBody String championName) {
 
-		String validChampionId = validateChampionId(champion);
+		int validChampionId = validateChampionId(championName);
 		
 		return championService.getChampionDetail(validChampionId);
 	}
 
-	public String validatePosition(String position) {
+	public int validatePosition(String position) {
 
 		if(position==null || position.equals("")) {
-			return TOP;
+			return PositionStatus.TOP.getId();
 		}
-		if(position.equals(TOP)||
-				position.equals(JUNGLE)||
-				position.equals(MIDDLE)||
-				position.equals(BOTTOM)||
-				position.equals(UTILITY)
-		) {
-			return position;
+		if(position.equals(PositionStatus.TOP.getName())){
+			return PositionStatus.TOP.getId();
+		}
+		if(position.equals(PositionStatus.JUNGLE.getName())){
+			return PositionStatus.JUNGLE.getId();
+		}
+		if(position.equals(PositionStatus.MIDDLE.getName())){
+			return PositionStatus.MIDDLE.getId();
+		}
+		if(position.equals(PositionStatus.BOTTOM.getName())){
+			return PositionStatus.BOTTOM.getId();
+		}
+		if(position.equals(PositionStatus.UTILITY.getName())){
+			return PositionStatus.UTILITY.getId();
 		}
 		throw new NoExistPositionException(position);
 	}
 
-	public String validateChampionId(String championId) {
+	public int validateChampionId(String championName) {
 
-		if(requireNonNull(cacheManager.getCache(CHAMPION_LIST_KEY)).get(championId)==null){
-			throw new NoExistChampionException(championId);
+		Integer championId = (Integer)(requireNonNull(requireNonNull(cacheManager.getCache(CHAMPION_LIST_KEY)).get(championName)).get());
+		if(championId==null){
+			throw new NoExistChampionException(championName);
 		}
 		return championId;
 	}

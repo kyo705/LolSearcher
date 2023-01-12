@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class MostChampDto {
-	private String championId;
+public class ResponseMostChampDto {
+	private int championId;
 	private double avgCs;
 	private double avgKill;
 	private double avgDeath;

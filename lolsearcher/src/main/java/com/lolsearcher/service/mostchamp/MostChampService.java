@@ -20,10 +20,11 @@ public class MostChampService {
 	private final MostChampRepository mostChampRepository;
 
 	@JpaTransactional(readOnly = true)
-	public List<MostChampDto> getMostChamps(RequestMostChampDto mostChampInfo) {
+	public List<ResponseMostChampDto> getMostChamps(RequestMostChampDto mostChampInfo) {
+
 		String summonerId = mostChampInfo.getSummonerId();
-		int queueId = mostChampInfo.getGameQueue();
-		int seasonId = mostChampInfo.getSeason();
+		int queueId = mostChampInfo.getQueueId();
+		int seasonId = mostChampInfo.getSeasonId();
 		
 		List<MostChampDto> mostChamps = new ArrayList<>(MOST_CHAMP_LIMITED_COUNT);
 		

@@ -1,12 +1,12 @@
 package com.lolsearcher.controller.opnapi;
 
+import com.lolsearcher.model.factory.OpenApiResponseDtoFactory;
 import com.lolsearcher.model.response.front.match.MatchDto;
-import com.lolsearcher.model.response.front.rank.RankDto;
-import com.lolsearcher.model.response.openapi.ResponseSummonerDto;
+import com.lolsearcher.model.response.openapi.OpenApiRankDto;
+import com.lolsearcher.model.response.openapi.OpenApiSummonerDto;
 import com.lolsearcher.service.openapi.RestApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
@@ -26,68 +26,53 @@ public class RestApiController {
 	//-------------------------------- Retrieve Method ----------------------------------
 	
 	@GetMapping("/summoner/id/{id}")
-	ResponseEntity<ResponseSummonerDto> getOneSummonerById(@PathVariable("id") String id){
-		ResponseSummonerDto summoner = restApiService.getSummonerById(id);
+	ResponseEntity<OpenApiSummonerDto> getOneSummonerById(@PathVariable("id") String id){
+		OpenApiSummonerDto summoner = restApiService.getSummonerById(id);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/summoner-by-id.html; rel=\"profile\"");
 		
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.headers(headers)
-				.body(summoner);
+		return OpenApiResponseDtoFactory.getResponseEntity(headers, summoner);
 	}
 	
 	@GetMapping("/summoner/name/{name}")
-	ResponseEntity<ResponseSummonerDto> getOneSummonerByName(@PathVariable("name") String name){
-		ResponseSummonerDto summoner = restApiService.getSummonerByName(name);
+	ResponseEntity<OpenApiSummonerDto> getOneSummonerByName(@PathVariable("name") String name){
+		OpenApiSummonerDto summoner = restApiService.getSummonerByName(name);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/summoner-by-name.html; rel=\"profile\"");
-		
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.headers(headers)
-				.body(summoner);
+
+		return OpenApiResponseDtoFactory.getResponseEntity(headers, summoner);
 	}
 	
 	@GetMapping("/summoner/id/{id}/rank/solo/season/22")
-	ResponseEntity<RankDto> getSoloRankById(@PathVariable("id") String id){
-		RankDto rank = restApiService.getRankById(id, SOLO_RANK, CURRENT_SEASON_ID);
+	ResponseEntity<OpenApiRankDto> getSoloRankById(@PathVariable("id") String id){
+		OpenApiRankDto rank = restApiService.getRankById(id, SOLO_RANK, CURRENT_SEASON_ID);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/solorank.html; rel=\"profile\"");
-		
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.headers(headers)
-				.body(rank);
+
+		return OpenApiResponseDtoFactory.getResponseEntity(headers, rank);
 	}
 	
 	@GetMapping("/summoner/id/{id}/rank/flex/season/22")
-	ResponseEntity<RankDto> getFlexRankById(@PathVariable("id") String id){
-		RankDto rank = restApiService.getRankById(id, FLEX_RANK, CURRENT_SEASON_ID);
+	ResponseEntity<OpenApiRankDto> getFlexRankById(@PathVariable("id") String id){
+		OpenApiRankDto rank = restApiService.getRankById(id, FLEX_RANK, CURRENT_SEASON_ID);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/teamrank.html; rel=\"profile\"");
-		
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.headers(headers)
-				.body(rank);
+
+		return OpenApiResponseDtoFactory.getResponseEntity(headers, rank);
 	}
 	
 	@GetMapping("/summoner/id/{id}/ranks/season/22")
-	ResponseEntity<List<RankDto>> getRanksById(@PathVariable("id") String id){
-		List<RankDto> ranks = restApiService.getRanksById(id, CURRENT_SEASON_ID);
+	ResponseEntity<List<OpenApiRankDto>> getRanksById(@PathVariable("id") String id){
+		List<OpenApiRankDto> ranks = restApiService.getRanksById(id, CURRENT_SEASON_ID);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/ranks.html; rel=\"profile\"");
-		
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.headers(headers)
-				.body(ranks);
+
+		return OpenApiResponseDtoFactory.getResponseEntity(headers, ranks);
 	}
 	
 	@GetMapping("/summoner/id/{id}/matcheIds")
@@ -100,11 +85,8 @@ public class RestApiController {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/matchids.html; rel=\"profile\"");
-		
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.headers(headers)
-				.body(matchIds);
+
+		return OpenApiResponseDtoFactory.getResponseEntity(headers, matchIds);
 	}
 	
 	@GetMapping("/match/{matchid}")
@@ -113,11 +95,8 @@ public class RestApiController {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "http://localhost:8080/docs/match.html; rel=\"profile\"");
-		
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.headers(headers)
-				.body(match);
+
+		return OpenApiResponseDtoFactory.getResponseEntity(headers, match);
 	}
 	
 	//---------------------------------- Create Method ----------------------------------

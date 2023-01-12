@@ -1,4 +1,4 @@
-package com.lolsearcher.constant;
+package com.lolsearcher.constant.enumeration;
 
 public enum JoinStatus {
 	OK(0), 

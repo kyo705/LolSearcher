@@ -3,7 +3,7 @@ package com.lolsearcher.service.ingame;
 import com.lolsearcher.api.riotgames.RiotGamesAPI;
 import com.lolsearcher.exception.ingame.NoInGameException;
 import com.lolsearcher.exception.summoner.NoExistSummonerException;
-import com.lolsearcher.model.factory.ResponseDtoFactory;
+import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
 import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameDto;
 import com.lolsearcher.model.response.front.ingame.InGameDto;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class InGameService {
 		try {
 			RiotGamesInGameDto riotGamesInGameDto = riotGames.getInGameBySummonerId(summonerId);
 
-			return ResponseDtoFactory.getResponseInGameDto(riotGamesInGameDto);
+			return FrontServerResponseDtoFactory.getResponseInGameDto(riotGamesInGameDto);
 		}catch(WebClientResponseException e){
 			if(e.getStatusCode() == HttpStatus.BAD_REQUEST){
 				throw new NoExistSummonerException(summonerId);

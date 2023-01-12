@@ -8,7 +8,7 @@ import com.lolsearcher.model.response.front.championstatic.TotalChampStatDto;
 import com.lolsearcher.model.entity.champion.enemy.ChampEnemy;
 import com.lolsearcher.model.entity.champion.item.ChampItem;
 import com.lolsearcher.model.entity.champion.position.ChampPosition;
-import com.lolsearcher.repository.champion.ChampionReository;
+import com.lolsearcher.repository.champion.ChampionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +19,13 @@ import java.util.List;
 @Service
 public class ChampionService {
 
-	private final ChampionReository championRepository;
+	private final ChampionRepository championRepository;
 
 	@JpaTransactional
-	public List<ChampPositionDto> getChampions(String position) {
+	public List<ChampPositionDto> getChampions(int positionId) {
 		List<ChampPositionDto> champDtoList = new ArrayList<>();
 		
-		List<ChampPosition> champList = championRepository.findChampPositions(position);
+		List<ChampPosition> champList = championRepository.findChampPositions(positionId);
 		
 		for(ChampPosition champ : champList) {
 			champDtoList.add(new ChampPositionDto(champ));
@@ -35,13 +35,13 @@ public class ChampionService {
 	}
 
 	@JpaTransactional
-	public TotalChampStatDto getChampionDetail(String champion) {
+	public TotalChampStatDto getChampionDetail(int championId) {
 		TotalChampStatDto totalChampStatDto = new TotalChampStatDto();
 
-		List<ChampItem> champItems = championRepository.findChampItems(champion);
+		List<ChampItem> champItems = championRepository.findChampItems(championId);
 		totalChampStatDto.setChampItems(getChampItemDtos(champItems));
 
-		List<ChampEnemy> champEnemies = championRepository.findChampEnemies(champion);
+		List<ChampEnemy> champEnemies = championRepository.findChampEnemies(championId);
 		totalChampStatDto.setChampEnemies(getChampEnemyDtos(champEnemies));
 		
 		return totalChampStatDto;
