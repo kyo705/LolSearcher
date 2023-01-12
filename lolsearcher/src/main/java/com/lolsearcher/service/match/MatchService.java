@@ -113,17 +113,11 @@ public class MatchService {
 
 		waitResponseComplete(recentMatchIds, successMatches, failMatchIds);
 
-		List<MatchDto> matchDtos = getMatchDtos(successMatches, matchInfo);
 		//카프카에 데이터 저장하는 로직 => 멀티 스레드로 병렬 처리
-		for(Match successMatch : successMatches){
-			matchRepository.saveMatch(successMatch);
-		}
+		sendSuccessMatchToKafka(successMatches, matchInfo.getSummonerId(), beforeLastMatchId);
+		sendFailMatchIdToKafka(failMatchIds, matchInfo.getSummonerId(), beforeLastMatchId);
 
-
-		//sendSuccessMatchToKafka(successMatches, matchInfo.getSummonerId(), beforeLastMatchId);
-		//sendFailMatchIdToKafka(failMatchIds, matchInfo.getSummonerId(), beforeLastMatchId);
-
-		return matchDtos;
+		return getMatchDtos(successMatches, matchInfo);
 	}
 
 

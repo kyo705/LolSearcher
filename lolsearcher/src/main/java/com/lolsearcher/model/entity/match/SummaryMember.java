@@ -36,11 +36,11 @@ public class SummaryMember implements Serializable {
     private short item6;
 
     @BatchSize(size = 1000)
-    @OneToOne(mappedBy = "summaryMember", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "summaryMember", cascade = CascadeType.ALL)
     private Perks perks;  /* 해당 게임의 특정 유저가 선택한 스펠, 룬 특성 */
 
     @BatchSize(size = 1000)
-    @OneToOne(mappedBy = "summaryMember", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "summaryMember", cascade = CascadeType.ALL)
     private DetailMember detailMember;
 
     @BatchSize(size = 100)

@@ -63,7 +63,7 @@ public class EntityFactory {
 
             Team team = new Team();
             team.setTeamPositionId(riotGamesTeamDto.getTeamId());
-            team.setGameResult(riotGamesMatchDto.getGameDuration() > 1000*60*10 ? (riotGamesTeamDto.isWin() ? (byte) 0 : 1) : 2);
+            team.setGameResult(riotGamesMatchDto.getGameDuration() > 60*10 ? (riotGamesTeamDto.isWin() ? (byte) 0 : 1) : 2);
             team.setMatch(match);
 
             for(RiotGamesParticipantDto participantDto : riotGamesMatchDto.getParticipants()){
@@ -118,6 +118,7 @@ public class EntityFactory {
                 perks.setSubPerk2Var3(perkStyleDtos.get(1).getSelections().get(1).getVar3());
                 perks.setSummaryMember(summaryMember);
 
+                //여기서 perkStats를 생성하는 것이 아니라 db로부터 조회해서 연관관계 매핑해야함
                 RiotGamesMatchPerkStatsDto perkStatsDto = participantDto.getPerks().getStatPerks();
                 PerkStats perkStats = new PerkStats();
                 perkStats.setDefense(perkStatsDto.getDefense());

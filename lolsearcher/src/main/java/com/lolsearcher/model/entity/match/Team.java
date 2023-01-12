@@ -26,11 +26,11 @@ public class Team implements Serializable {
 
     @BatchSize(size = 100)
     @ManyToOne
-    @JoinColumn(name = "matchId", referencedColumnName = "id")
+    @JoinColumn(name = "matchId", referencedColumnName = "matchId")
     private Match match;
 
     @BatchSize(size = 1000)
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<SummaryMember> members = new ArrayList<>(THE_NUMBER_OF_TEAM_MEMBERS);
 
     public void setMatch(Match match) throws IllegalAccessException {

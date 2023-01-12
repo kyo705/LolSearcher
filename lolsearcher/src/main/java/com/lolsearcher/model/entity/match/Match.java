@@ -31,7 +31,7 @@ public class Match implements Serializable {
 
 	@JsonManagedReference
 	@BatchSize(size = 200) /* match 100개 => team 200팀 */
-	@OneToMany(mappedBy = "match", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
 	private List<Team> teams = new ArrayList<>(THE_NUMBER_OF_TEAMS);
 
 }
