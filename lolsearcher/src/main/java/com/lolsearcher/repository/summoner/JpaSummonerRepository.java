@@ -21,7 +21,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	
 	@Override
 	public Summoner findSummonerById(String summonerId){
-		String jpql = "SELECT s FROM Summoner s WHERE s.id = :summonerId";
+		String jpql = "SELECT s FROM Summoner s WHERE s.summonerId = :summonerId";
 		
 		return em.createQuery(jpql, Summoner.class)
 				.setParameter("summonerId", summonerId)
@@ -32,7 +32,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	public List<Summoner> findSummonerByName(String summonerName) {
 		String jpql = "SELECT s FROM Summoner s WHERE s.summonerName = :summonerName "
 				+ "ORDER BY s.lastRenewTimeStamp DESC";
-		
+
 		return em.createQuery(jpql, Summoner.class)
 				.setParameter("summonerName", summonerName)
 				.getResultList();
@@ -59,10 +59,10 @@ public class JpaSummonerRepository implements SummonerRepository {
 
 	@Override
 	public void deleteSummoner(Summoner summoner) {
-		String jpql = "DELETE FROM Summoner s WHERE s.id = :id";
+		String jpql = "DELETE FROM Summoner s WHERE s.summonerId = :summonerId";
 		
 		em.createQuery(jpql)
-		.setParameter("id", summoner.getSummonerId())
+		.setParameter("summonerId", summoner.getSummonerId())
 		.executeUpdate();
 	}
 }

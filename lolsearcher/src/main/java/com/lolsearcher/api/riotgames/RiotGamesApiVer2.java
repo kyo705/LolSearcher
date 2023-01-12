@@ -89,7 +89,7 @@ public class RiotGamesApiVer2 implements RiotGamesAPI {
 					.bodyToMono(String[].class)
 					.block();
 
-			if(apiMatchIds == null){
+			if(apiMatchIds == null || apiMatchIds.length == 0){
 				return matchIds;
 			}
 			for(String apiMatchId : apiMatchIds) {

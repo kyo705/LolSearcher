@@ -68,6 +68,9 @@ public class EntityFactory {
 
             for(RiotGamesParticipantDto participantDto : riotGamesMatchDto.getParticipants()){
 
+                if(team.getTeamPositionId() != participantDto.getTeamId()){
+                    continue;
+                }
                 SummaryMember summaryMember = new SummaryMember();
                 summaryMember.setSummonerId(participantDto.getSummonerId());
                 summaryMember.setPickChampionId(participantDto.getChampionId());

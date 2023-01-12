@@ -48,6 +48,6 @@ public class MatchController {
             return 0;
         });
 
-        return matches.subList(0, size);
+        return matches.size() > size ? (matches.subList(0, size)) : matches;
     }
 }

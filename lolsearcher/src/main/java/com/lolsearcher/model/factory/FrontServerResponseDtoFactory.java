@@ -63,6 +63,7 @@ public class ResponseDtoFactory {
             TeamDto teamDto = new TeamDto();
             teamDto.setTeamId(team.getTeamPositionId());
             teamDto.setGameResult(team.getGameResult());
+            matchDto.getTeams().add(teamDto);
 
             if(team.getMembers() == null){
                 return matchDto;

@@ -1,14 +1,19 @@
 package com.lolsearcher.model.entity.match;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
-@Data
+@Getter
+@Setter
+@ToString(exclude = "team")
 @Entity
 @Table(indexes = {@Index(columnList = "summonerId")})
-public class SummaryMember {
+public class SummaryMember implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) /* mariaDB 사용중 */

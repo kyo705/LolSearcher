@@ -1,8 +1,7 @@
 package com.lolsearcher.model.entity.match;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
@@ -12,8 +11,9 @@ import java.util.List;
 
 import static com.lolsearcher.constant.LolSearcherConstants.THE_NUMBER_OF_TEAMS;
 
-@NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "MATCHES", indexes = {@Index(columnList = "matchId", unique = true)})
 public class Match implements Serializable {

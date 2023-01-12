@@ -24,7 +24,7 @@ public class JpaMatchRepository implements MatchRepository {
     @Override
     public Match findMatchByGameId(String matchId) {
 
-        String jpql = "SELECT m FROM Match m WHERE m.gameId = :matchId";
+        String jpql = "SELECT m FROM Match m WHERE m.matchId = :matchId";
 
         List<Match> matches = em.createQuery(jpql, Match.class)
                 .setParameter("matchId", matchId)
@@ -46,9 +46,9 @@ public class JpaMatchRepository implements MatchRepository {
             if(championId == -1) {
 
                 String jpql = "SELECT DISTINCT m FROM Match m "
-                        + "INNER JOIN Team t ON m.id = t.matchId "
-                        + "INNER JOIN SummaryMember s ON t.id = s.teamId "
-                        + "WHERE s.summonerId = :summonerId"
+                        + "INNER JOIN Team t ON m.matchId = t.match "
+                        + "INNER JOIN SummaryMember s ON t.id = s.team "
+                        + "WHERE s.summonerId = :summonerId "
                         + "ORDER BY m.gameEndTimestamp DESC";
 
                 return em.createQuery(jpql, Match.class)
@@ -59,9 +59,9 @@ public class JpaMatchRepository implements MatchRepository {
             }else {
 
                 String jpql = "SELECT m FROM Match m "
-                        + "INNER JOIN Team t ON m.id = t.matchId "
-                        + "INNER JOIN SummaryMember s ON t.id = s.teamId "
-                        + "WHERE s.summonerId = :summonerId AND s.championId = :championId"
+                        + "INNER JOIN Team t ON m.matchId = t.match "
+                        + "INNER JOIN SummaryMember s ON t.id = s.team "
+                        + "WHERE s.summonerId = :summonerId AND s.championId = :championId "
                         + "ORDER BY m.gameEndTimestamp DESC";
 
                 return em.createQuery(jpql, Match.class)
@@ -75,9 +75,9 @@ public class JpaMatchRepository implements MatchRepository {
             if(championId == -1) {
 
                 String jpql = "SELECT m FROM Match m "
-                        + "INNER JOIN Team t ON m.id = t.matchId "
-                        + "INNER JOIN SummaryMember s ON t.id = s.teamId "
-                        + "WHERE s.summonerId = :summonerId AND m.queueId = :queueId"
+                        + "INNER JOIN Team t ON m.matchId = t.match "
+                        + "INNER JOIN SummaryMember s ON t.id = s.team "
+                        + "WHERE s.summonerId = :summonerId AND m.queueId = :queueId "
                         + "ORDER BY m.gameEndTimestamp DESC";
 
                 return em.createQuery(jpql, Match.class)
@@ -90,9 +90,9 @@ public class JpaMatchRepository implements MatchRepository {
             }else {
 
                 String jpql = "SELECT m FROM Match m "
-                        + "INNER JOIN Team t ON m.id = t.matchId "
-                        + "INNER JOIN SummaryMember s ON t.id = s.teamId "
-                        + "WHERE s.summonerId = :summonerId AND s.championId = :championId AND m.queueId = :queueId"
+                        + "INNER JOIN Team t ON m.matchId = t.match "
+                        + "INNER JOIN SummaryMember s ON t.id = s.team "
+                        + "WHERE s.summonerId = :summonerId AND s.championId = :championId AND m.queueId = :queueId "
                         + "ORDER BY m.gameEndTimestamp DESC";
 
                 return em.createQuery(jpql, Match.class)

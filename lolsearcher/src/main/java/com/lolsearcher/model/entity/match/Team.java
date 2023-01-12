@@ -1,19 +1,21 @@
 package com.lolsearcher.model.entity.match;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.lolsearcher.constant.LolSearcherConstants.THE_NUMBER_OF_TEAM_MEMBERS;
 
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString(exclude = "match")
 @Entity
-public class Team {
+public class Team implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

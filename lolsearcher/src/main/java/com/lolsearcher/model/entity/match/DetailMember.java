@@ -1,12 +1,17 @@
 package com.lolsearcher.model.entity.match;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
-@Data
+@Getter
+@Setter
+@ToString(exclude = "summaryMember")
 @Entity
-public class DetailMember {
+public class DetailMember implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
