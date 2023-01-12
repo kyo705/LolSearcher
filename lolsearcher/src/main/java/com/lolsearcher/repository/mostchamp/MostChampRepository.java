@@ -1,11 +1,11 @@
 package com.lolsearcher.repository.mostchamp;
 
-import com.lolsearcher.model.response.front.mostchamp.MostChampDto;
+import com.lolsearcher.model.entity.mostchamp.MostChampStat;
 
 import java.util.List;
 
 public interface MostChampRepository {
-    List<String> findMostChampionIds(String summonerId, int queue, int season, int limitCount);
 
-    MostChampDto findMostChampion(String summonerId, String championId, int queue, int season);
+    List<MostChampStat> findMostChampions(String summonerId, int seasonId, int limitCount);
+    List<MostChampStat> findMostChampions(String summonerId, int seasonId, int queueId, int limitCount);
 }

@@ -217,4 +217,19 @@ public class FrontServerResponseDtoFactory {
         }
         return inGameDto;
     }
+
+    public static ResponseMostChampDto getResponseMostChampDto(MostChampStat mostChampStat) {
+
+        long totalGames = mostChampStat.getTotalGames();
+
+        return ResponseMostChampDto.builder()
+                .championId(mostChampStat.getChampionId())
+                .avgKill((double) mostChampStat.getTotalKills() / totalGames)
+                .avgDeath((double) mostChampStat.getTotalDeaths() / totalGames)
+                .avgAssist((double) mostChampStat.getTotalAssists() / totalGames)
+                .avgCs((double) mostChampStat.getTotalMinionKills() / totalGames)
+                .totalGameCount(totalGames)
+                .totalWinCount(mostChampStat.getTotalWins())
+                .build();
+    }
 }

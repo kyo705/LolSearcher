@@ -1,15 +1,17 @@
 package com.lolsearcher.service.mostchamp;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.constant.enumeration.GameType;
+import com.lolsearcher.model.entity.mostchamp.MostChampStat;
+import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
 import com.lolsearcher.model.request.front.RequestMostChampDto;
+import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
 import com.lolsearcher.repository.mostchamp.MostChampRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.lolsearcher.model.response.front.mostchamp.MostChampDto;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.lolsearcher.constant.LolSearcherConstants.MOST_CHAMP_LIMITED_COUNT;
 
@@ -25,15 +27,17 @@ public class MostChampService {
 		String summonerId = mostChampInfo.getSummonerId();
 		int queueId = mostChampInfo.getQueueId();
 		int seasonId = mostChampInfo.getSeasonId();
-		
-		List<MostChampDto> mostChamps = new ArrayList<>(MOST_CHAMP_LIMITED_COUNT);
-		
-		List<String> champIds = mostChampRepository.findMostChampionIds(summonerId, queueId, seasonId, MOST_CHAMP_LIMITED_COUNT);
 
-		for(String champId : champIds) {
-			MostChampDto champ = mostChampRepository.findMostChampion(summonerId, champId, queueId, seasonId);
-			mostChamps.add(champ);
+		List<MostChampStat> mostChampStats;
+
+		if(queueId == GameType.ALL_QUEUE_ID.getQueueId()){
+			mostChampStats = mostChampRepository.findMostChampions(summonerId, seasonId, MOST_CHAMP_LIMITED_COUNT);
+		}else{
+			mostChampStats = mostChampRepository.findMostChampions(summonerId, seasonId, queueId, MOST_CHAMP_LIMITED_COUNT);
 		}
-		return mostChamps;
+
+		return mostChampStats.stream()
+				.map(FrontServerResponseDtoFactory::getResponseMostChampDto)
+				.collect(Collectors.toList());
 	}
 }

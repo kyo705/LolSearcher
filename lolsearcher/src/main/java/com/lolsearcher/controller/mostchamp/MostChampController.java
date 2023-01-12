@@ -1,6 +1,6 @@
 package com.lolsearcher.controller.mostchamp;
 
-import com.lolsearcher.model.response.front.mostchamp.MostChampDto;
+import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
 import com.lolsearcher.model.request.front.RequestMostChampDto;
 import com.lolsearcher.service.mostchamp.MostChampService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class MostChampController {
     private final MostChampService mostChampService;
 
     @PostMapping("/summoner/most-champ")
-    public List<MostChampDto> getMostChampList(@RequestBody @Valid RequestMostChampDto mostChampInfo){
+    public List<ResponseMostChampDto> getMostChampList(@RequestBody @Valid RequestMostChampDto mostChampInfo){
 
         return mostChampService.getMostChamps(mostChampInfo);
     }
