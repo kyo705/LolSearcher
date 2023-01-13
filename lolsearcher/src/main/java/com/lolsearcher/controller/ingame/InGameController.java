@@ -1,6 +1,6 @@
 package com.lolsearcher.controller.ingame;
 
-import com.lolsearcher.model.response.front.ingame.InGameDto;
+import com.lolsearcher.model.output.front.ingame.InGameDto;
 import com.lolsearcher.service.ingame.InGameService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +19,6 @@ public class InGameController {
 	@PostMapping(path = "/summoner/ingame")
 	public InGameDto inGame(@RequestBody String summonerId) {
 
-		InGameDto inGameDto = inGameService.getInGame(summonerId);
-
-		return inGameDto;
+		return inGameService.getInGame(summonerId);
 	}
 }

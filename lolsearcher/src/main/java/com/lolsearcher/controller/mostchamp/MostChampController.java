@@ -1,7 +1,7 @@
 package com.lolsearcher.controller.mostchamp;
 
-import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
-import com.lolsearcher.model.request.front.RequestMostChampDto;
+import com.lolsearcher.model.output.front.mostchamp.ResponseMostChampDto;
+import com.lolsearcher.model.input.front.RequestMostChampDto;
 import com.lolsearcher.service.mostchamp.MostChampService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

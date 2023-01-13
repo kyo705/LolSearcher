@@ -5,8 +5,8 @@ import java.util.List;
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import com.lolsearcher.model.factory.EntityFactory;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
-import com.lolsearcher.model.request.front.RequestSummonerDto;
-import com.lolsearcher.model.request.riot.summoner.RiotGamesSummonerDto;
+import com.lolsearcher.model.input.front.RequestSummonerDto;
+import com.lolsearcher.model.input.riot.summoner.RiotGamesSummonerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.lolsearcher.api.riotgames.RiotGamesAPI;
-import com.lolsearcher.model.response.front.summoner.SummonerDto;
+import com.lolsearcher.model.output.front.summoner.SummonerDto;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.repository.summoner.SummonerRepository;
 

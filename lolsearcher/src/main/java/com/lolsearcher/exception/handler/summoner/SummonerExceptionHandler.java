@@ -3,7 +3,7 @@ package com.lolsearcher.exception.handler.summoner;
 import com.lolsearcher.controller.match.MatchController;
 import com.lolsearcher.controller.rank.RankController;
 import com.lolsearcher.controller.summoner.SummonerController;
-import com.lolsearcher.model.response.common.ErrorResponseBody;
+import com.lolsearcher.model.output.common.ErrorResponseBody;
 import com.lolsearcher.service.ban.SearchIpBanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

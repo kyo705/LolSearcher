@@ -2,7 +2,7 @@ package com.lolsearcher.exception.handler.statistic;
 
 import com.lolsearcher.controller.mostchamp.MostChampController;
 import com.lolsearcher.controller.statistic.ChampionController;
-import com.lolsearcher.model.response.common.ErrorResponseBody;
+import com.lolsearcher.model.output.common.ErrorResponseBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;

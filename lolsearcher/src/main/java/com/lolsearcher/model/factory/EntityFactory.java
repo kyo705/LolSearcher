@@ -4,14 +4,14 @@ import com.lolsearcher.constant.LolSearcherConstants;
 import com.lolsearcher.model.entity.match.*;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.request.riot.match.RiotGamesMatchDto;
-import com.lolsearcher.model.request.riot.match.RiotGamesParticipantDto;
-import com.lolsearcher.model.request.riot.match.RiotGamesTotalMatchDto;
-import com.lolsearcher.model.request.riot.match.perk.RiotGamesMatchPerkStatsDto;
-import com.lolsearcher.model.request.riot.match.perk.RiotGamesMatchPerkStyleDto;
-import com.lolsearcher.model.request.riot.match.team.RiotGamesTeamDto;
-import com.lolsearcher.model.request.riot.rank.RiotGamesRankDto;
-import com.lolsearcher.model.request.riot.summoner.RiotGamesSummonerDto;
+import com.lolsearcher.model.input.riot.match.RiotGamesMatchDto;
+import com.lolsearcher.model.input.riot.match.RiotGamesParticipantDto;
+import com.lolsearcher.model.input.riot.match.RiotGamesTotalMatchDto;
+import com.lolsearcher.model.input.riot.match.perk.RiotGamesMatchPerkStatsDto;
+import com.lolsearcher.model.input.riot.match.perk.RiotGamesMatchPerkStyleDto;
+import com.lolsearcher.model.input.riot.match.team.RiotGamesTeamDto;
+import com.lolsearcher.model.input.riot.rank.RiotGamesRankDto;
+import com.lolsearcher.model.input.riot.summoner.RiotGamesSummonerDto;
 
 import java.util.List;
 

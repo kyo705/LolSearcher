@@ -1,10 +1,10 @@
 package com.lolsearcher.service.statistic;
 
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
-import com.lolsearcher.model.response.front.championstatic.ChampEnemyDto;
-import com.lolsearcher.model.response.front.championstatic.ChampItemDto;
-import com.lolsearcher.model.response.front.championstatic.ChampPositionDto;
-import com.lolsearcher.model.response.front.championstatic.TotalChampStatDto;
+import com.lolsearcher.model.output.front.championstatic.ChampEnemyDto;
+import com.lolsearcher.model.output.front.championstatic.ChampItemDto;
+import com.lolsearcher.model.output.front.championstatic.ChampPositionDto;
+import com.lolsearcher.model.output.front.championstatic.TotalChampStatDto;
 import com.lolsearcher.model.entity.champion.enemy.ChampEnemy;
 import com.lolsearcher.model.entity.champion.item.ChampItem;
 import com.lolsearcher.model.entity.champion.position.ChampPosition;

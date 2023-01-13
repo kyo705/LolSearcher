@@ -1,9 +1,9 @@
 package com.lolsearcher.api.riotgames;
 
-import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameDto;
-import com.lolsearcher.model.request.riot.match.RiotGamesTotalMatchDto;
-import com.lolsearcher.model.request.riot.rank.RiotGamesRankDto;
-import com.lolsearcher.model.request.riot.summoner.RiotGamesSummonerDto;
+import com.lolsearcher.model.input.riot.ingame.RiotGamesInGameDto;
+import com.lolsearcher.model.input.riot.match.RiotGamesTotalMatchDto;
+import com.lolsearcher.model.input.riot.rank.RiotGamesRankDto;
+import com.lolsearcher.model.input.riot.summoner.RiotGamesSummonerDto;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

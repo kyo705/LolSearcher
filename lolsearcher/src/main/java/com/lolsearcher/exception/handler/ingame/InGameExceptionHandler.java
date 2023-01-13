@@ -3,7 +3,7 @@ package com.lolsearcher.exception.handler.ingame;
 import com.lolsearcher.controller.ingame.InGameController;
 import com.lolsearcher.exception.ingame.NoInGameException;
 import com.lolsearcher.exception.summoner.NoExistSummonerException;
-import com.lolsearcher.model.response.common.ErrorResponseBody;
+import com.lolsearcher.model.output.common.ErrorResponseBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

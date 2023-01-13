@@ -1,7 +1,7 @@
 package com.lolsearcher.controller.summoner;
 
-import com.lolsearcher.model.response.front.summoner.SummonerDto;
-import com.lolsearcher.model.request.front.RequestSummonerDto;
+import com.lolsearcher.model.output.front.summoner.SummonerDto;
+import com.lolsearcher.model.input.front.RequestSummonerDto;
 import com.lolsearcher.service.summoner.SummonerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

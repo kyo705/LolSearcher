@@ -4,7 +4,7 @@ import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import com.lolsearcher.exception.join.CertificationTimeOutException;
 import com.lolsearcher.exception.join.RandomNumDifferenceException;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
-import com.lolsearcher.model.response.temporary.TemporaryUser;
+import com.lolsearcher.model.output.temporary.TemporaryUser;
 import com.lolsearcher.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;

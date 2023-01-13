@@ -4,18 +4,18 @@ import com.lolsearcher.model.entity.match.*;
 import com.lolsearcher.model.entity.mostchamp.MostChampStat;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameBannedChampionDto;
-import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameDto;
-import com.lolsearcher.model.request.riot.ingame.RiotGamesInGameParticipantDto;
-import com.lolsearcher.model.request.riot.ingame.RiotGamesInGamePerksDto;
-import com.lolsearcher.model.response.front.ingame.InGameBannedChampionDto;
-import com.lolsearcher.model.response.front.ingame.InGameDto;
-import com.lolsearcher.model.response.front.ingame.InGameParticipantDto;
-import com.lolsearcher.model.response.front.ingame.InGamePerksDto;
-import com.lolsearcher.model.response.front.match.*;
-import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
-import com.lolsearcher.model.response.front.rank.RankDto;
-import com.lolsearcher.model.response.front.summoner.SummonerDto;
+import com.lolsearcher.model.input.riot.ingame.RiotGamesInGameBannedChampionDto;
+import com.lolsearcher.model.input.riot.ingame.RiotGamesInGameDto;
+import com.lolsearcher.model.input.riot.ingame.RiotGamesInGameParticipantDto;
+import com.lolsearcher.model.input.riot.ingame.RiotGamesInGamePerksDto;
+import com.lolsearcher.model.output.front.ingame.InGameBannedChampionDto;
+import com.lolsearcher.model.output.front.ingame.InGameDto;
+import com.lolsearcher.model.output.front.ingame.InGameParticipantDto;
+import com.lolsearcher.model.output.front.ingame.InGamePerksDto;
+import com.lolsearcher.model.output.front.match.*;
+import com.lolsearcher.model.output.front.mostchamp.ResponseMostChampDto;
+import com.lolsearcher.model.output.front.rank.RankDto;
+import com.lolsearcher.model.output.front.summoner.SummonerDto;
 
 public class FrontServerResponseDtoFactory {
 
