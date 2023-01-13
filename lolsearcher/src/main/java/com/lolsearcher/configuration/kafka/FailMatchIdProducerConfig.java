@@ -29,6 +29,7 @@ public class FailMatchIdProducerConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVER);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
 
         return new DefaultKafkaProducerFactory<>(props);
     }

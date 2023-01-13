@@ -69,6 +69,10 @@ lolsearcher:
       join-certification: 300 #5min
   kafka:
     topics:
+      remaining_match_id:
+        name: remaining_match_id
+        replica: 1
+        partitions: 1
       fail_match_id:
         name: filtered_fail_match_id
         replica: 1
@@ -81,8 +85,9 @@ lolsearcher:
       success_match:
         bootstrap_server: localhost:9092
         ack: all
-        transaction_id: success_match
       fail_match_id:
         bootstrap_server: localhost:9092
         ack: all
-        transaction_id: fail_match_id
+      remaining_match_id:
+        bootstrap_server: localhost:9092
+        ack: all

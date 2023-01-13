@@ -1,4 +1,4 @@
-package com.lolsearcher.service.producer;
+package com.lolsearcher.service.message.producer;
 
 import com.lolsearcher.service.summoner.SummonerService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class FailMatchIdProducerService implements ProducerService<String> {
+public class FailMatchIdProducerService implements MessageProducerService {
 
     @Value("${lolsearcher.kafka.topics.fail_match_id.name}")
     private String TOPIC_NAME;
@@ -27,16 +27,28 @@ public class FailMatchIdProducerService implements ProducerService<String> {
     private final SummonerService summonerService;
 
     @Override
-    public void send(List<String> failMatchIds, String summonerId, String beforeLastMatchId) {
+    public void send(Object failMatchId, String summonerId, String beforeLastMatchId) {
 
-        KafkaSendCallback<String, String> callback = callback(summonerId, beforeLastMatchId);
+        validateDataType(failMatchId);
 
-        for(String failMatchId : failMatchIds){
-            ProducerRecord<String, String> record = createRecord(failMatchId);
+        String validFailMatchId = (String) failMatchId;
+        ProducerRecord<String, String> record = createRecord(validFailMatchId);
 
-            ListenableFuture<SendResult<String, String>> future = failMatchIdKafkaTemplate.send(record);
+        ListenableFuture<SendResult<String, String>> future = failMatchIdKafkaTemplate.send(record);
+        future.addCallback(callback(summonerId, beforeLastMatchId));
+    }
 
-            future.addCallback(callback);
+    @Override
+    public void sendBatch(List<Object> failMatchIds, String summonerId, String lastMatchId) {
+
+        failMatchIds.forEach(failMatchId-> send(failMatchId, summonerId, lastMatchId));
+    }
+
+    @Override
+    public void validateDataType(Object data) {
+        if(!(data instanceof String)) {
+            log.error("입력 받은 failMatchId 데이터 타입이 String 클래스가 아닙니다.");
+            throw new ClassCastException();
         }
     }
 
@@ -51,6 +63,7 @@ public class FailMatchIdProducerService implements ProducerService<String> {
                 log.info("fail match id : {} 카프카 토픽에 저장 성공!!", result.getProducerRecord().value());
             }
 
+            @SuppressWarnings("NullableProblems")
             @Override
             public void onFailure(KafkaProducerException ex) {
                 log.error("fail match id : {} 카프카 토픽에 저장 실패...", ex.getFailedProducerRecord().value());

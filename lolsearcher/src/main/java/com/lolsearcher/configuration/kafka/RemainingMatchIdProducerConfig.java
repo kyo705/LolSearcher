@@ -1,8 +1,7 @@
 package com.lolsearcher.configuration.kafka;
 
-import com.lolsearcher.model.entity.match.Match;
+import com.lolsearcher.model.output.kafka.RemainingMatchId;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.record.CompressionType;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,24 +14,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class SuccessMatchProducerConfig {
+public class RemainingMatchIdProducerConfig {
 
-    @Value("lolsearcher.kafka.producers.success_match.bootstrap_server")
+    @Value("lolsearcher.kafka.producers.remaining_match_id.bootstrap_server")
     private String BOOTSTRAP_SERVER;
 
     @Bean
-    public KafkaTemplate<String, Match> successMatchKafkaTemplate(){
-        return new KafkaTemplate<>(successMatchesProducerFactory());
+    public KafkaTemplate<String, RemainingMatchId> failMatchIdKafkaTemplate(){
+        return new KafkaTemplate<>(failMatchIdProducerFactory());
     }
 
     @Bean
-    public DefaultKafkaProducerFactory<String, Match> successMatchesProducerFactory(){
+    public DefaultKafkaProducerFactory<String, RemainingMatchId> failMatchIdProducerFactory(){
+
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVER);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-        props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, CompressionType.ZSTD.name);
 
         return new DefaultKafkaProducerFactory<>(props);
     }

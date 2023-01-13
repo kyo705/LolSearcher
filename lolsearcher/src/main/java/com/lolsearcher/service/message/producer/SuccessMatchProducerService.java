@@ -1,4 +1,4 @@
-package com.lolsearcher.service.producer;
+package com.lolsearcher.service.message.producer;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import com.lolsearcher.model.entity.match.Match;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SuccessMatchProducerService implements ProducerService<Match> {
+public class SuccessMatchProducerService implements MessageProducerService {
 
 	@Value("${lolsearcher.kafka.topics.success_match.name}")
 	private String TOPIC_NAME;
@@ -30,14 +30,28 @@ public class SuccessMatchProducerService implements ProducerService<Match> {
 
 
 	@Override
-	public void send(List<Match> successMatches, String summonerId, String beforeLastMatchId) {
+	public void send(Object successMatch, String summonerId, String beforeLastMatchId) {
 
-		for(Match successMatch : successMatches){
-			ProducerRecord<String, Match> record = createRecord(successMatch);
+		validateDataType(successMatch);
 
-			ListenableFuture<SendResult<String, Match>> future = successMatchKafkaTemplate.send(record);
+		Match validSuccessMatch = (Match) successMatch;
+		ProducerRecord<String, Match> record = createRecord(validSuccessMatch);
 
-			future.addCallback(callback(summonerId, beforeLastMatchId));
+		ListenableFuture<SendResult<String, Match>> future = successMatchKafkaTemplate.send(record);
+		future.addCallback(callback(summonerId, beforeLastMatchId));
+	}
+
+	@Override
+	public void sendBatch(List<Object> data, String summonerId, String lastMatchId) {
+
+	}
+
+	@Override
+	public void validateDataType(Object data) {
+
+		if(!(data instanceof Match)){
+			log.error("입력 받은 successMatch 데이터 타입이 Match 클래스가 아닙니다.");
+			throw new ClassCastException();
 		}
 	}
 
@@ -50,15 +64,14 @@ public class SuccessMatchProducerService implements ProducerService<Match> {
 			@Override
 			public void onSuccess(SendResult<String, Match> result) {
 				log.info("success match : {} 카프카 토픽에 저장 성공!!",
-						result.getProducerRecord().value().getMatchId()
-				);
+						result.getProducerRecord().value().getMatchId());
 			}
 
+			@SuppressWarnings("NullableProblems")
 			@Override
 			public void onFailure(KafkaProducerException ex) {
 				log.error("success match : {} 카프카 토픽에 저장 실패...",
-						((Match)ex.getFailedProducerRecord().value()).getMatchId()
-				);
+						((Match)ex.getFailedProducerRecord().value()).getMatchId());
 
 				summonerService.rollbackLastMatchId(summonerId, beforeLastMatchId);
 			}
