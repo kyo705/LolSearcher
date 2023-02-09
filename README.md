@@ -29,20 +29,20 @@
 >   - 언어 : Java
 >   - 프레임 워크 : SpringBoot, Spring MVC, Spring Security
 >   - 빌드 관리 툴 : Gradle
->   - 스케줄러 : Spring Quartz
->   - REST API 수집 : WebClient
 >   - ORM : JPA(Hibernate)
 > - DevOps
+>   - WS : Nginx
+>   - WAS : Tomcat
 >   - Message Queue : Kafka
+>   - Cache : Redis
 >   - DBMS :
 >      - 실제 서버 환경 : MariaDB
 >      - 테스트 환경 : h2
-> - 프론트 앤드
->   - 템플릿 엔진 : Thymeleaf
 
 프로젝트 서버 구조
 -----------------------------------------
-![image](https://user-images.githubusercontent.com/89891704/200253517-5f6c3b3a-2d67-4664-9d62-da4c920cb200.png)
+
+![image](https://user-images.githubusercontent.com/89891704/217744384-4106f68b-c536-493b-a883-0444d703ae91.png)
 
 프로젝트 톰캣 스레드풀 최소 갯수 설정
 -------------------------
