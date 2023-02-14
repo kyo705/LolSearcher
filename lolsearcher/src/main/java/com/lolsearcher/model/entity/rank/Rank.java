@@ -3,7 +3,10 @@ package com.lolsearcher.model.entity.rank;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 @Builder
 @Data
@@ -12,7 +15,6 @@ import javax.persistence.*;
 public class Rank {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String summonerId;
 	private int seasonId;

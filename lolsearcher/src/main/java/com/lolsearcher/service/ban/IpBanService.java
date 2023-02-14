@@ -1,11 +1,8 @@
 package com.lolsearcher.service.ban;
 
-import org.springframework.stereotype.Service;
-
-@Service
 public interface IpBanService {
 
-	boolean isExceedBanCount(String ip);
+	boolean isExceedBanCount(String ipAddress);
 	
-	void registerBanList(String user_ip);
+	void registerBanList(String ipAddress);
 }

@@ -1,6 +1,9 @@
 package com.lolsearcher.filter;
 
+import org.springframework.http.HttpHeaders;
+
 import javax.servlet.*;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class EncodingFilter implements Filter{
@@ -8,16 +11,15 @@ public class EncodingFilter implements Filter{
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		//실행 전 필터 수행 
+
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("charset=UTF-8");
-		
+
+		HttpServletResponse resp = (HttpServletResponse) response;
+		resp.setHeader(HttpHeaders.CACHE_CONTROL, "max-age=300");
 		
 		chain.doFilter(request, response);
-		
-		//실행 후 필터 수행
-		
 	}
 
 }

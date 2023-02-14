@@ -1,13 +1,12 @@
 package com.lolsearcher.exception.handler.join;
 
+import com.lolsearcher.controller.user.JoinController;
+import com.lolsearcher.exception.exception.join.CertificationTimeOutException;
+import com.lolsearcher.exception.exception.join.RandomNumDifferenceException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.lolsearcher.controller.user.JoinController;
-import com.lolsearcher.exception.join.CertificationTimeOutException;
-import com.lolsearcher.exception.join.RandomNumDifferenceException;
 
 @ControllerAdvice(assignableTypes = JoinController.class)
 public class JoinExceptionHandler {

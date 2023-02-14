@@ -15,7 +15,6 @@ import java.io.Serializable;
 public class Perks implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private short mainPerkStyle;
     private short subPerkStyle;

@@ -1,10 +1,6 @@
 package com.lolsearcher.configuration;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,25 +17,14 @@ public class LolSearcherConfig {
 
 	private final WebClient.Builder webclientBuilder;
 
-	@Value("${lolsearcher.webclient.kr-base-url}")
-	private String krBaseUrl;
+	@Value("${lolsearcher.webclient.reactive-server-url}")
+	private String reactiveLolSearcherServerUrl;
 
-	@Value("${lolsearcher.webclient.asia-base-url}")
-	private String asiaBaseUrl;
 
-	@Qualifier("koreaWebClient")
 	@Bean
-	public WebClient koreaWebClient() {
+	public WebClient reactiveLolSearcherWebClient() {
 		return webclientBuilder
-				.baseUrl(krBaseUrl)
-				.build();
-	}
-
-	@Qualifier("asiaWebClient")
-	@Bean
-	public WebClient asiaWebClient() {
-		return webclientBuilder
-				.baseUrl(asiaBaseUrl)
+				.baseUrl(reactiveLolSearcherServerUrl)
 				.build();
 	}
 
@@ -49,11 +34,6 @@ public class LolSearcherConfig {
 		jpaTransactionManager.setEntityManagerFactory(entityManagerFactory);
 
 		return jpaTransactionManager;
-	}
-
-	@Bean
-	public ExecutorService matchSavingThreadPool() {
-		return Executors.newFixedThreadPool(54);
 	}
 
 	@Bean

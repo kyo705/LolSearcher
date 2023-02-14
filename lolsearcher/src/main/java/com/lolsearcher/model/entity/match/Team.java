@@ -1,6 +1,9 @@
 package com.lolsearcher.model.entity.match;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
@@ -18,7 +21,6 @@ import static com.lolsearcher.constant.LolSearcherConstants.THE_NUMBER_OF_TEAM_M
 public class Team implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(scale = 3)
     private byte gameResult;    /*  0 : win,  1 : loss,  2 : draw  */

@@ -24,4 +24,6 @@ public class LolSearcherConstants {
 
     public static final String MATCH_DATA_VERSION = "2";
     public static final String ALL = "all";
+    public static final int ALL_CHAMPION_ID = -1;
+    public static final String CURRENT_GAME_VERSION = "";
 }

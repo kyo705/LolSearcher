@@ -2,26 +2,11 @@ plugins {
 	id 'org.springframework.boot' version '2.6.3'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
-	id "org.asciidoctor.jvm.convert" version "3.3.2"
 }
-
-
 
 group = 'com.lolsearcher'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
-
-ext {
-    snippetsDir = file('build/generated-snippets')
-}
-
-bootJar {
-    dependsOn asciidoctor
-    copy {
-        from "${asciidoctor.outputDir}"
-        into "static/docs"
-    }
-}
 
 repositories {
 	mavenCentral()
@@ -35,49 +20,27 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok:1.18.24'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-	implementation 'org.springframework.boot:spring-boot-starter-mail:1.2.0.RELEASE'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-quartz'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'com.h2database:h2'
-	implementation 'it.ozimov:embedded-redis:0.7.2'
+	implementation 'org.springframework.boot:spring-boot-starter-mail:1.2.0.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
 	implementation 'org.mariadb.jdbc:mariadb-java-client:2.1.2'
-	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'it.ozimov:embedded-redis:0.7.2'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 	testImplementation 'com.h2database:h2'
-	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'it.ozimov:embedded-redis:0.7.2'
 
 }
 
-asciidoctor {
-    dependsOn test
-    inputs.dir snippetsDir
-}
-
-task copyDocument(type: Copy) {
-    dependsOn asciidoctor
-
-    from file("build/docs/asciidoc")
-    into file("src/main/resources/static/docs")
-}
-
 test {
    useJUnitPlatform()
-}
-
-build {
-    dependsOn copyDocument
 }
 
 compileJava.options.encoding = 'UTF-8'

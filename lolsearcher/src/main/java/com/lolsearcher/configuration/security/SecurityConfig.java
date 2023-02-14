@@ -5,7 +5,7 @@ import com.lolsearcher.auth.usernamepassword.UserLoginFailHandler;
 import com.lolsearcher.filter.EncodingFilter;
 import com.lolsearcher.filter.LoginBanFilter;
 import com.lolsearcher.filter.SearchBanFilter;
-import com.lolsearcher.service.login.OauthUserService;
+import com.lolsearcher.service.user.login.OauthUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.addFilterBefore(new EncodingFilter(), HeaderWriterFilter.class)
 				.addFilterBefore(new SearchBanFilter(cacheManager),UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(new LoginBanFilter(cacheManager), UsernamePasswordAuthenticationFilter.class)
-				.authorizeRequests()
+			.authorizeRequests()
 				.antMatchers("/api/**").access("hasRole('ROLE_GET')")
 				.anyRequest().permitAll()
 				.and()

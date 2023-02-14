@@ -2,13 +2,7 @@ package com.lolsearcher.constant;
 
 public class BeanNameConstants {
 
-    public static final String REMAINING_MATCH_ID_PRODUCER_SERVICE_NAME = "remainingMatchIdProducerService";
-    public static final String FAIL_MATCH_ID_PRODUCER_SERVICE_NAME = "failMatchIdProducerService";
-    public static final String SUCCESS_MATCH_PRODUCER_SERVICE_NAME = "successMatchProducerService";
-
-    public static final String KR_WEB_CLIENT_NAME = "koreaWebClient";
-    public static final String ASIA_WEB_CLIENT_NAME = "asiaWebClient";
-
+    public static final String REDIRECT_ENTITY_NAME = "redirectEntity";
     public static final String BAD_GATEWAY_ENTITY_NAME = "badGatewayEntity";
     public static final String FORBIDDEN_ENTITY_NAME = "forbiddenEntity";
     public static final String NOT_FOUND_ENTITY_NAME = "notFoundEntity";

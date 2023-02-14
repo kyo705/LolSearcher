@@ -1,15 +1,14 @@
 package com.lolsearcher.controller.user;
 
+import com.lolsearcher.constant.enumeration.JoinStatus;
+import com.lolsearcher.model.entity.user.LolSearcherUser;
+import com.lolsearcher.service.user.join.JoinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.lolsearcher.constant.enumeration.JoinStatus;
-import com.lolsearcher.model.entity.user.LolSearcherUser;
-import com.lolsearcher.service.join.JoinService;
 
 @RequiredArgsConstructor
 @Controller

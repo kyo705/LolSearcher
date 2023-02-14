@@ -41,7 +41,7 @@ public class CorsConfig {
 		corsConfig.addAllowedMethod(HttpMethod.POST);
 		corsConfig.addAllowedHeader(CorsConfiguration.ALL);
 
-		source.registerCorsConfiguration("/*", corsConfig);
+		source.registerCorsConfiguration("/**", corsConfig);
 
 		return new CorsFilter(source);
 	}

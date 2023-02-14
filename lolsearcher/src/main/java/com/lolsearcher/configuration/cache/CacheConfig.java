@@ -16,21 +16,13 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.lolsearcher.constant.CacheConstants.*;
+import static com.lolsearcher.constant.RedisCacheConstants.*;
 import static org.springframework.data.redis.cache.RedisCacheConfiguration.defaultCacheConfig;
 
 @EnableCaching
 @Configuration
 public class CacheConfig {
 
-    @Value("${lolsearcher.redis.ttl.ingame}")
-    private Long IN_GAME_TTL;
-    @Value("${lolsearcher.redis.ttl.match}")
-    private Long MATCH_TTL;
-    @Value("${lolsearcher.redis.ttl.search-ban}")
-    private Long SEARCH_BAN_TTL;
-    @Value("${lolsearcher.redis.ttl.search-abusing}")
-    private Long SEARCH_ABUSING_TTL;
     @Value("${lolsearcher.redis.ttl.search-ban}")
     private Long LOGIN_BAN_TTL;
     @Value("${lolsearcher.redis.ttl.login-abusing}")
@@ -48,10 +40,6 @@ public class CacheConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
         Map<String, RedisCacheConfiguration> entityCacheConfigs = new HashMap<>();
-        entityCacheConfigs.put(IN_GAME_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(IN_GAME_TTL)));
-        entityCacheConfigs.put(MATCH_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(MATCH_TTL)));
-        entityCacheConfigs.put(SEARCH_BAN_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(SEARCH_BAN_TTL)));
-        entityCacheConfigs.put(SEARCH_ABUSING_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(SEARCH_ABUSING_TTL)));
         entityCacheConfigs.put(LOGIN_BAN_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(LOGIN_BAN_TTL)));
         entityCacheConfigs.put(LOGIN_ABUSING_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(LOGIN_ABUSING_TTL)));
         entityCacheConfigs.put(CHAMPION_LIST_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(CHAMPION_LIST_TTL)));

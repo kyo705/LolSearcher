@@ -1,9 +1,9 @@
 package com.lolsearcher.controller.opnapi;
 
 import com.lolsearcher.model.factory.OpenApiResponseDtoFactory;
-import com.lolsearcher.model.output.front.match.MatchDto;
-import com.lolsearcher.model.output.openapi.OpenApiRankDto;
-import com.lolsearcher.model.output.openapi.OpenApiSummonerDto;
+import com.lolsearcher.model.response.front.match.MatchDto;
+import com.lolsearcher.model.response.openapi.OpenApiRankDto;
+import com.lolsearcher.model.response.openapi.OpenApiSummonerDto;
 import com.lolsearcher.service.openapi.RestApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -22,8 +22,6 @@ import static com.lolsearcher.constant.LolSearcherConstants.*;
 public class RestApiController {
 	
 	private final RestApiService restApiService;
-
-	//-------------------------------- Retrieve Method ----------------------------------
 	
 	@GetMapping("/summoner/id/{id}")
 	ResponseEntity<OpenApiSummonerDto> getOneSummonerById(@PathVariable("id") String id){
@@ -98,15 +96,6 @@ public class RestApiController {
 
 		return OpenApiResponseDtoFactory.getResponseEntity(headers, match);
 	}
-	
-	//---------------------------------- Create Method ----------------------------------
-
-	
-	//---------------------------------- Update Method ----------------------------------
-	
-	
-	//---------------------------------- Delete Method ----------------------------------
-	
 	
 	
 	//---------------------------------- Error Controller ----------------------------------

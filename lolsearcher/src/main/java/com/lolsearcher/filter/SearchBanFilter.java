@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.lolsearcher.constant.CacheConstants.SEARCH_BAN_KEY;
+import static com.lolsearcher.constant.RedisCacheConstants.SEARCH_BAN_KEY;
 import static com.lolsearcher.constant.UriConstants.NON_AUTHORITY_URI;
 import static java.util.Objects.requireNonNull;
 

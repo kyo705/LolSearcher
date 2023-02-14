@@ -1,31 +1,28 @@
 package com.lolsearcher.model.factory;
 
+import com.lolsearcher.model.entity.champion.ChampEnemyStats;
+import com.lolsearcher.model.entity.champion.ChampItemStats;
+import com.lolsearcher.model.entity.champion.ChampPositionStats;
 import com.lolsearcher.model.entity.match.*;
 import com.lolsearcher.model.entity.mostchamp.MostChampStat;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.input.riot.ingame.RiotGamesInGameBannedChampionDto;
-import com.lolsearcher.model.input.riot.ingame.RiotGamesInGameDto;
-import com.lolsearcher.model.input.riot.ingame.RiotGamesInGameParticipantDto;
-import com.lolsearcher.model.input.riot.ingame.RiotGamesInGamePerksDto;
-import com.lolsearcher.model.output.front.ingame.InGameBannedChampionDto;
-import com.lolsearcher.model.output.front.ingame.InGameDto;
-import com.lolsearcher.model.output.front.ingame.InGameParticipantDto;
-import com.lolsearcher.model.output.front.ingame.InGamePerksDto;
-import com.lolsearcher.model.output.front.match.*;
-import com.lolsearcher.model.output.front.mostchamp.ResponseMostChampDto;
-import com.lolsearcher.model.output.front.rank.RankDto;
-import com.lolsearcher.model.output.front.summoner.SummonerDto;
+import com.lolsearcher.model.response.front.championstats.ChampEnemyStatsDto;
+import com.lolsearcher.model.response.front.championstats.ChampItemStatsDto;
+import com.lolsearcher.model.response.front.championstats.ChampPositionStatsDto;
+import com.lolsearcher.model.response.front.match.*;
+import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
+import com.lolsearcher.model.response.front.rank.RankDto;
+import com.lolsearcher.model.response.front.summoner.SummonerDto;
 
 public class FrontServerResponseDtoFactory {
 
-    public static SummonerDto getSummonerDto(Summoner summoner, boolean renewed) {
+    public static SummonerDto getSummonerDto(Summoner summoner) {
 
         return SummonerDto
                 .builder()
                 .summonerId(summoner.getSummonerId())
                 .puuId(summoner.getPuuid())
-                .renewed(renewed)
                 .name(summoner.getSummonerName())
                 .profileIconId(summoner.getProfileIconId())
                 .summonerLevel(summoner.getSummonerLevel())
@@ -150,74 +147,6 @@ public class FrontServerResponseDtoFactory {
         return  matchDto;
     }
 
-    public static InGameDto getResponseInGameDto(RiotGamesInGameDto riotGamesInGameDto){
-
-        if(riotGamesInGameDto == null){
-            return null;
-        }
-        InGameDto inGameDto = new InGameDto();
-        inGameDto.setGameId(riotGamesInGameDto.getGameId());
-        inGameDto.setGameType(riotGamesInGameDto.getGameType());
-        inGameDto.setGameStartTime(riotGamesInGameDto.getGameStartTime());
-        inGameDto.setMapId(riotGamesInGameDto.getMapId());
-        inGameDto.setGameLength(riotGamesInGameDto.getGameLength());
-        inGameDto.setPlatformId(riotGamesInGameDto.getPlatformId());
-        inGameDto.setGameMode(riotGamesInGameDto.getGameMode());
-        inGameDto.setGameQueueConfigId(riotGamesInGameDto.getGameQueueConfigId());
-
-        if(riotGamesInGameDto.getBannedChampions() != null){
-            for(RiotGamesInGameBannedChampionDto bannedChampionInfo : riotGamesInGameDto.getBannedChampions()){
-
-                InGameBannedChampionDto inGameBannedChampionDto = InGameBannedChampionDto.builder()
-                        .championId(bannedChampionInfo.getChampionId())
-                        .pickTurn(bannedChampionInfo.getPickTurn())
-                        .teamId(bannedChampionInfo.getTeamId())
-                        .build();
-
-                inGameDto.getBannedChampions().add(inGameBannedChampionDto);
-            }
-        }
-
-        if(riotGamesInGameDto.getParticipants() != null){
-            for(RiotGamesInGameParticipantDto riotGamesInGameParticipantDto : riotGamesInGameDto.getParticipants()){
-
-                InGameParticipantDto inGameParticipantDto = InGameParticipantDto.builder()
-                        .championId(riotGamesInGameParticipantDto.getChampionId())
-                        .profileIconId(riotGamesInGameParticipantDto.getProfileIconId())
-                        .bot(riotGamesInGameParticipantDto.isBot())
-                        .teamId(riotGamesInGameParticipantDto.getTeamId())
-                        .summonerName(riotGamesInGameParticipantDto.getSummonerName())
-                        .summonerId(riotGamesInGameParticipantDto.getSummonerId())
-                        .spell1Id(riotGamesInGameParticipantDto.getSpell1Id())
-                        .spell2Id(riotGamesInGameParticipantDto.getSpell2Id())
-                        .build();
-
-                inGameDto.getParticipants().add(inGameParticipantDto);
-
-                RiotGamesInGamePerksDto riotGamesInGamePerksDto = riotGamesInGameParticipantDto.getPerks();
-                if(riotGamesInGamePerksDto != null){
-                    InGamePerksDto inGamePerksDto =
-                            InGamePerksDto.builder()
-                                    .perkStyle(riotGamesInGamePerksDto.getPerkStyle())
-                                    .perkSubStyle(riotGamesInGamePerksDto.getPerkSubStyle())
-                                    .mainPerk1(riotGamesInGamePerksDto.getPerkIds().get(0))
-                                    .mainPerk2(riotGamesInGamePerksDto.getPerkIds().get(1))
-                                    .mainPerk3(riotGamesInGamePerksDto.getPerkIds().get(2))
-                                    .mainPerk4(riotGamesInGamePerksDto.getPerkIds().get(3))
-                                    .subPerk1(riotGamesInGamePerksDto.getPerkIds().get(4))
-                                    .subPerk2(riotGamesInGamePerksDto.getPerkIds().get(5))
-                                    .statPerk1(riotGamesInGamePerksDto.getPerkIds().get(6))
-                                    .statPerk2(riotGamesInGamePerksDto.getPerkIds().get(7))
-                                    .statPerk3(riotGamesInGamePerksDto.getPerkIds().get(8))
-                                    .build();
-
-                    inGameParticipantDto.setPerks(inGamePerksDto);
-                }
-            }
-        }
-        return inGameDto;
-    }
-
     public static ResponseMostChampDto getResponseMostChampDto(MostChampStat mostChampStat) {
 
         long totalGames = mostChampStat.getTotalGames();
@@ -230,6 +159,39 @@ public class FrontServerResponseDtoFactory {
                 .avgCs((double) mostChampStat.getTotalMinionKills() / totalGames)
                 .totalGameCount(totalGames)
                 .totalWinCount(mostChampStat.getTotalWins())
+                .build();
+    }
+
+    public static ChampPositionStatsDto getChampPositionStatsDto(ChampPositionStats champPositionStats) {
+
+        return ChampPositionStatsDto.builder()
+                .gameVersion(champPositionStats.getGameVersion())
+                .championId(champPositionStats.getChampionId())
+                .positionId(champPositionStats.getPositionId())
+                .wins(champPositionStats.getWins())
+                .losses(champPositionStats.getLosses())
+                .build();
+    }
+
+    public static ChampItemStatsDto getChampItemStatsDto(ChampItemStats champItemStats) {
+
+        return ChampItemStatsDto.builder()
+                .gameVersion(champItemStats.getGameVersion())
+                .championId(champItemStats.getChampionId())
+                .itemId(champItemStats.getItemId())
+                .wins(champItemStats.getWins())
+                .losses(champItemStats.getLosses())
+                .build();
+    }
+
+    public static ChampEnemyStatsDto getChampEnemyStatsDto(ChampEnemyStats champEnemyStats) {
+
+        return ChampEnemyStatsDto.builder()
+                .gameVersion(champEnemyStats.getGameVersion())
+                .championId(champEnemyStats.getChampionId())
+                .enemyChampionId(champEnemyStats.getEnemyChampionId())
+                .wins(champEnemyStats.getWins())
+                .losses(champEnemyStats.getLosses())
                 .build();
     }
 }

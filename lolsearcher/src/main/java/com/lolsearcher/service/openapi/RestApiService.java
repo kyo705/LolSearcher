@@ -1,14 +1,14 @@
 package com.lolsearcher.service.openapi;
 
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
-import com.lolsearcher.model.factory.OpenApiResponseDtoFactory;
-import com.lolsearcher.model.output.front.match.MatchDto;
 import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.output.openapi.OpenApiRankDto;
-import com.lolsearcher.model.output.openapi.OpenApiSummonerDto;
-import com.lolsearcher.repository.restapi.RestRepository;
+import com.lolsearcher.model.factory.OpenApiResponseDtoFactory;
+import com.lolsearcher.model.response.front.match.MatchDto;
+import com.lolsearcher.model.response.openapi.OpenApiRankDto;
+import com.lolsearcher.model.response.openapi.OpenApiSummonerDto;
+import com.lolsearcher.repository.openapi.RestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -7,7 +7,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-import static com.lolsearcher.constant.CacheConstants.SEARCH_BAN_KEY;
+import static com.lolsearcher.constant.RedisCacheConstants.LOGIN_BAN_KEY;
 import static com.lolsearcher.constant.UriConstants.LOGIN_FORM_URI;
 import static com.lolsearcher.constant.UriConstants.LOGIN_URI;
 import static java.util.Objects.requireNonNull;
@@ -24,7 +24,7 @@ public class LoginBanFilter implements Filter {
 		String request_ip = request.getRemoteAddr();
 		String uri = ((HttpServletRequest)request).getRequestURI();
 
-		if(requireNonNull(cacheManager.getCache(SEARCH_BAN_KEY)).get(request_ip) == null || !uri.equals(LOGIN_URI)) {
+		if(requireNonNull(cacheManager.getCache(LOGIN_BAN_KEY)).get(request_ip) == null || !uri.equals(LOGIN_URI)) {
 			chain.doFilter(request, response);
 		}else {
 			//벤 페이지로 이동

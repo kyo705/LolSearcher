@@ -1,8 +1,14 @@
 package com.lolsearcher.model.entity.summoner;
 
-import javax.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import lombok.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 
 @Builder
@@ -14,7 +20,6 @@ import lombok.*;
 public class Summoner {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String summonerId;
 	private String accountId;

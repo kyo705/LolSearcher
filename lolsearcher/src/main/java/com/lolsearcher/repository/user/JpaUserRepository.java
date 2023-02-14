@@ -1,14 +1,12 @@
 package com.lolsearcher.repository.user;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
+import com.lolsearcher.exception.exception.summoner.SameValueExistException;
+import com.lolsearcher.model.entity.user.LolSearcherUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import com.lolsearcher.model.entity.user.LolSearcherUser;
-import com.lolsearcher.exception.summoner.SameValueExistException;
+import javax.persistence.EntityManager;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Repository

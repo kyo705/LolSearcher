@@ -16,7 +16,6 @@ import java.io.Serializable;
 public class SummaryMember implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) /* mariaDB 사용중 */
     private Long id;
     private String summonerId;
     private int banChampionId;

@@ -1,24 +1,17 @@
 package com.lolsearcher.auth.usernamepassword;
 
-import java.io.IOException;
+import com.lolsearcher.service.ban.LoginIpBanService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AccountExpiredException;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.CredentialsExpiredException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.stereotype.Service;
-
-import com.lolsearcher.service.ban.LoginIpBanService;
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @Service
@@ -29,9 +22,11 @@ public class UserLoginFailHandler implements AuthenticationFailureHandler {
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
-		String ip = request.getRemoteAddr();
-		if(loginIpBanService.isExceedBanCount(ip)) {
-			loginIpBanService.registerBanList(ip);
+
+		String ipAddress = request.getRemoteAddr();
+
+		if(loginIpBanService.isExceedBanCount(ipAddress)) {
+			loginIpBanService.registerBanList(ipAddress);
 			
 			request.setAttribute("loginFailMessage", "로그인 시도 횟수 초과!! 10분 뒤 다시 시도해주세요");
 			RequestDispatcher dispatcher = request.getRequestDispatcher("/loginForm");
