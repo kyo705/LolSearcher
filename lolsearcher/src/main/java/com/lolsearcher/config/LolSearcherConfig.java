@@ -1,4 +1,4 @@
-package com.lolsearcher.configuration;
+package com.lolsearcher.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,15 +1,18 @@
-package com.lolsearcher.configuration.security;
+package com.lolsearcher.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.auth.exceptiontranslationfilter.LolsearcherDeniedHandler;
 import com.lolsearcher.auth.usernamepassword.UserLoginFailHandler;
 import com.lolsearcher.filter.EncodingFilter;
 import com.lolsearcher.filter.LoginBanFilter;
 import com.lolsearcher.filter.SearchBanFilter;
+import com.lolsearcher.model.response.error.ErrorResponseBody;
 import com.lolsearcher.service.user.login.OauthUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -25,13 +28,14 @@ import java.util.List;
 @EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	private final OauthUserService oauthUserService;
 
+	private final ResponseEntity<ErrorResponseBody> forbiddenEntity;
+	private final OauthUserService oauthUserService;
 	private final List<CorsFilter> corsFilters;
 	private final CacheManager cacheManager;
-
+	private final ObjectMapper objectMapper;
 	private final UserLoginFailHandler userLoginFailHandler;
-	public final LolsearcherDeniedHandler lolsearcherDeniedHandler;
+	private final LolsearcherDeniedHandler lolsearcherDeniedHandler;
 
 	@Bean
 	public HttpSessionEventPublisher httpSessionEventPublisher() {
@@ -45,8 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		corsFilters.forEach(http::addFilter);
 
 		http.addFilterBefore(new EncodingFilter(), HeaderWriterFilter.class)
-				.addFilterBefore(new SearchBanFilter(cacheManager),UsernamePasswordAuthenticationFilter.class)
-				.addFilterBefore(new LoginBanFilter(cacheManager), UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(new SearchBanFilter(cacheManager, forbiddenEntity, objectMapper), UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(new LoginBanFilter(cacheManager, forbiddenEntity, objectMapper), UsernamePasswordAuthenticationFilter.class)
 			.authorizeRequests()
 				.antMatchers("/api/**").access("hasRole('ROLE_GET')")
 				.anyRequest().permitAll()
