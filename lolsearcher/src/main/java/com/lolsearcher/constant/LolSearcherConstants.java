@@ -25,5 +25,13 @@ public class LolSearcherConstants {
     public static final String MATCH_DATA_VERSION = "2";
     public static final String ALL = "all";
     public static final int ALL_CHAMPION_ID = -1;
-    public static final String CURRENT_GAME_VERSION = "";
+    public static final String CURRENT_GAME_VERSION = "13.1.1";
+
+    public static final String DEFAULT_ROLE = "ROLE_GET";
+    public static final String JOIN_IDENTIFICATION_SIGNATURE = "JoinIdentification";
+    public static final String USER_INFO = "lolSearcherUser";
+    public static final String RANDOM_NUMBER = "randomNumber";
+    public static final String JWT_PREFIX = "Bearer ";
+    public static final int JWT_EXPIRED_TIME = 5*60*1000; /* 5min */
+    public static final int MAX_BODY_LENGTH = 200;
 }

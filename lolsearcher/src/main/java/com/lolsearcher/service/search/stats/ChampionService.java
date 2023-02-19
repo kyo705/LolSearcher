@@ -2,8 +2,8 @@ package com.lolsearcher.service.search.stats;
 
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
-import com.lolsearcher.model.request.RequestChampDetailStatsDto;
-import com.lolsearcher.model.request.RequestChampPositionStatsDto;
+import com.lolsearcher.model.request.search.RequestChampDetailStatsDto;
+import com.lolsearcher.model.request.search.RequestChampPositionStatsDto;
 import com.lolsearcher.model.response.front.championstats.ChampEnemyStatsDto;
 import com.lolsearcher.model.response.front.championstats.ChampItemStatsDto;
 import com.lolsearcher.model.response.front.championstats.ChampPositionStatsDto;

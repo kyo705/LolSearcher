@@ -1,6 +1,6 @@
 package com.lolsearcher.controller.search.match;
 
-import com.lolsearcher.model.request.RequestMatchDto;
+import com.lolsearcher.model.request.search.RequestMatchDto;
 import com.lolsearcher.model.response.front.match.MatchDto;
 import com.lolsearcher.service.search.match.MatchService;
 import lombok.RequiredArgsConstructor;

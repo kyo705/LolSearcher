@@ -1,4 +1,4 @@
-package com.lolsearcher.model.request;
+package com.lolsearcher.model.request.search;
 
 import lombok.Data;
 

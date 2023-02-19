@@ -4,7 +4,7 @@ import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import com.lolsearcher.constant.enumeration.GameType;
 import com.lolsearcher.model.entity.mostchamp.MostChampStat;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
-import com.lolsearcher.model.request.RequestMostChampDto;
+import com.lolsearcher.model.request.search.RequestMostChampDto;
 import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
 import com.lolsearcher.repository.search.mostchamp.MostChampRepository;
 import lombok.RequiredArgsConstructor;

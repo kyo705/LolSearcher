@@ -1,4 +1,4 @@
-package com.lolsearcher.auth.usernamepassword;
+package com.lolsearcher.auth.login;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.*;

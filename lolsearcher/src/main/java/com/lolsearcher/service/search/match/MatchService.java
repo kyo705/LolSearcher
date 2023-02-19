@@ -3,7 +3,7 @@ package com.lolsearcher.service.search.match;
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
 import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
-import com.lolsearcher.model.request.RequestMatchDto;
+import com.lolsearcher.model.request.search.RequestMatchDto;
 import com.lolsearcher.model.response.front.match.MatchDto;
 import com.lolsearcher.repository.search.match.MatchRepository;
 import lombok.RequiredArgsConstructor;

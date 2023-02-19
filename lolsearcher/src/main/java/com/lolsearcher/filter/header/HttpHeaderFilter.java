@@ -1,4 +1,4 @@
-package com.lolsearcher.filter;
+package com.lolsearcher.filter.header;
 
 import org.springframework.http.HttpHeaders;
 
@@ -6,8 +6,8 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class EncodingFilter implements Filter{
-	
+public class HttpHeaderFilter implements Filter{
+
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {

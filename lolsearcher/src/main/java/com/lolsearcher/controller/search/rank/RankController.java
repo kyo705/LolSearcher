@@ -1,6 +1,6 @@
 package com.lolsearcher.controller.search.rank;
 
-import com.lolsearcher.model.request.RequestRankDto;
+import com.lolsearcher.model.request.search.RequestRankDto;
 import com.lolsearcher.model.response.front.rank.RankDto;
 import com.lolsearcher.service.search.rank.RankService;
 import lombok.RequiredArgsConstructor;

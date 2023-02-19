@@ -1,4 +1,4 @@
-package com.lolsearcher.auth.usernamepassword;
+package com.lolsearcher.auth.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.model.response.error.ErrorResponseBody;

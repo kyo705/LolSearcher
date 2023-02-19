@@ -2,11 +2,15 @@ package com.lolsearcher.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.auth.exceptiontranslationfilter.LolsearcherDeniedHandler;
-import com.lolsearcher.auth.usernamepassword.UserLoginFailHandler;
-import com.lolsearcher.filter.EncodingFilter;
-import com.lolsearcher.filter.LoginBanFilter;
-import com.lolsearcher.filter.SearchBanFilter;
+import com.lolsearcher.auth.login.UserLoginFailHandler;
+import com.lolsearcher.filter.ban.LoginBanFilter;
+import com.lolsearcher.filter.ban.SearchBanFilter;
+import com.lolsearcher.filter.header.HttpHeaderFilter;
+import com.lolsearcher.filter.join.JWTUserJoinAuthenticationFilter;
+import com.lolsearcher.filter.join.UserJoinAuthenticationFilter;
 import com.lolsearcher.model.response.error.ErrorResponseBody;
+import com.lolsearcher.service.user.join.JoinService;
+import com.lolsearcher.service.user.join.identification.JoinIdentificationService;
 import com.lolsearcher.service.user.login.OauthUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
@@ -22,14 +26,18 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
+import java.util.Map;
+
+import static com.lolsearcher.constant.BeanNameConstants.FORBIDDEN_ENTITY_NAME;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-
-	private final ResponseEntity<ErrorResponseBody> forbiddenEntity;
+	private final Map<String,ResponseEntity<ErrorResponseBody>> responseEntities;
+	private final JoinIdentificationService joinIdentificationService;
+	private final JoinService joinService;
 	private final OauthUserService oauthUserService;
 	private final List<CorsFilter> corsFilters;
 	private final CacheManager cacheManager;
@@ -48,10 +56,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		corsFilters.forEach(http::addFilter);
 
-		http.addFilterBefore(new EncodingFilter(), HeaderWriterFilter.class)
-				.addFilterBefore(new SearchBanFilter(cacheManager, forbiddenEntity, objectMapper), UsernamePasswordAuthenticationFilter.class)
-				.addFilterBefore(new LoginBanFilter(cacheManager, forbiddenEntity, objectMapper), UsernamePasswordAuthenticationFilter.class)
-			.authorizeRequests()
+		UserJoinAuthenticationFilter jwtUserJoinAuthenticationFilter = new JWTUserJoinAuthenticationFilter(
+				joinIdentificationService, joinService, responseEntities, objectMapper);
+
+		SearchBanFilter searchBanFilter = new SearchBanFilter(
+				cacheManager, responseEntities.get(FORBIDDEN_ENTITY_NAME), objectMapper);
+
+		LoginBanFilter loginBanFilter = new LoginBanFilter(
+				cacheManager, responseEntities.get(FORBIDDEN_ENTITY_NAME), objectMapper);
+
+		http.addFilterBefore(new HttpHeaderFilter(), HeaderWriterFilter.class)
+				.addFilterAfter(jwtUserJoinAuthenticationFilter, HeaderWriterFilter.class)
+				.addFilterBefore(searchBanFilter, UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(loginBanFilter, UsernamePasswordAuthenticationFilter.class)
+		.authorizeRequests()
 				.antMatchers("/api/**").access("hasRole('ROLE_GET')")
 				.anyRequest().permitAll()
 				.and()

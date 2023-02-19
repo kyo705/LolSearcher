@@ -1,4 +1,4 @@
-package com.lolsearcher.auth.usernamepassword;
+package com.lolsearcher.auth.login;
 
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import org.springframework.security.core.GrantedAuthority;

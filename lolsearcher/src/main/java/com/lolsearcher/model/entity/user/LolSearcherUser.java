@@ -1,11 +1,15 @@
 package com.lolsearcher.model.entity.user;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+@Builder
+@AllArgsConstructor
 @Data
 @Entity
 public class LolSearcherUser {

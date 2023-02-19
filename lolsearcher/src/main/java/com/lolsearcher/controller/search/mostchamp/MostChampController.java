@@ -1,6 +1,6 @@
 package com.lolsearcher.controller.search.mostchamp;
 
-import com.lolsearcher.model.request.RequestMostChampDto;
+import com.lolsearcher.model.request.search.RequestMostChampDto;
 import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
 import com.lolsearcher.service.search.mostchamp.MostChampService;
 import lombok.RequiredArgsConstructor;

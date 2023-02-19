@@ -1,123 +1,134 @@
 package com.lolsearcher.service.user.join;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
-import com.lolsearcher.exception.exception.join.CertificationTimeOutException;
-import com.lolsearcher.exception.exception.join.RandomNumDifferenceException;
+import com.lolsearcher.exception.exception.join.ExistedUserException;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
-import com.lolsearcher.model.response.temporary.TemporaryUser;
+import com.lolsearcher.model.request.user.RequestEmailCheckDto;
+import com.lolsearcher.model.request.user.RequestUserJoinDto;
+import com.lolsearcher.model.response.front.user.ResponseJoinDto;
 import com.lolsearcher.repository.user.UserRepository;
+import com.lolsearcher.service.mail.MailService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.CacheManager;
-import org.springframework.mail.javamail.JavaMailSender;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 
-import static com.lolsearcher.constant.RedisCacheConstants.JOIN_CERTIFICATION_KEY;
-import static java.util.Objects.requireNonNull;
+import static com.lolsearcher.constant.LolSearcherConstants.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class JoinService {
 
-	private final CacheManager cacheManager;
+	@Value("${lolsearcher.jwt.secret}")
+	private String JWT_SECRET_KEY;
+
+	private final ObjectMapper objectMapper;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final UserRepository userRepository;
-	private final JavaMailSender javaMailSender;
+	private final MailService mailService;
 	private final ExecutorService executorService;
-	
+
+	@JpaTransactional(readOnly = true)
+	public ResponseEntity<ResponseJoinDto> handleJoinProcedure(RequestUserJoinDto requestDto) {
+
+		String email = requestDto.getEmail();
+		validateEmail(email);
+
+		int randomNum = generateRandomNum();
+		LolSearcherUser user = generateLolSearcherUser(requestDto);
+
+		sendIdentificationEmail(email, randomNum);
+		String token = generateToken(user, randomNum);
+
+		return generateResponseEntity(token);
+	}
+
+	@JpaTransactional(readOnly = true)
+	public ResponseJoinDto checkPossibleEmail(RequestEmailCheckDto request) {
+
+		String email = request.getEmail();
+		validateEmail(email);
+
+		return ResponseJoinDto.builder().message("사용 가능한 이메일입니다.").build();
+	}
+
 	@JpaTransactional
 	public void joinUser(LolSearcherUser user) {
 		userRepository.saveUser(user);
 	}
-	
-	
-	@JpaTransactional(readOnly = true)
-	public LolSearcherUser findUserByUsername(String username) {
-		return userRepository.findUserByName(username);
-	}
-	
-	
-	@JpaTransactional(readOnly = true)
-	public LolSearcherUser findUserByEmail(String email) {
-		return userRepository.findUserByEmail(email);
-	}
-	
-	
-	public boolean isValidForm(String userid) {
-		for(char c : userid.toCharArray()) {
-			if((c>='a'&& c<='z')||(c>='A'&&c<='Z')||(c>='0'&&c<='9')) {
-				continue;
-			}
-			return false;
+
+
+	private void validateEmail(String email){
+
+		if(userRepository.findUserByEmail(email) != null){
+			log.info("{} 해당 이메일은 이미 존재하는 메일입니다.", email);
+			throw new ExistedUserException(email); /* exception handler에서 400 error 발생 */
 		}
-		return true;
 	}
 
-	
-	public void sendCertificationEmail(String username, String rawPassword, String email) {
-		LolSearcherUser user = createAccount(username, rawPassword, email);
-		int randomNumber = (int)(Math.random()*10000000);
-		
-		Runnable certificationEmailTask = createCertificationEmail(email, randomNumber);
-		executorService.submit(certificationEmailTask);
+	private int generateRandomNum() {
 
-		TemporaryUser temporaryUser = new TemporaryUser(user, randomNumber);
-
-		requireNonNull(cacheManager.getCache(JOIN_CERTIFICATION_KEY)).put(email, temporaryUser);
+		return (int)(Math.random()*10000000); /* 8자리 랜덤수 */
 	}
 
-	
-	public LolSearcherUser certificate(String email, int inputNumber) {
+	private LolSearcherUser generateLolSearcherUser(RequestUserJoinDto requestDto) {
 
-		TemporaryUser temporaryUser = (TemporaryUser) requireNonNull(cacheManager.getCache(JOIN_CERTIFICATION_KEY)).get(email);
+		String email = requestDto.getEmail();
+		String password = bCryptPasswordEncoder.encode(requestDto.getPassword());
+		String username = requestDto.getUsername();
 
-		if(temporaryUser == null) {
-			throw new CertificationTimeOutException();
+		return LolSearcherUser.builder()
+				.email(email)
+				.password(password)
+				.username(username)
+				.role(DEFAULT_ROLE)
+				.build();
+	}
+
+	private void sendIdentificationEmail(String email, int randomNumber) {
+
+		executorService.submit(()->mailService.sendIdentificationMail(email, randomNumber));
+	}
+
+	private String generateToken(LolSearcherUser user, int randomNum) {
+
+		try {
+			String userJson = objectMapper.writeValueAsString(user);
+
+			return JWT.create()
+					.withSubject(JOIN_IDENTIFICATION_SIGNATURE)
+					.withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRED_TIME))
+					.withClaim(USER_INFO, userJson)
+					.withClaim(RANDOM_NUMBER, randomNum)
+					.sign(Algorithm.HMAC256(JWT_SECRET_KEY));
+
+		} catch (JsonProcessingException e) {
+			log.error(e.getMessage());
+			throw new RuntimeException(e); //500에러 발생
 		}
-
-		if(inputNumber != temporaryUser.getRandomNumber()) {
-			throw new RandomNumDifferenceException(email);
-		}
-
-		requireNonNull(cacheManager.getCache(JOIN_CERTIFICATION_KEY)).evict(email);
-
-		return temporaryUser.getUser();
 	}
-	
-	
-	private LolSearcherUser createAccount(String username, String rawPassword, String email) {
-		String defaultRole = "ROLE_GET";
-		String password = bCryptPasswordEncoder.encode(rawPassword);
-		
-		return new LolSearcherUser(username, password, defaultRole, email, 0);
-	}
-	
-	
-	private Runnable createCertificationEmail(String email, int randomNumber) {
-		return () -> {
-				String subject = "lolsearcher 회원가입 인증 메일입니다.";
-				String text = "<p>안녕하세요.</p>"
-							+ "<p>lolsearcher 회원가입 인증 메일입니다.</p>"
-							+ "<p>인증 코드 번호는 아래와 같습니다.</p>"
-							+ "<h2>"+randomNumber+"</h2>"
-							+ "<p>해당 코드 번호로 인증을 완료해주세요.</p>";
-				
-				MimeMessage message = javaMailSender.createMimeMessage();
-				try {
-					message.setSubject(subject);
-					message.setText(text,"UTF-8","html");
-					message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));
-					
-					javaMailSender.send(message);
-				} catch (MessagingException e) {
-					e.printStackTrace();
-				}
-			};
+
+	private ResponseEntity<ResponseJoinDto> generateResponseEntity(String token) {
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(token);
+
+		ResponseJoinDto body = ResponseJoinDto.builder().message("임시 회원 가입 성공").build();
+
+		return ResponseEntity.status(HttpStatus.OK)
+				.headers(headers)
+				.body(body);
 	}
 }
