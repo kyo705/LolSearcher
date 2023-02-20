@@ -1,6 +1,6 @@
 package com.lolsearcher.service.search.mostchamp;
 
-import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.constant.enumeration.GameType;
 import com.lolsearcher.model.entity.mostchamp.MostChampStat;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;

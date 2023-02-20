@@ -1,6 +1,6 @@
 package com.lolsearcher.service.search.stats;
 
-import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
 import com.lolsearcher.model.request.search.RequestChampDetailStatsDto;
 import com.lolsearcher.model.request.search.RequestChampPositionStatsDto;

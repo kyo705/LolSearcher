@@ -1,4 +1,4 @@
-package com.lolsearcher.aop;
+package com.lolsearcher.aop.timetrace;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -9,13 +9,14 @@ import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-public class TimeTraceAop {
+public class TimeTraceAspect {
 
 	private  final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Around("execution(* com.lolsearcher..*(..)) "
 			+ "&& !target(com.lolsearcher.configuration.LolSearcherConfig) ")
 	public Object execute(ProceedingJoinPoint joinpoint) throws Throwable {
+
 		long start = System.currentTimeMillis();
 		log.info("START : '{}'", joinpoint.toShortString());
 		

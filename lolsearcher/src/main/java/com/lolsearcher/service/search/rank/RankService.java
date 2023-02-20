@@ -1,6 +1,6 @@
 package com.lolsearcher.service.search.rank;
 
-import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.exception.exception.rank.IncorrectSummonerRankSizeException;
 import com.lolsearcher.exception.exception.rank.NonUniqueRankTypeException;
 import com.lolsearcher.model.entity.rank.Rank;

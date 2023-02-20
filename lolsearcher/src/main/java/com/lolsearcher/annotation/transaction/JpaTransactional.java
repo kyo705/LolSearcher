@@ -1,4 +1,4 @@
-package com.lolsearcher.annotation.transaction.jpa;
+package com.lolsearcher.annotation.transaction;
 
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Isolation;

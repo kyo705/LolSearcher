@@ -4,7 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.exception.exception.join.ExistedUserException;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.model.request.user.RequestEmailCheckDto;

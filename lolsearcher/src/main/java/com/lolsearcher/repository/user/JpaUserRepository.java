@@ -1,5 +1,6 @@
 package com.lolsearcher.repository.user;
 
+import com.lolsearcher.annotation.entity.IdGeneration;
 import com.lolsearcher.exception.exception.summoner.SameValueExistException;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,8 @@ import java.util.List;
 public class JpaUserRepository implements UserRepository {
 
 	private final EntityManager em;
-	
+
+	@IdGeneration
 	@Override
 	public void saveUser(LolSearcherUser user) {
 		em.persist(user);

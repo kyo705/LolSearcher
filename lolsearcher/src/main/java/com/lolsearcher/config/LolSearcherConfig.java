@@ -1,5 +1,6 @@
 package com.lolsearcher.config;
 
+import com.lolsearcher.aop.idgeneration.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +20,13 @@ public class LolSearcherConfig {
 
 	@Value("${lolsearcher.webclient.reactive-server-url}")
 	private String reactiveLolSearcherServerUrl;
+	@Value("${lolsearcher.nodeId}")
+	private long nodeId;
 
+	@Bean
+	public IdGenerator idGenerator(){
+		return new IdGenerator(nodeId);
+	}
 
 	@Bean
 	public WebClient reactiveLolSearcherWebClient() {

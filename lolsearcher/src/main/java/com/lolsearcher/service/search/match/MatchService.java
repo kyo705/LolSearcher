@@ -1,6 +1,6 @@
 package com.lolsearcher.service.search.match;
 
-import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
 import com.lolsearcher.model.request.search.RequestMatchDto;

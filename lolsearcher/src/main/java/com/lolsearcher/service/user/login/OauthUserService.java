@@ -1,6 +1,6 @@
 package com.lolsearcher.service.user.login;
 
-import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.auth.login.LolsearcherUserDetails;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.repository.user.UserRepository;
