@@ -28,8 +28,6 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.List;
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.FORBIDDEN_ENTITY_NAME;
-
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -56,14 +54,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		corsFilters.forEach(http::addFilter);
 
-		UserJoinAuthenticationFilter jwtUserJoinAuthenticationFilter = new JWTUserJoinAuthenticationFilter(
-				joinIdentificationService, joinService, responseEntities, objectMapper);
+		UserJoinAuthenticationFilter jwtUserJoinAuthenticationFilter =
+				new JWTUserJoinAuthenticationFilter(joinIdentificationService, joinService, responseEntities, objectMapper);
 
-		SearchBanFilter searchBanFilter = new SearchBanFilter(
-				cacheManager, responseEntities.get(FORBIDDEN_ENTITY_NAME), objectMapper);
-
-		LoginBanFilter loginBanFilter = new LoginBanFilter(
-				cacheManager, responseEntities.get(FORBIDDEN_ENTITY_NAME), objectMapper);
+		SearchBanFilter searchBanFilter = new SearchBanFilter(cacheManager, responseEntities, objectMapper);
+		LoginBanFilter loginBanFilter = new LoginBanFilter(cacheManager, responseEntities, objectMapper);
 
 		http.addFilterBefore(new HttpHeaderFilter(), HeaderWriterFilter.class)
 				.addFilterAfter(jwtUserJoinAuthenticationFilter, HeaderWriterFilter.class)

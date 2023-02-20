@@ -32,14 +32,11 @@ public class UserLoginFailHandler implements AuthenticationFailureHandler {
 		String failureMessage;
 		String ipAddress = request.getRemoteAddr();
 
-		if(loginIpBanService.isExceedBanCount(ipAddress)) {
-			loginIpBanService.registerBanList(ipAddress);
+		loginIpBanService.addBanCount(ipAddress);
 
+		if(loginIpBanService.isExceedBanCount(ipAddress)) {
 			failureMessage = "로그인 시도 횟수 초과!! 10분 뒤 다시 시도해주세요";
-			handleExpectedException(response, failureMessage);
-			return;
-		}
-		if (exception instanceof AuthenticationServiceException) {
+		}else if (exception instanceof AuthenticationServiceException) {
 			failureMessage = "존재하지 않는 사용자입니다.";
 		} else if(exception instanceof BadCredentialsException) {
 			failureMessage = "아이디 또는 비밀번호가 틀립니다.";

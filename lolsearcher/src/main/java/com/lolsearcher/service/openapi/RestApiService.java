@@ -1,6 +1,6 @@
 package com.lolsearcher.service.openapi;
 
-import com.lolsearcher.annotation.transaction.jpa.JpaTransactional;
+import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.model.entity.match.Match;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.entity.summoner.Summoner;

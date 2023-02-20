@@ -1,6 +1,5 @@
 package com.lolsearcher.controller.search.stats;
 
-import com.lolsearcher.constant.LolSearcherConstants;
 import com.lolsearcher.exception.exception.champion.InvalidChampionIdException;
 import com.lolsearcher.exception.exception.common.IncorrectGameVersionException;
 import com.lolsearcher.model.request.search.RequestChampDetailStatsDto;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.lolsearcher.constant.LolSearcherConstants.CURRENT_GAME_VERSION;
 import static com.lolsearcher.constant.RedisCacheConstants.CHAMPION_LIST_KEY;
 import static java.util.Objects.requireNonNull;
 
@@ -48,7 +48,7 @@ public class ChampionController {
 
 		String gameVersion = requestDto.getGameVersion();
 
-		if(!isValidGameVersion(gameVersion)){
+		if(!gameVersion.equals(CURRENT_GAME_VERSION)){
 			throw new IncorrectGameVersionException(gameVersion);
 		}
 		return requestDto;
@@ -59,17 +59,12 @@ public class ChampionController {
 		int championId = requestDto.getChampionId();
 		String gameVersion = requestDto.getGameVersion();
 
-		if(!isValidGameVersion(gameVersion)){
+		if(!gameVersion.equals(CURRENT_GAME_VERSION)){
 			throw new IncorrectGameVersionException(gameVersion);
 		}
 		if(requireNonNull(cacheManager.getCache(CHAMPION_LIST_KEY)).get(championId) == null){
 			throw new InvalidChampionIdException(championId);
 		}
 		return requestDto;
-	}
-
-	private boolean isValidGameVersion(String gameVersion){
-
-		return gameVersion.equals(LolSearcherConstants.CURRENT_GAME_VERSION);
 	}
 }

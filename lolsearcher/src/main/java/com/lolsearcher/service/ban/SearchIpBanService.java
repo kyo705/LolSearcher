@@ -1,42 +1,47 @@
 package com.lolsearcher.service.ban;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import static com.lolsearcher.constant.LolSearcherConstants.SEARCH_BAN_COUNT;
-import static com.lolsearcher.constant.RedisCacheConstants.*;
-import static java.util.Objects.requireNonNull;
+import static com.lolsearcher.constant.RedisCacheConstants.SEARCH_BAN_KEY;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class SearchIpBanService implements IpBanService {
 
-	private final CacheManager rediscCacheManager;
+	private final Cache cache;
 
-	@Override
-	public boolean isExceedBanCount(String ipAddress) {
-		Cache loginAbusingCache = rediscCacheManager.getCache(LOGIN_ABUSING_KEY);
+	public SearchIpBanService(CacheManager cacheManager){
 
-		assert loginAbusingCache != null;
-
-		if(loginAbusingCache.get(ipAddress) == null){
-			loginAbusingCache.put(ipAddress, 1);
-		}else{
-			loginAbusingCache.put(ipAddress, (Integer) loginAbusingCache.get(ipAddress).get() + 1);
+		if(cacheManager.getCache(SEARCH_BAN_KEY) == null){
+			log.error("조회 차단 관련 cache가 존재하지 않음");
+			throw new IllegalArgumentException();
 		}
-
-		return (Integer) loginAbusingCache.get(ipAddress).get() >= SEARCH_BAN_COUNT;
+		this.cache = cacheManager.getCache(SEARCH_BAN_KEY);
 	}
 
 	@Override
-	public void registerBanList(String ipAddress) {
-		requireNonNull(rediscCacheManager.getCache(SEARCH_BAN_KEY)).put(ipAddress, System.currentTimeMillis());
+	public void addBanCount(String ipAddress) {
 
-		requireNonNull(rediscCacheManager.getCache(SEARCH_ABUSING_KEY)).evictIfPresent(ipAddress);
+		cache.putIfAbsent(ipAddress, 0);
+		cache.put(ipAddress, cache.get(ipAddress, Integer.class) + 1);
+	}
+
+	@Override
+	public boolean isExceedBanCount(String ipAddress) {
+
+		if(cache.get(ipAddress) == null) {
+			return false;
+		}
+		try {
+			return cache.get(ipAddress, Integer.class) >= SEARCH_BAN_COUNT;
+		} catch (IllegalStateException e){
+			log.error("Cache value 값이 Integer 타입이 아님");
+			throw new RuntimeException(e);
+		}
 	}
 
 }

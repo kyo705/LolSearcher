@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import java.net.URI;
 
 import static com.lolsearcher.constant.BeanNameConstants.*;
-import static com.lolsearcher.constant.UriConstants.REACTIVE_LOLSEARCHER_SERVER_URI;
+import static com.lolsearcher.constant.UriConstants.SUMMONER_RENEW_REQUEST_URI;
 
 @Configuration
 public class ErrorResponseEntity {
@@ -21,7 +21,7 @@ public class ErrorResponseEntity {
     public ResponseEntity<ErrorResponseBody> redirectEntity() {
 
         HttpHeaders headers = createDefaultHeader();
-        headers.setLocation(URI.create(REACTIVE_LOLSEARCHER_SERVER_URI));
+        headers.setLocation(URI.create(SUMMONER_RENEW_REQUEST_URI));
 
         ErrorResponseBody body = ErrorResponseBody.builder()
                 .errorStatusCode(HttpStatus.TEMPORARY_REDIRECT.value())
