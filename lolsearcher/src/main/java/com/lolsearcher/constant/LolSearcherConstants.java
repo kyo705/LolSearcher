@@ -34,4 +34,8 @@ public class LolSearcherConstants {
     public static final String JWT_PREFIX = "Bearer ";
     public static final int JWT_EXPIRED_TIME = 5*60*1000; /* 5min */
     public static final int MAX_BODY_LENGTH = 200;
+
+    public static final String CHAMP_POSITION_STATS_PREFIX = "champPositionStatsKey:";
+    public static final String CHAMP_ITEM_STATS_PREFIX = "champItemStatsKey:";
+    public static final String CHAMP_ENEMY_STATS_PREFIX = "champEnemyStatsKey:";
 }

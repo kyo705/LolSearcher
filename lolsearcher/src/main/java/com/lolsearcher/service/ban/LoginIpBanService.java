@@ -6,7 +6,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import static com.lolsearcher.constant.LolSearcherConstants.LOGIN_BAN_COUNT;
-import static com.lolsearcher.constant.RedisCacheConstants.LOGIN_BAN_KEY;
+import static com.lolsearcher.constant.RedisCacheNameConstants.LOGIN_BAN;
 
 @Slf4j
 @Service
@@ -16,11 +16,11 @@ public class LoginIpBanService implements IpBanService {
 
 	public LoginIpBanService(CacheManager cacheManager){
 
-		if(cacheManager.getCache(LOGIN_BAN_KEY) == null){
+		if(cacheManager.getCache(LOGIN_BAN) == null){
 			log.error("로그인 차단 관련 Cache가 존재하지 않음");
 			throw new IllegalArgumentException();
 		}
-		this.cache = cacheManager.getCache(LOGIN_BAN_KEY);
+		this.cache = cacheManager.getCache(LOGIN_BAN);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.lolsearcher.config.cache;
 
+import com.lolsearcher.constant.RedisCacheNameConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -15,9 +16,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.lolsearcher.constant.RedisCacheConstants.*;
-import static org.springframework.data.redis.cache.RedisCacheConfiguration.defaultCacheConfig;
-
 @EnableCaching
 @Configuration
 public class CacheConfig {
@@ -26,29 +24,33 @@ public class CacheConfig {
     private Long LOGIN_BAN_TTL;
     @Value("${lolsearcher.redis.ttl.search-ban}")
     private Long SEARCH_BAN_TTL;
-    @Value("${lolsearcher.redis.ttl.champions}")
-    private Long CHAMPION_LIST_TTL;
-    @Value("${lolsearcher.redis.ttl.join-certification}")
-    private Long JOIN_CERTIFICATION_TTL;
+    @Value("${lolsearcher.redis.ttl.championIds}")
+    private Long CHAMPION_ID_LIST_TTL;
 
     @Bean
     public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory){
 
-        RedisCacheConfiguration config = defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()));
-
         Map<String, RedisCacheConfiguration> entityCacheConfigs = new HashMap<>();
-        entityCacheConfigs.put(LOGIN_BAN_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(LOGIN_BAN_TTL)));
-        entityCacheConfigs.put(SEARCH_BAN_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(SEARCH_BAN_TTL)));
-        entityCacheConfigs.put(CHAMPION_LIST_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(CHAMPION_LIST_TTL)));
-        entityCacheConfigs.put(JOIN_CERTIFICATION_KEY, defaultCacheConfig().entryTtl(Duration.ofSeconds(JOIN_CERTIFICATION_TTL)));
+
+        entityCacheConfigs.put(RedisCacheNameConstants.LOGIN_BAN,
+                RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(LOGIN_BAN_TTL)));
+        entityCacheConfigs.put(RedisCacheNameConstants.SEARCH_BAN,
+                RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(SEARCH_BAN_TTL)));
+        entityCacheConfigs.put(RedisCacheNameConstants.CHAMPION_ID_LIST,
+                RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CHAMPION_ID_LIST_TTL)));
 
         return RedisCacheManager
                 .RedisCacheManagerBuilder
                 .fromConnectionFactory(redisConnectionFactory)
-                .cacheDefaults(config)
+                .cacheDefaults(createDefaultCacheConfig())
                 .withInitialCacheConfigurations(entityCacheConfigs)
                 .build();
+    }
+
+    private RedisCacheConfiguration createDefaultCacheConfig(){
+
+        return RedisCacheConfiguration.defaultCacheConfig()
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()));
     }
 }
