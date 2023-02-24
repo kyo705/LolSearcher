@@ -1,8 +1,8 @@
 package com.lolsearcher.service.user.login;
 
 import com.lolsearcher.annotation.transaction.JpaTransactional;
-import com.lolsearcher.auth.login.LolsearcherUserDetails;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
+import com.lolsearcher.model.response.front.user.LolsearcherUserDetails;
 import com.lolsearcher.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -6,8 +6,8 @@ import com.lolsearcher.exception.exception.summoner.NotExistedSummonerInDBExcept
 import com.lolsearcher.exception.exception.summoner.NotExistedSummonerInGameServerException;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
-import com.lolsearcher.model.request.search.RequestSummonerDto;
-import com.lolsearcher.model.response.front.summoner.SummonerDto;
+import com.lolsearcher.model.request.search.summoner.RequestSummonerDto;
+import com.lolsearcher.model.response.front.search.summoner.SummonerDto;
 import com.lolsearcher.repository.search.summoner.SummonerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

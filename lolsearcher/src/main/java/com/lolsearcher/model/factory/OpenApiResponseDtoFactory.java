@@ -3,7 +3,7 @@ package com.lolsearcher.model.factory;
 import com.lolsearcher.model.entity.match.*;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.response.front.match.*;
+import com.lolsearcher.model.response.front.search.match.*;
 import com.lolsearcher.model.response.openapi.OpenApiRankDto;
 import com.lolsearcher.model.response.openapi.OpenApiSummonerDto;
 import org.springframework.http.HttpHeaders;

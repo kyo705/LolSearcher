@@ -2,10 +2,10 @@ package com.lolsearcher.controller.search.stats;
 
 import com.lolsearcher.exception.exception.champion.InvalidChampionIdException;
 import com.lolsearcher.exception.exception.common.IncorrectGameVersionException;
-import com.lolsearcher.model.request.search.RequestChampDetailStatsDto;
-import com.lolsearcher.model.request.search.RequestChampPositionStatsDto;
-import com.lolsearcher.model.response.front.championstats.ChampPositionStatsDto;
-import com.lolsearcher.model.response.front.championstats.TotalChampStatDto;
+import com.lolsearcher.model.request.search.championstats.RequestChampDetailStatsDto;
+import com.lolsearcher.model.request.search.championstats.RequestChampPositionStatsDto;
+import com.lolsearcher.model.response.front.search.championstats.ChampPositionStatsDto;
+import com.lolsearcher.model.response.front.search.championstats.TotalChampStatDto;
 import com.lolsearcher.service.search.stats.ChampionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
@@ -17,7 +17,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static com.lolsearcher.constant.LolSearcherConstants.CURRENT_GAME_VERSION;
-import static com.lolsearcher.constant.RedisCacheConstants.CHAMPION_LIST_KEY;
+import static com.lolsearcher.constant.RedisCacheNameConstants.CHAMPION_ID_LIST;
 import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
@@ -62,7 +62,7 @@ public class ChampionController {
 		if(!gameVersion.equals(CURRENT_GAME_VERSION)){
 			throw new IncorrectGameVersionException(gameVersion);
 		}
-		if(requireNonNull(cacheManager.getCache(CHAMPION_LIST_KEY)).get(championId) == null){
+		if(requireNonNull(cacheManager.getCache(CHAMPION_ID_LIST)).get(championId) == null){
 			throw new InvalidChampionIdException(championId);
 		}
 		return requestDto;

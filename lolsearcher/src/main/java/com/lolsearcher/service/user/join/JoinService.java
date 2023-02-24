@@ -32,8 +32,7 @@ import static com.lolsearcher.constant.LolSearcherConstants.*;
 public class JoinService {
 
 	@Value("${lolsearcher.jwt.secret}")
-	private String JWT_SECRET_KEY;
-
+	private final String JWT_SECRET_KEY;
 	private final ObjectMapper objectMapper;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final UserRepository userRepository;
@@ -74,7 +73,7 @@ public class JoinService {
 
 		if(userRepository.findUserByEmail(email) != null){
 			log.info("{} 해당 이메일은 이미 존재하는 메일입니다.", email);
-			throw new ExistedUserException(email); /* exception handler에서 400 error 발생 */
+			throw new ExistedUserException(email); /* exception handler에서 409 error 발생 */
 		}
 	}
 

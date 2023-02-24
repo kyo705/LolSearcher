@@ -4,8 +4,8 @@ import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.constant.enumeration.GameType;
 import com.lolsearcher.model.entity.mostchamp.MostChampStat;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
-import com.lolsearcher.model.request.search.RequestMostChampDto;
-import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
+import com.lolsearcher.model.request.search.mostchamp.RequestMostChampDto;
+import com.lolsearcher.model.response.front.search.mostchamp.ResponseMostChampDto;
 import com.lolsearcher.repository.search.mostchamp.MostChampRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import static com.lolsearcher.constant.LolSearcherConstants.MOST_CHAMP_LIMITED_C
 @RequiredArgsConstructor
 @Service
 public class MostChampService {
-	
+
 	private final MostChampRepository mostChampRepository;
 
 	@JpaTransactional(readOnly = true)
@@ -36,8 +36,7 @@ public class MostChampService {
 			mostChampStats = mostChampRepository.findMostChampions(summonerId, seasonId, queueId, MOST_CHAMP_LIMITED_COUNT);
 		}
 
-		return mostChampStats
-				.stream()
+		return mostChampStats.stream()
 				.map(FrontServerResponseDtoFactory::getResponseMostChampDto)
 				.collect(Collectors.toList());
 	}

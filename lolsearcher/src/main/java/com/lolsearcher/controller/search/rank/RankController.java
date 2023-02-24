@@ -1,7 +1,7 @@
 package com.lolsearcher.controller.search.rank;
 
-import com.lolsearcher.model.request.search.RequestRankDto;
-import com.lolsearcher.model.response.front.rank.RankDto;
+import com.lolsearcher.model.request.search.rank.RequestRankDto;
+import com.lolsearcher.model.response.front.search.rank.RankDto;
 import com.lolsearcher.service.search.rank.RankService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +20,6 @@ public class RankController {
     @PostMapping("/summoner/rank/old")
     public Map<String, RankDto> getOldRankDto(@RequestBody @Valid RequestRankDto rankInfo){
 
-        return rankService.getOldRanks(rankInfo.getSummonerId());
+        return rankService.getOldRanks(rankInfo);
     }
 }

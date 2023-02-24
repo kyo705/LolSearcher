@@ -8,18 +8,20 @@ import com.lolsearcher.exception.exception.join.RandomNumDifferenceException;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.model.request.user.JoinAuthentication;
 import com.lolsearcher.model.request.user.JwtJoinAuthentication;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import static com.lolsearcher.constant.LolSearcherConstants.*;
 
+@AllArgsConstructor
 @Service
 @Slf4j
 public class JWTJoinIdentificationService implements JoinIdentificationService {
 
     @Value("${lolsearcher.jwt.secret}")
-    private String JWT_SECRET_KEY;
+    private final String JWT_SECRET_KEY;
 
     @Override
     public LolSearcherUser authenticate(JoinAuthentication authentication) {

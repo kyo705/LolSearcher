@@ -28,7 +28,7 @@ public class SummonerExceptionHandler {
         String summonerName = ex.getSummonerName();
         log.info("닉네임 '{}' 유저 정보를 갱신 요청하도록 URI 리다이렉트.", summonerName);
 
-        return errorResponseEntities.get(REDIRECT_ENTITY_NAME);
+        return errorResponseEntities.get(TEMPORARY_REDIRECT_ENTITY_NAME);
     }
 
     @ExceptionHandler({NotExistedSummonerInGameServerException.class})

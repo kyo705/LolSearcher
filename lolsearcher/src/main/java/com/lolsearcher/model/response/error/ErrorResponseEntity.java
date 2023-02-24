@@ -16,8 +16,8 @@ import static com.lolsearcher.constant.UriConstants.SUMMONER_RENEW_REQUEST_URI;
 @Configuration
 public class ErrorResponseEntity {
 
-    @Qualifier(REDIRECT_ENTITY_NAME)
-    @Bean(REDIRECT_ENTITY_NAME)
+    @Qualifier(TEMPORARY_REDIRECT_ENTITY_NAME)
+    @Bean(TEMPORARY_REDIRECT_ENTITY_NAME)
     public ResponseEntity<ErrorResponseBody> redirectEntity() {
 
         HttpHeaders headers = createDefaultHeader();
@@ -34,17 +34,17 @@ public class ErrorResponseEntity {
                 .body(body);
     }
 
-    @Qualifier(BAD_GATEWAY_ENTITY_NAME)
-    @Bean(BAD_GATEWAY_ENTITY_NAME)
-    public ResponseEntity<ErrorResponseBody> badGatewayEntity() {
+    @Qualifier(BAD_REQUEST_ENTITY_NAME)
+    @Bean(BAD_REQUEST_ENTITY_NAME)
+    public ResponseEntity<ErrorResponseBody> badRequestEntity(){
 
         ErrorResponseBody body = ErrorResponseBody.builder()
-                .errorStatusCode(HttpStatus.BAD_GATEWAY.value())
-                .errorMessage("외부 서버에서 문제가 발생")
+                .errorStatusCode(HttpStatus.BAD_REQUEST.value())
+                .errorMessage("잘못된 요청입니다. 다시 한 번 확인해주세요.")
                 .build();
 
         return ResponseEntity
-                .status(HttpStatus.BAD_GATEWAY)
+                .status(HttpStatus.BAD_REQUEST)
                 .headers(createDefaultHeader())
                 .body(body);
     }
@@ -64,21 +64,6 @@ public class ErrorResponseEntity {
                 .body(body);
     }
 
-    @Qualifier(BAD_REQUEST_ENTITY_NAME)
-    @Bean(BAD_REQUEST_ENTITY_NAME)
-    public ResponseEntity<ErrorResponseBody> badRequestEntity(){
-
-        ErrorResponseBody body = ErrorResponseBody.builder()
-                .errorStatusCode(HttpStatus.BAD_REQUEST.value())
-                .errorMessage("잘못된 요청입니다. 다시 한 번 확인해주세요.")
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .headers(createDefaultHeader())
-                .body(body);
-    }
-
     @Qualifier(NOT_FOUND_ENTITY_NAME)
     @Bean(NOT_FOUND_ENTITY_NAME)
     public ResponseEntity<ErrorResponseBody> notFoundEntity(){
@@ -91,6 +76,23 @@ public class ErrorResponseEntity {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .headers(createDefaultHeader())
+                .body(body);
+    }
+
+    @Qualifier(CONFLICT_ENTITY_NAME)
+    @Bean(CONFLICT_ENTITY_NAME)
+    public ResponseEntity<ErrorResponseBody> conflictEntity() {
+
+        HttpHeaders headers = createDefaultHeader();
+
+        ErrorResponseBody body = ErrorResponseBody.builder()
+                .errorStatusCode(HttpStatus.CONFLICT.value())
+                .errorMessage("이미 존재하는 데이터입니다.")
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .headers(headers)
                 .body(body);
     }
 
@@ -120,6 +122,21 @@ public class ErrorResponseEntity {
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .headers(createDefaultHeader())
+                .body(body);
+    }
+
+    @Qualifier(BAD_GATEWAY_ENTITY_NAME)
+    @Bean(BAD_GATEWAY_ENTITY_NAME)
+    public ResponseEntity<ErrorResponseBody> badGatewayEntity() {
+
+        ErrorResponseBody body = ErrorResponseBody.builder()
+                .errorStatusCode(HttpStatus.BAD_GATEWAY.value())
+                .errorMessage("외부 서버에서 문제가 발생")
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
                 .headers(createDefaultHeader())
                 .body(body);
     }

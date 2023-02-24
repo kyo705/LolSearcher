@@ -5,7 +5,8 @@ import com.lolsearcher.exception.exception.rank.IncorrectSummonerRankSizeExcepti
 import com.lolsearcher.exception.exception.rank.NonUniqueRankTypeException;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
-import com.lolsearcher.model.response.front.rank.RankDto;
+import com.lolsearcher.model.request.search.rank.RequestRankDto;
+import com.lolsearcher.model.response.front.search.rank.RankDto;
 import com.lolsearcher.repository.search.rank.RankRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,9 @@ public class RankService {
 	private final RankRepository rankRepository;
 	
 	@JpaTransactional(readOnly = true)
-	public Map<String, RankDto> getOldRanks(String summonerId){
-		
+	public Map<String, RankDto> getOldRanks(RequestRankDto rankInfo){
+
+		String summonerId = rankInfo.getSummonerId();
 		List<Rank> ranks = rankRepository.findRanks(summonerId, CURRENT_SEASON_ID);
 
 		Map<String, RankDto> rankDtos = new HashMap<>();

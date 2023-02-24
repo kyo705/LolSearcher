@@ -1,5 +1,7 @@
 package com.lolsearcher.model.entity.champion;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -7,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
 
+@Builder
+@AllArgsConstructor
 @Data
 @Entity
 @Table(indexes = {@Index(columnList = "gameVersion, championId, itemId")})
@@ -19,4 +23,5 @@ public class ChampItemStats {
 	private int itemId;
 	private long wins;
 	private long losses;
+	private long bans;
 }

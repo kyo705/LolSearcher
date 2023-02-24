@@ -1,7 +1,7 @@
 package com.lolsearcher.controller.opnapi;
 
 import com.lolsearcher.model.factory.OpenApiResponseDtoFactory;
-import com.lolsearcher.model.response.front.match.MatchDto;
+import com.lolsearcher.model.response.front.search.match.MatchDto;
 import com.lolsearcher.model.response.openapi.OpenApiRankDto;
 import com.lolsearcher.model.response.openapi.OpenApiSummonerDto;
 import com.lolsearcher.service.openapi.RestApiService;

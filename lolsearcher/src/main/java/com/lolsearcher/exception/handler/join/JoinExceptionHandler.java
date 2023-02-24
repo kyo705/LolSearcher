@@ -1,41 +1,56 @@
 package com.lolsearcher.exception.handler.join;
 
 import com.lolsearcher.controller.user.JoinController;
-import com.lolsearcher.exception.exception.join.CertificationTimeOutException;
-import com.lolsearcher.exception.exception.join.RandomNumDifferenceException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import com.lolsearcher.exception.exception.join.ExistedUserException;
+import com.lolsearcher.model.response.error.ErrorResponseBody;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.orm.jpa.JpaSystemException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice(assignableTypes = JoinController.class)
+import java.util.Map;
+
+import static com.lolsearcher.constant.BeanNameConstants.*;
+
+@Slf4j
+@RequiredArgsConstructor
+@RestControllerAdvice(assignableTypes = JoinController.class)
 public class JoinExceptionHandler {
 
-	@ExceptionHandler(CertificationTimeOutException.class)
-    public ModelAndView getCertificationTimeOutError(CertificationTimeOutException e) {
-		ModelAndView mv = new ModelAndView();
-		
-		mv.setViewName("/user/certification_timeout");
-		return mv;
-    }
-	
-	@ExceptionHandler(RandomNumDifferenceException.class)
-    public ModelAndView getRandomNumDifferenceError(RandomNumDifferenceException e) {
-		ModelAndView mv = new ModelAndView();
-		String email = e.getEmail();
-		
-		mv.addObject("email", email);
-		mv.addObject("failMessage", "인증 번호가 틀립니다. 다시 입력해주세요");
-		//ip 주소로 실패 카운트 세고 특정 횟수 초과 시 ip차단 OR email 사용불가
-		mv.setViewName("/user/self_certification");
-		return mv;
-    }
-	
-	@ExceptionHandler(DataIntegrityViolationException.class)
-    public ModelAndView getAccountExistError(DataIntegrityViolationException e) {
-		ModelAndView mv = new ModelAndView();
-		
-		mv.setViewName("/user/joined_already");
-		return mv;
+	private final Map<String, ResponseEntity<ErrorResponseBody>> responseEntities;
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ErrorResponseBody> handleInvalidArgumentException(MethodArgumentNotValidException e) {
+
+		log.error("잘못된 파라미터 요청" + e.getMessage());
+
+		return responseEntities.get(BAD_REQUEST_ENTITY_NAME);
+	}
+
+	@ExceptionHandler(ExistedUserException.class)
+	public ResponseEntity<ErrorResponseBody> handleConflictError(ExistedUserException e) {
+
+		log.info(e.getMessage());
+
+		return responseEntities.get(CONFLICT_ENTITY_NAME);
+	}
+
+	@ExceptionHandler(JpaSystemException.class)
+	public ResponseEntity<ErrorResponseBody> handleJpaError(JpaSystemException e) {
+
+		log.error(e.getMessage());
+
+		return responseEntities.get(BAD_GATEWAY_ENTITY_NAME);
+	}
+
+	@ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseBody> handleAnyOtherError(Exception e) {
+
+		log.error(e.getMessage());
+
+		return responseEntities.get(INTERNAL_SERVER_ERROR_ENTITY_NAME);
     }
 }

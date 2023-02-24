@@ -1,7 +1,7 @@
 package com.lolsearcher.controller.search.match;
 
-import com.lolsearcher.model.request.search.RequestMatchDto;
-import com.lolsearcher.model.response.front.match.MatchDto;
+import com.lolsearcher.model.request.search.match.RequestMatchDto;
+import com.lolsearcher.model.response.front.search.match.MatchDto;
 import com.lolsearcher.service.search.match.MatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +20,6 @@ public class MatchController {
     @PostMapping("/summoner/match/old")
     public List<MatchDto> getOldMatches(@RequestBody @Valid RequestMatchDto request){
 
-        return matchService.getDbMatches(request);
+        return matchService.getMatchesInDB(request);
     }
 }

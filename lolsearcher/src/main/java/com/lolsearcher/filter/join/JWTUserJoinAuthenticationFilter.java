@@ -14,6 +14,7 @@ import com.lolsearcher.service.user.join.identification.JWTJoinIdentificationSer
 import com.lolsearcher.service.user.join.identification.JoinIdentificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -92,9 +93,11 @@ public class JWTUserJoinAuthenticationFilter extends UserJoinAuthenticationFilte
 
         if(e instanceof InvalidTokenException){
             responseEntity = responseEntities.get(FORBIDDEN_ENTITY_NAME);
-        }else if(e instanceof RandomNumDifferenceException){
+        } else if(e instanceof RandomNumDifferenceException){
             responseEntity = responseEntities.get(BAD_REQUEST_ENTITY_NAME);
-        }else{
+        } else if(e instanceof DataIntegrityViolationException) {
+            responseEntity = responseEntities.get(CONFLICT_ENTITY_NAME);
+        } else{
             responseEntity = responseEntities.get(INTERNAL_SERVER_ERROR_ENTITY_NAME);
         }
 

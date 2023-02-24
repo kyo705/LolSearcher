@@ -1,8 +1,8 @@
 package com.lolsearcher.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.auth.exceptiontranslationfilter.LolsearcherDeniedHandler;
-import com.lolsearcher.auth.login.UserLoginFailHandler;
+import com.lolsearcher.exception.handler.security.authorization.LolsearcherDeniedHandler;
+import com.lolsearcher.exception.handler.security.authentication.UserLoginFailHandler;
 import com.lolsearcher.filter.ban.LoginBanFilter;
 import com.lolsearcher.filter.ban.SearchBanFilter;
 import com.lolsearcher.filter.header.HttpHeaderFilter;
@@ -33,13 +33,16 @@ import java.util.Map;
 @EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+	private final CacheManager cacheManager;
+	private final ObjectMapper objectMapper;
 	private final Map<String,ResponseEntity<ErrorResponseBody>> responseEntities;
+
+	private final List<CorsFilter> corsFilters;
+
 	private final JoinIdentificationService joinIdentificationService;
 	private final JoinService joinService;
 	private final OauthUserService oauthUserService;
-	private final List<CorsFilter> corsFilters;
-	private final CacheManager cacheManager;
-	private final ObjectMapper objectMapper;
+
 	private final UserLoginFailHandler userLoginFailHandler;
 	private final LolsearcherDeniedHandler lolsearcherDeniedHandler;
 

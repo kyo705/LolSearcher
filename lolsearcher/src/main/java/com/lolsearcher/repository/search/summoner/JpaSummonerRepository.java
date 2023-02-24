@@ -26,8 +26,7 @@ public class JpaSummonerRepository implements SummonerRepository {
 	@Override
 	public List<Summoner> findSummonerByName(String summonerName) {
 
-		String jpql = "SELECT s FROM Summoner s WHERE s.summonerName = :summonerName "
-				+ "ORDER BY s.lastRenewTimeStamp DESC";
+		String jpql = "SELECT s FROM Summoner s WHERE s.summonerName = :summonerName";
 
 		return em.createQuery(jpql, Summoner.class)
 				.setParameter("summonerName", summonerName)

@@ -4,23 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Builder
 @AllArgsConstructor
 @Data
 @Entity
+@Table(indexes = {@Index(columnList = "email", unique = true)})
 public class LolSearcherUser {
 
 	@Id
 	private long id;
-	@Column(unique = true)
-	private String username;
-	private String password;
-	private String role;
 	private String email;
+	private String password;
+	private String username;
+	private String role;
 	private long lastLoginTimeStamp;
 	
 	public LolSearcherUser(String username, String password, String role, String email, long lastLoginTimeStamp) {

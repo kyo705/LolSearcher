@@ -16,7 +16,7 @@ import java.util.Map;
 
 import static com.lolsearcher.constant.BeanNameConstants.FORBIDDEN_ENTITY_NAME;
 import static com.lolsearcher.constant.LolSearcherConstants.LOGIN_BAN_COUNT;
-import static com.lolsearcher.constant.RedisCacheConstants.LOGIN_BAN_KEY;
+import static com.lolsearcher.constant.RedisCacheNameConstants.LOGIN_BAN;
 import static com.lolsearcher.constant.UriConstants.LOGIN_URI;
 
 @Slf4j
@@ -30,11 +30,11 @@ public class LoginBanFilter implements Filter {
 						  Map<String, ResponseEntity<ErrorResponseBody>> responseEntities,
 						  ObjectMapper objectMapper){
 
-		if(cacheManager.getCache(LOGIN_BAN_KEY) == null){
+		if(cacheManager.getCache(LOGIN_BAN) == null){
 			log.error("로그인 관련 캐시가 존재하지 않음");
 			throw new IllegalArgumentException();
 		}
-		this.cache = cacheManager.getCache(LOGIN_BAN_KEY);
+		this.cache = cacheManager.getCache(LOGIN_BAN);
 		this.responseEntities = responseEntities;
 		this.objectMapper = objectMapper;
 	}

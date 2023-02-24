@@ -7,13 +7,13 @@ import com.lolsearcher.model.entity.match.*;
 import com.lolsearcher.model.entity.mostchamp.MostChampStat;
 import com.lolsearcher.model.entity.rank.Rank;
 import com.lolsearcher.model.entity.summoner.Summoner;
-import com.lolsearcher.model.response.front.championstats.ChampEnemyStatsDto;
-import com.lolsearcher.model.response.front.championstats.ChampItemStatsDto;
-import com.lolsearcher.model.response.front.championstats.ChampPositionStatsDto;
-import com.lolsearcher.model.response.front.match.*;
-import com.lolsearcher.model.response.front.mostchamp.ResponseMostChampDto;
-import com.lolsearcher.model.response.front.rank.RankDto;
-import com.lolsearcher.model.response.front.summoner.SummonerDto;
+import com.lolsearcher.model.response.front.search.championstats.ChampEnemyStatsDto;
+import com.lolsearcher.model.response.front.search.championstats.ChampItemStatsDto;
+import com.lolsearcher.model.response.front.search.championstats.ChampPositionStatsDto;
+import com.lolsearcher.model.response.front.search.match.*;
+import com.lolsearcher.model.response.front.search.mostchamp.ResponseMostChampDto;
+import com.lolsearcher.model.response.front.search.rank.RankDto;
+import com.lolsearcher.model.response.front.search.summoner.SummonerDto;
 
 public class FrontServerResponseDtoFactory {
 
@@ -170,6 +170,7 @@ public class FrontServerResponseDtoFactory {
                 .positionId(champPositionStats.getPositionId())
                 .wins(champPositionStats.getWins())
                 .losses(champPositionStats.getLosses())
+                .bans(champPositionStats.getBans())
                 .build();
     }
 
@@ -181,6 +182,7 @@ public class FrontServerResponseDtoFactory {
                 .itemId(champItemStats.getItemId())
                 .wins(champItemStats.getWins())
                 .losses(champItemStats.getLosses())
+                .bans(champItemStats.getBans())
                 .build();
     }
 
@@ -192,6 +194,7 @@ public class FrontServerResponseDtoFactory {
                 .enemyChampionId(champEnemyStats.getEnemyChampionId())
                 .wins(champEnemyStats.getWins())
                 .losses(champEnemyStats.getLosses())
+                .bans(champEnemyStats.getBans())
                 .build();
     }
 }
