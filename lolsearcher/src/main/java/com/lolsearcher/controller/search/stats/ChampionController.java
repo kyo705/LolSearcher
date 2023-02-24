@@ -9,9 +9,9 @@ import com.lolsearcher.model.response.front.search.championstats.TotalChampStatD
 import com.lolsearcher.service.search.stats.ChampionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -21,40 +21,39 @@ import static com.lolsearcher.constant.RedisCacheNameConstants.CHAMPION_ID_LIST;
 import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class ChampionController {
 
 	private final ChampionService championService;
 	private final CacheManager cacheManager;
 
-	@PostMapping(path = "/champion")
+	@PostMapping(path = "/stats/champion")
 	public List<ChampPositionStatsDto> getChampions(@RequestBody @Valid RequestChampPositionStatsDto requestDto) {
 
-		RequestChampPositionStatsDto validRequest = validateChampPositionStatsRequest(requestDto);
+		validateChampStatsRequest(requestDto);
 		
-		return championService.getAllChampPositionStats(validRequest);
+		return championService.getAllChampPositionStats(requestDto);
 	}
 
-	@PostMapping(path = "/champion/detail")
-	public TotalChampStatDto championDetail(@RequestBody @Valid RequestChampDetailStatsDto requestDto) {
+	@PostMapping(path = "/stats/champion/detail")
+	public TotalChampStatDto getChampionDetail(@RequestBody @Valid RequestChampDetailStatsDto requestDto) {
 
-		RequestChampDetailStatsDto validRequest = validateChampDetailStatsRequest(requestDto);
+		validateChampDetailStatsRequest(requestDto);
 		
-		return championService.getChampDetailStats(validRequest);
+		return championService.getChampDetailStats(requestDto);
 	}
 
 
-	private RequestChampPositionStatsDto validateChampPositionStatsRequest(RequestChampPositionStatsDto requestDto) {
+	private void validateChampStatsRequest(RequestChampPositionStatsDto requestDto) {
 
 		String gameVersion = requestDto.getGameVersion();
 
 		if(!gameVersion.equals(CURRENT_GAME_VERSION)){
 			throw new IncorrectGameVersionException(gameVersion);
 		}
-		return requestDto;
 	}
 
-	private RequestChampDetailStatsDto validateChampDetailStatsRequest(RequestChampDetailStatsDto requestDto) {
+	private void validateChampDetailStatsRequest(RequestChampDetailStatsDto requestDto) {
 
 		int championId = requestDto.getChampionId();
 		String gameVersion = requestDto.getGameVersion();
@@ -65,6 +64,5 @@ public class ChampionController {
 		if(requireNonNull(cacheManager.getCache(CHAMPION_ID_LIST)).get(championId) == null){
 			throw new InvalidChampionIdException(championId);
 		}
-		return requestDto;
 	}
 }

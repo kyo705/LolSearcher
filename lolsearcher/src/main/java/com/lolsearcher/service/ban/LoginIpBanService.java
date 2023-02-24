@@ -1,5 +1,6 @@
 package com.lolsearcher.service.ban;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -9,22 +10,17 @@ import static com.lolsearcher.constant.LolSearcherConstants.LOGIN_BAN_COUNT;
 import static com.lolsearcher.constant.RedisCacheNameConstants.LOGIN_BAN;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class LoginIpBanService implements IpBanService {
 
-	private final Cache cache;
-
-	public LoginIpBanService(CacheManager cacheManager){
-
-		if(cacheManager.getCache(LOGIN_BAN) == null){
-			log.error("로그인 차단 관련 Cache가 존재하지 않음");
-			throw new IllegalArgumentException();
-		}
-		this.cache = cacheManager.getCache(LOGIN_BAN);
-	}
+	private final CacheManager cacheManager;
 
 	@Override
 	public void addBanCount(String ipAddress) {
+
+		Cache cache = cacheManager.getCache(LOGIN_BAN);
+		assert cache != null;
 
 		cache.putIfAbsent(ipAddress, 0);
 		cache.put(ipAddress, cache.get(ipAddress, Integer.class)+1);
@@ -32,6 +28,9 @@ public class LoginIpBanService implements IpBanService {
 
 	@Override
 	public boolean isExceedBanCount(String ipAddress) {
+
+		Cache cache = cacheManager.getCache(LOGIN_BAN);
+		assert cache != null;
 
 		if(cache.get(ipAddress) == null) {
 			return false;

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 import static com.lolsearcher.constant.LolSearcherConstants.MAX_SUMMONER_NAME_LENGTH;
@@ -15,7 +15,7 @@ import static com.lolsearcher.constant.LolSearcherConstants.MAX_SUMMONER_NAME_LE
 public class RequestSummonerDto {
 
     @Size(max = MAX_SUMMONER_NAME_LENGTH)
-    @NotNull
+    @NotEmpty
     private String summonerName;
 
     public RequestSummonerDto(){

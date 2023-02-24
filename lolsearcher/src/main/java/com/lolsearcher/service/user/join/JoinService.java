@@ -32,7 +32,7 @@ import static com.lolsearcher.constant.LolSearcherConstants.*;
 public class JoinService {
 
 	@Value("${lolsearcher.jwt.secret}")
-	private final String JWT_SECRET_KEY;
+	private String JWT_SECRET_KEY = "secret";
 	private final ObjectMapper objectMapper;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final UserRepository userRepository;

@@ -63,6 +63,6 @@ public class OauthUserService extends DefaultOAuth2UserService {
 		String role = "ROLE_GET";
 		String email = (String) oAuth2User.getAttributes().get("email");
 		
-		return new LolSearcherUser(username, password, role, email, 0);
+		return new LolSearcherUser(0, username, password, role, email, 0);
 	}
 }

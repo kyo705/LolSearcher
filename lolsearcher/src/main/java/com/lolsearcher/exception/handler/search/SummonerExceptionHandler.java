@@ -6,6 +6,7 @@ import com.lolsearcher.exception.exception.summoner.NotExistedSummonerInGameServ
 import com.lolsearcher.model.response.error.ErrorResponseBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 import static com.lolsearcher.constant.BeanNameConstants.*;
 
+@Order(1)
 @RequiredArgsConstructor
 @Slf4j
 @RestControllerAdvice(assignableTypes = SummonerController.class)
@@ -37,7 +39,7 @@ public class SummonerExceptionHandler {
         String summonerName = ex.getSummonerName();
         log.error("닉네임 '{}' 은 현재 게임 환경에서 존재하지 않는 닉네임입니다.", summonerName);
 
-        return errorResponseEntities.get(BAD_REQUEST_ENTITY_NAME);
+        return errorResponseEntities.get(NOT_FOUND_ENTITY_NAME);
     }
 
     @ExceptionHandler({WebClientResponseException.class})

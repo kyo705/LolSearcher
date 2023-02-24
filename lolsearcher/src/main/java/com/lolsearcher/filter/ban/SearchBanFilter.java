@@ -2,6 +2,7 @@ package com.lolsearcher.filter.ban;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.model.response.error.ErrorResponseBody;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -15,34 +16,24 @@ import java.util.Map;
 
 import static com.lolsearcher.constant.BeanNameConstants.FORBIDDEN_ENTITY_NAME;
 import static com.lolsearcher.constant.LolSearcherConstants.SEARCH_BAN_COUNT;
-import static com.lolsearcher.constant.RedisCacheNameConstants.LOGIN_BAN;
+import static com.lolsearcher.constant.RedisCacheNameConstants.SEARCH_BAN;
 
+@RequiredArgsConstructor
 @Slf4j
 public class SearchBanFilter implements Filter {
 
-	private final Cache cache;
+	private final CacheManager cacheManager;
 	private final Map<String, ResponseEntity<ErrorResponseBody>> responseEntities;
 	private final ObjectMapper objectMapper;
-
-	public SearchBanFilter(CacheManager cacheManager,
-						  Map<String, ResponseEntity<ErrorResponseBody>> responseEntities,
-						  ObjectMapper objectMapper){
-
-		if(cacheManager.getCache(LOGIN_BAN) == null){
-			log.error("서치 관련 캐시가 존재하지 않음");
-			throw new IllegalArgumentException();
-		}
-		this.cache = cacheManager.getCache(LOGIN_BAN);
-		this.responseEntities = responseEntities;
-		this.objectMapper = objectMapper;
-	}
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		
 		String requestIp = request.getRemoteAddr();
+		Cache cache = cacheManager.getCache(SEARCH_BAN);
 
+		assert cache != null;
 		if(cache.get(requestIp) == null || cache.get(requestIp,Integer.class) < SEARCH_BAN_COUNT) {
 			chain.doFilter(request, response);
 			return;

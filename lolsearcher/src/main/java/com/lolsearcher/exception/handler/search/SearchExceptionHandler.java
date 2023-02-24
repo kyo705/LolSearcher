@@ -9,6 +9,7 @@ import com.lolsearcher.exception.exception.common.IncorrectGameVersionException;
 import com.lolsearcher.model.response.error.ErrorResponseBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,6 +22,7 @@ import java.util.Map;
 import static com.lolsearcher.constant.BeanNameConstants.BAD_GATEWAY_ENTITY_NAME;
 import static com.lolsearcher.constant.BeanNameConstants.BAD_REQUEST_ENTITY_NAME;
 
+@Order(5)
 @RequiredArgsConstructor
 @Slf4j
 @RestControllerAdvice(assignableTypes = {

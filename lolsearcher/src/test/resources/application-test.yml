@@ -14,13 +14,15 @@ spring:
       maximum-pool-size: 25
       connection-timeout: 3000
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:tcp://localhost/~/test
     username: sa
     password:
   jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         jdbc:
@@ -34,14 +36,14 @@ spring:
       client:
         registration:
           google:
-            client-id: ${oauth2.google.id}
-            client-secret: ${oauth2.google.secret}
+            client-id: 1 #${oauth2.google.id}
+            client-secret: 1 #${oauth2.google.secret}
             scope: email, profile
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${mail.username}
-    password: ${mail.password}
+    username: 1 #${mail.username}
+    password: 1 #${mail.password}
     properties:
       mail:
         smtp:
@@ -51,38 +53,21 @@ spring:
           ssl:
             protocols: TLSv1.2
 
-
-riot_api_key: ${riot_api_key}
-
 lolsearcher:
+  jwt:
+    secret: secret
+  id: lolsearcher
+  password: 1111
+  nodeId: 1
   webclient:
-    kr-base-url: http://localhost:15554
-    asia-base-url: http://localhost:15554
+    reactive-server-url: http://localhost:15554
   mock-server:
     port: 15554
   redis:
     port: 13513
     ttl:
-      ingame: 1 # 1sec
-      match: 1 # 1sec
-  kafka:
-    topics:
-      fail_match_id:
-        name: filtered_fail_match_id
-        replica: 1
-        partitions: 1
-      success_match:
-        name: success_match
-        replica: 1
-        partitions: 1
-    producers:
-      success_match:
-        bootstrap_server: localhost:9092
-        ack: all
-        idempotence: true
-        transaction_id: success_match
-      fail_match_id:
-        bootstrap_server: localhost:9092
-        ack: all
-        idempotence: true
-        transaction_id: fail_match_id
+      championIds: 1
+      search-ban: 1 # 1sec
+      login-ban: 1 # 1sec
+      champions: 1 #1sec
+      join-certification: 1 #1sec

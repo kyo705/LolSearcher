@@ -11,6 +11,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.persistence.EntityManagerFactory;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RequiredArgsConstructor
 @Configuration
@@ -41,6 +43,11 @@ public class LolSearcherConfig {
 		jpaTransactionManager.setEntityManagerFactory(entityManagerFactory);
 
 		return jpaTransactionManager;
+	}
+
+	@Bean
+	public ExecutorService threadPool(){
+		return Executors.newFixedThreadPool(54);
 	}
 
 	@Bean

@@ -17,7 +17,7 @@ public class RankController {
 
     private final RankService rankService;
 
-    @PostMapping("/summoner/rank/old")
+    @PostMapping("/summoner/rank")
     public Map<String, RankDto> getOldRankDto(@RequestBody @Valid RequestRankDto rankInfo){
 
         return rankService.getOldRanks(rankInfo);

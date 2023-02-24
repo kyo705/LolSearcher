@@ -33,7 +33,6 @@ public class ChampionService {
 
 		List<ChampPositionStats> champPositionStats = redisChampionRepository.findAllChampPositionStats(positionId, version);
 
-
 		if(champPositionStats.isEmpty()){
 			String errorMessage = "포지션 별 챔피언 통계 데이터가 데이터베이스에 존재하지 않음";
 			log.error(errorMessage);

@@ -17,7 +17,7 @@ public class MatchController {
 
     private final MatchService matchService;
 
-    @PostMapping("/summoner/match/old")
+    @PostMapping("/summoner/match")
     public List<MatchDto> getOldMatches(@RequestBody @Valid RequestMatchDto request){
 
         return matchService.getMatchesInDB(request);

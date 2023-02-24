@@ -19,7 +19,7 @@ public class IdGenerationAspect {
 
     private final IdGenerator idGenerator;
 
-    @Around("@annotation(IdGenerator)")
+    @Around("@annotation(com.lolsearcher.annotation.entity.IdGeneration)")
     public Object execute(ProceedingJoinPoint joinPoint) throws Throwable {
 
         Object[] args = joinPoint.getArgs();

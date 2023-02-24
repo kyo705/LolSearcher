@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.PositiveOrZero;
 
 import static com.lolsearcher.constant.LolSearcherConstants.ALL_CHAMPION_ID;
@@ -17,7 +17,7 @@ import static com.lolsearcher.constant.enumeration.GameType.ALL_QUEUE_ID;
 @Data
 public class RequestMatchDto {
 
-    @NotNull
+    @NotEmpty
     private final String summonerId;
     @Min(-1)
     private final int championId;

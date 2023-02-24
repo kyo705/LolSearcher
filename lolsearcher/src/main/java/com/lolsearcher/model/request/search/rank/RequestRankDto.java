@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 
 
 @Builder
@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class RequestRankDto {
 
-    @NotNull
+    @NotEmpty
     private final String summonerId;
 
     public RequestRankDto(){

@@ -4,7 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 @Builder
 @AllArgsConstructor
@@ -20,12 +23,6 @@ public class LolSearcherUser {
 	private String username;
 	private String role;
 	private long lastLoginTimeStamp;
-	
-	public LolSearcherUser(String username, String password, String role, String email, long lastLoginTimeStamp) {
-		this.username = username;
-		this.password = password;
-		this.role = role;
-		this.email = email;
-		this.lastLoginTimeStamp = lastLoginTimeStamp;
-	}
+
+	public LolSearcherUser(){}
 }

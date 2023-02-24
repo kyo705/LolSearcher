@@ -3,25 +3,29 @@ package com.lolsearcher.service.user.join.identification;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.exception.exception.join.InvalidTokenException;
 import com.lolsearcher.exception.exception.join.RandomNumDifferenceException;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.model.request.user.JoinAuthentication;
 import com.lolsearcher.model.request.user.JwtJoinAuthentication;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import static com.lolsearcher.constant.LolSearcherConstants.*;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class JWTJoinIdentificationService implements JoinIdentificationService {
 
     @Value("${lolsearcher.jwt.secret}")
-    private final String JWT_SECRET_KEY;
+    private String JWT_SECRET_KEY = "secret";
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public LolSearcherUser authenticate(JoinAuthentication authentication) {
@@ -48,6 +52,12 @@ public class JWTJoinIdentificationService implements JoinIdentificationService {
             log.info("사용자 요청 인증번호가 실제 인증번호와 다릅니다.");
             throw new RandomNumDifferenceException();
         }
-        return jwt.getClaim(USER_INFO).as(LolSearcherUser.class);
+        String userInfoJson = jwt.getClaim(USER_INFO).asString();
+
+        try {
+            return objectMapper.readValue(userInfoJson, LolSearcherUser.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,9 +1,9 @@
 package com.lolsearcher.unit.controller.summoner;
 
-import com.lolsearcher.controller.summoner.SummonerController;
-import com.lolsearcher.model.request.front.RequestSummonerDto;
-import com.lolsearcher.model.response.front.summoner.SummonerDto;
-import com.lolsearcher.service.summoner.SummonerService;
+import com.lolsearcher.controller.search.summoner.SummonerController;
+import com.lolsearcher.model.request.search.summoner.RequestSummonerDto;
+import com.lolsearcher.model.response.front.search.summoner.SummonerDto;
+import com.lolsearcher.service.search.summoner.SummonerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ public class SummonerControllerUnitTest {
     public void getSummonerTestWithValidParam(){
 
         //given
-        RequestSummonerDto requestBody = new RequestSummonerDto("유저1", false);
+        RequestSummonerDto requestBody = new RequestSummonerDto("유저1");
         SummonerDto summonerDto = SummonerDto
                 .builder()
                 .summonerId("summonerId1")
@@ -53,7 +53,7 @@ public class SummonerControllerUnitTest {
     public void getSummonerTestWithInvalidParam(){
 
         //given
-        RequestSummonerDto requestBody = new RequestSummonerDto("유#!저1", false);
+        RequestSummonerDto requestBody = new RequestSummonerDto("유#!저1");
         String unfilteredName = requestBody.getSummonerName();
 
         SummonerDto summonerDto = SummonerDto

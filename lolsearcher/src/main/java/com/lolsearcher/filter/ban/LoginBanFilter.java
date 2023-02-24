@@ -2,6 +2,7 @@ package com.lolsearcher.filter.ban;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.model.response.error.ErrorResponseBody;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -19,25 +20,13 @@ import static com.lolsearcher.constant.LolSearcherConstants.LOGIN_BAN_COUNT;
 import static com.lolsearcher.constant.RedisCacheNameConstants.LOGIN_BAN;
 import static com.lolsearcher.constant.UriConstants.LOGIN_URI;
 
+@RequiredArgsConstructor
 @Slf4j
 public class LoginBanFilter implements Filter {
 
-	private final Cache cache;
+	private final CacheManager cacheManager;
 	private final Map<String, ResponseEntity<ErrorResponseBody>> responseEntities;
 	private final ObjectMapper objectMapper;
-
-	public LoginBanFilter(CacheManager cacheManager,
-						  Map<String, ResponseEntity<ErrorResponseBody>> responseEntities,
-						  ObjectMapper objectMapper){
-
-		if(cacheManager.getCache(LOGIN_BAN) == null){
-			log.error("로그인 관련 캐시가 존재하지 않음");
-			throw new IllegalArgumentException();
-		}
-		this.cache = cacheManager.getCache(LOGIN_BAN);
-		this.responseEntities = responseEntities;
-		this.objectMapper = objectMapper;
-	}
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -56,6 +45,9 @@ public class LoginBanFilter implements Filter {
 	}
 
 	private boolean isAuthorization(String ipAddress) {
+
+		Cache cache = cacheManager.getCache(LOGIN_BAN);
+		assert cache != null;
 
 		return cache.get(ipAddress) == null || cache.get(ipAddress, Integer.class) < LOGIN_BAN_COUNT;
 	}
