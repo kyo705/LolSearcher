@@ -47,7 +47,6 @@ public class JWTUserJoinAuthenticationFilter extends UserJoinAuthenticationFilte
     protected LolSearcherUser attemptAuthentication(ServletRequest request, ServletResponse response) {
 
         HttpServletRequest req = (HttpServletRequest) request;
-
         String token = req.getHeader(HttpHeaders.AUTHORIZATION);
 
         if(!token.startsWith(JWT_PREFIX)){
@@ -136,6 +135,7 @@ public class JWTUserJoinAuthenticationFilter extends UserJoinAuthenticationFilte
             return body.getRequestRandomNum();
 
         } catch (IOException e) {
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }

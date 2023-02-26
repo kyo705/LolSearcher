@@ -6,4 +6,8 @@ import lombok.Data;
 public class RequestJoinIdentificationDto {
 
     private final int requestRandomNum;
+
+    public RequestJoinIdentificationDto(){
+        requestRandomNum = 0;
+    }
 }

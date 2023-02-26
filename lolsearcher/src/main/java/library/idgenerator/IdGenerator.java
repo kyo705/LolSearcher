@@ -1,4 +1,4 @@
-package com.lolsearcher.aop.idgeneration;
+package library.idgenerator;
 
 import lombok.extern.slf4j.Slf4j;
 

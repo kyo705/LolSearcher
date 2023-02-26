@@ -1,8 +1,8 @@
 package com.lolsearcher.repository.user;
 
-import com.lolsearcher.annotation.entity.IdGeneration;
 import com.lolsearcher.exception.exception.summoner.SameValueExistException;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
+import library.idgenerator.annotation.IdGeneration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
