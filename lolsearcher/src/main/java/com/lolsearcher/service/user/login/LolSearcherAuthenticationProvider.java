@@ -21,12 +21,12 @@ public class LolSearcherAuthenticationProvider implements AuthenticationProvider
 	@JpaTransactional
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		
+
 		String inputUserId = authentication.getName();
 		String inputUserPwd = (String)authentication.getCredentials();
 		
 		LolsearcherUserDetails userDetails = (LolsearcherUserDetails) userDetailService.loadUserByUsername(inputUserId);
-		
+
 		if(userDetails==null || !pwdEncoding.matches(inputUserPwd, userDetails.getPassword())) {
 			throw new BadCredentialsException(inputUserId);
 		}else if(!userDetails.isAccountNonExpired()) {
@@ -38,7 +38,7 @@ public class LolSearcherAuthenticationProvider implements AuthenticationProvider
 		}else if(!userDetails.isEnabled()) {
 			throw new DisabledException(inputUserId);
 		}
-		
+
 		userDetails.setPassword(null);
 		
 		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

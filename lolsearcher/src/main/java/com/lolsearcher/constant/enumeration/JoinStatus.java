@@ -1,19 +1,28 @@
 package com.lolsearcher.constant.enumeration;
 
+import lombok.Getter;
+
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+@Getter
 public enum JoinStatus {
-	OK(0), 
+
+	OK(0),
+	EXISTED(1),
+	NOT_ALLOWED(2);
 	
-	EXISTED(1), 
+	private final int code;
 	
-	NOTALLOWED(2);
-	
-	private final int value;
-	
-	JoinStatus(int value) {
-		this.value = value;
+	JoinStatus(int code) {
+		this.code = code;
 	}
-	
-	public int getValue() {
-		return this.value;
+
+	private static final Map<Integer, JoinStatus> BY_CODE =
+			Stream.of(values()).collect(Collectors.toMap(JoinStatus::getCode, e -> e));
+
+	public static final JoinStatus valueOfCode(int code){
+		return BY_CODE.get(code);
 	}
 }

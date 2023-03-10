@@ -5,13 +5,14 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.annotation.transaction.JpaTransactional;
-import com.lolsearcher.exception.exception.join.ExistedUserException;
+import com.lolsearcher.constant.enumeration.NotificationDevice;
+import com.lolsearcher.exception.exception.user.join.ExistedUserException;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
-import com.lolsearcher.model.request.user.RequestEmailCheckDto;
-import com.lolsearcher.model.request.user.RequestUserJoinDto;
-import com.lolsearcher.model.response.front.user.ResponseJoinDto;
+import com.lolsearcher.model.request.user.join.RequestEmailCheckDto;
+import com.lolsearcher.model.request.user.join.RequestUserJoinDto;
+import com.lolsearcher.model.response.front.user.ResponseSuccessDto;
 import com.lolsearcher.repository.user.UserRepository;
-import com.lolsearcher.service.mail.MailService;
+import com.lolsearcher.service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
 
 import static com.lolsearcher.constant.LolSearcherConstants.*;
 
@@ -36,31 +36,30 @@ public class JoinService {
 	private final ObjectMapper objectMapper;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final UserRepository userRepository;
-	private final MailService mailService;
-	private final ExecutorService executorService;
+	private final NotificationService notificationService;
 
 	@JpaTransactional(readOnly = true)
-	public ResponseEntity<ResponseJoinDto> handleJoinProcedure(RequestUserJoinDto requestDto) {
+	public ResponseEntity<ResponseSuccessDto> handleJoinProcedure(RequestUserJoinDto requestDto) {
 
 		String email = requestDto.getEmail();
 		validateEmail(email);
 
-		int randomNum = generateRandomNum();
-		LolSearcherUser user = generateLolSearcherUser(requestDto);
+		int certificationNumber = generateCertificationNumber();
+		sendNotificationMessage(NotificationDevice.E_MAIL, email, certificationNumber);
 
-		sendIdentificationEmail(email, randomNum);
-		String token = generateToken(user, randomNum);
+		LolSearcherUser user = generateLolSearcherUser(requestDto);
+		String token = generateToken(user, certificationNumber);
 
 		return generateResponseEntity(token);
 	}
 
 	@JpaTransactional(readOnly = true)
-	public ResponseJoinDto checkPossibleEmail(RequestEmailCheckDto request) {
+	public ResponseSuccessDto checkPossibleEmail(RequestEmailCheckDto request) {
 
 		String email = request.getEmail();
 		validateEmail(email);
 
-		return ResponseJoinDto.builder().message("사용 가능한 이메일입니다.").build();
+		return ResponseSuccessDto.builder().message("사용 가능한 이메일입니다.").build();
 	}
 
 	@JpaTransactional
@@ -77,7 +76,7 @@ public class JoinService {
 		}
 	}
 
-	private int generateRandomNum() {
+	private int generateCertificationNumber() {
 
 		return (int)(Math.random()*10000000); /* 8자리 랜덤수 */
 	}
@@ -96,9 +95,9 @@ public class JoinService {
 				.build();
 	}
 
-	private void sendIdentificationEmail(String email, int randomNumber) {
+	private void sendNotificationMessage(NotificationDevice device, String deviceId, int certificationNumber) {
 
-		executorService.submit(()->mailService.sendIdentificationMail(email, randomNumber));
+		notificationService.sendIdentificationMessage(device, deviceId, certificationNumber);
 	}
 
 	private String generateToken(LolSearcherUser user, int randomNum) {
@@ -107,10 +106,10 @@ public class JoinService {
 			String userJson = objectMapper.writeValueAsString(user);
 
 			return JWT.create()
-					.withSubject(JOIN_IDENTIFICATION_SIGNATURE)
+					.withSubject(JWT_IDENTIFICATION_SUBJECT)
 					.withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRED_TIME))
 					.withClaim(USER_INFO, userJson)
-					.withClaim(RANDOM_NUMBER, randomNum)
+					.withClaim(CERTIFICATION_NUMBER, randomNum)
 					.sign(Algorithm.HMAC256(JWT_SECRET_KEY));
 
 		} catch (JsonProcessingException e) {
@@ -119,12 +118,12 @@ public class JoinService {
 		}
 	}
 
-	private ResponseEntity<ResponseJoinDto> generateResponseEntity(String token) {
+	private ResponseEntity<ResponseSuccessDto> generateResponseEntity(String token) {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(token);
 
-		ResponseJoinDto body = ResponseJoinDto.builder().message("임시 회원 가입 성공").build();
+		ResponseSuccessDto body = ResponseSuccessDto.builder().message("임시 회원 가입 성공").build();
 
 		return ResponseEntity.status(HttpStatus.OK)
 				.headers(headers)

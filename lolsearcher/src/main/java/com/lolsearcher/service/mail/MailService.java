@@ -37,4 +37,8 @@ public class MailService {
             e.printStackTrace();
         }
     }
+
+    public void sendLoginMessage(String email, String sessionId, String ipAddress) {
+
+    }
 }

@@ -16,17 +16,14 @@ public class LolsearcherUserDetailsService implements UserDetailsService {
 
 	private final UserRepository userRepository;
 
-	@JpaTransactional
+	@JpaTransactional(readOnly = true)
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-		LolSearcherUser user = userRepository.findUserByName(username);
-		if(user==null) {
-			return null;
-		}
-		user.setLastLoginTimeStamp(System.currentTimeMillis());
+		LolSearcherUser user = userRepository.findUserByEmail(username);
+
+		if(user==null) return null;
 
 		return new LolsearcherUserDetails(user);
 	}
-
 }

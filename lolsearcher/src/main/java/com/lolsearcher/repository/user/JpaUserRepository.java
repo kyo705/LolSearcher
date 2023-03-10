@@ -1,6 +1,6 @@
 package com.lolsearcher.repository.user;
 
-import com.lolsearcher.exception.exception.summoner.SameValueExistException;
+import com.lolsearcher.exception.exception.search.summoner.SameValueExistException;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import library.idgenerator.annotation.IdGeneration;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +55,12 @@ public class JpaUserRepository implements UserRepository {
 			user = users.get(0);
 		}
 		return user;
+	}
+
+	@Override
+	public void updateSecurityLevel(LolSearcherUser user, int loginSecurityPolicyLevel) {
+
+		user.setSecurityLevel(loginSecurityPolicyLevel);
 	}
 
 }

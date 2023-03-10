@@ -2,6 +2,10 @@ package com.lolsearcher.constant.enumeration;
 
 import lombok.Getter;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @Getter
 public enum GameType {
 
@@ -16,5 +20,12 @@ public enum GameType {
 
     GameType(int queueId){
         this.queueId = queueId;
+    }
+
+    private static final Map<Integer, GameType> BY_QUEUE_ID =
+            Stream.of(values()).collect(Collectors.toMap(GameType::getQueueId, e -> e));
+
+    public static final GameType valueOfQueueId(int queueId){
+        return BY_QUEUE_ID.get(queueId);
     }
 }

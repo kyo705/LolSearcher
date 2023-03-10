@@ -5,10 +5,8 @@ public class LolSearcherConstants {
 
     public static final int MAX_SUMMONER_NAME_LENGTH = 50;
     public static final String REGEX = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"; //문자,숫자 빼고 다 필터링(띄어쓰기 포함)
-    public static final long SUMMONER_RENEW_MS = 5*60*1000; //5min
 
     public static final int THE_NUMBER_OF_RANK_TYPE = 2; /* 랭크 게임 종류 수 */
-
     public static final int THE_NUMBER_OF_TEAMS = 2; /* Match Entity에 포함될 Team 수 */
     public static final int THE_NUMBER_OF_TEAM_MEMBERS = 5; /* Team Entity에 포함될 Member 수 */
 
@@ -28,14 +26,24 @@ public class LolSearcherConstants {
     public static final String CURRENT_GAME_VERSION = "13.1.1";
 
     public static final String DEFAULT_ROLE = "ROLE_GET";
-    public static final String JOIN_IDENTIFICATION_SIGNATURE = "JoinIdentification";
-    public static final String USER_INFO = "lolSearcherUser";
-    public static final String RANDOM_NUMBER = "randomNumber";
+
+
+    /* JWT 관련 상수 */
     public static final String JWT_PREFIX = "Bearer ";
     public static final int JWT_EXPIRED_TIME = 5*60*1000; /* 5min */
-    public static final int MAX_BODY_LENGTH = 200;
+    public static final String JWT_IDENTIFICATION_SUBJECT = "JoinIdentification";
+    public static final String USER_INFO = "userInfo";
+    public static final String CERTIFICATION_NUMBER = "certificationNumber";
 
+
+
+    /* Redis 관련 상수 */
     public static final String CHAMP_POSITION_STATS_PREFIX = "champPositionStatsKey:";
     public static final String CHAMP_ITEM_STATS_PREFIX = "champItemStatsKey:";
     public static final String CHAMP_ENEMY_STATS_PREFIX = "champEnemyStatsKey:";
+
+
+    /* Notification 관련 상수 */
+    public static final String IDENTIFICATION_SUBJECT = "identification";
+    public static final String LOGIN_ALARM_SUBJECT = "login_alarm";
 }

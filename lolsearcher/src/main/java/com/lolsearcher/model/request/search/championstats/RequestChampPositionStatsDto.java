@@ -22,7 +22,7 @@ public class RequestChampPositionStatsDto {
 
     public RequestChampPositionStatsDto(){
 
-        this.position = PositionStatus.TOP.getId();
+        this.position = PositionStatus.TOP.getCode();
         this.gameVersion = LolSearcherConstants.CURRENT_GAME_VERSION;
     }
 }

@@ -2,8 +2,8 @@ package com.lolsearcher.service.search.summoner;
 
 import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.api.lolsearcher.ReactiveLolSearcherServerApi;
-import com.lolsearcher.exception.exception.summoner.NotExistedSummonerInDBException;
-import com.lolsearcher.exception.exception.summoner.NotExistedSummonerInGameServerException;
+import com.lolsearcher.exception.exception.search.summoner.NotExistedSummonerInDBException;
+import com.lolsearcher.exception.exception.search.summoner.NotExistedSummonerInGameServerException;
 import com.lolsearcher.model.entity.summoner.Summoner;
 import com.lolsearcher.model.factory.FrontServerResponseDtoFactory;
 import com.lolsearcher.model.request.search.summoner.RequestSummonerDto;

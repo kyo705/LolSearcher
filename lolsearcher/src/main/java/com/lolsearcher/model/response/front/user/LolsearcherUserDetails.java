@@ -1,5 +1,6 @@
 package com.lolsearcher.model.response.front.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,82 +13,61 @@ public class LolsearcherUserDetails implements UserDetails, OAuth2User {
 	private static final long serialVersionUID = 1L;
 	
 	private long id;
-	private String username;
 	private String password;
-	private String usermail;
+	private String email;
+	private int securityLevel;
 	private List<GrantedAuthority> roles;
-	private long lastLoginTimeStamp;
 	private Map<String, Object> attributes;
 	
 	public LolsearcherUserDetails() {}
 	
 	public LolsearcherUserDetails(LolSearcherUser user) {
-		this.id = user.getId();
-		this.username = user.getUsername();
-		this.password = user.getPassword();
-		this.lastLoginTimeStamp = user.getLastLoginTimeStamp();
-		this.usermail = user.getEmail();
-		
-		roles = new ArrayList<>();
-		roles.add(new GrantedAuthority() {
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			public String getAuthority() {
-				return user.getRole();
-			}
-		});
+		this.id = user.getId();
+		this.password = user.getPassword();
+		this.email = user.getEmail();
+		this.securityLevel = user.getSecurityLevel();
+
+		roles = new ArrayList<>();
+		roles.add(user::getRole);
 	}
 	
 	public LolsearcherUserDetails(LolSearcherUser user, Map<String,Object> attributes) {
+
 		this.id = user.getId();
-		this.username = user.getUsername();
 		this.password = user.getPassword();
-		this.lastLoginTimeStamp = user.getLastLoginTimeStamp();
 		this.attributes = attributes;
+		this.securityLevel = user.getSecurityLevel();
 		
 		roles = new ArrayList<>();
-		roles.add(new GrantedAuthority() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getAuthority() {
-				return user.getRole();
-			}
-		});
+		roles.add(user::getRole);
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return roles;
 	}
-	
 
-	public void setUsername(String username) {
-		this.username = username;
+	public long getId(){
+		return id;
+	}
+	@Override public String getUsername() {
+		return email;
 	}
 
+	@Override public String getPassword() {
+		return password;
+	}
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
-	public long getLastLoginTimeStamp() {
-		return lastLoginTimeStamp;
+	public int getSecurityLevel(){
+		return securityLevel;
+	}
+	public void setSecurityLevel(int level){
+		this.securityLevel = level;
 	}
 
-	public String getUsermail() {
-		return usermail;
-	}
-
-	@Override
-	public String getPassword() {
-		return password;
-	}
-
-	@Override
-	public String getUsername() {
-		return username;
-	}
 
 	@Override
 	public boolean isAccountNonExpired() {
@@ -110,32 +90,26 @@ public class LolsearcherUserDetails implements UserDetails, OAuth2User {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(id, password, username);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		LolsearcherUserDetails other = (LolsearcherUserDetails) obj;
-		return id == other.id && Objects.equals(password, other.password) && Objects.equals(username, other.username);
-	}
-
-	@Override
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
 	}
 
+	@JsonIgnore
 	@Override
 	public String getName() {
 		return (String)this.attributes.get("sub");
 	}
 
-	
-	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		LolsearcherUserDetails that = (LolsearcherUserDetails) o;
+		return id == that.id && Objects.equals(password, that.password) && Objects.equals(email, that.email);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, password, email);
+	}
 }

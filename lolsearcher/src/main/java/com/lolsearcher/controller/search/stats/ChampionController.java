@@ -1,7 +1,7 @@
 package com.lolsearcher.controller.search.stats;
 
-import com.lolsearcher.exception.exception.champion.InvalidChampionIdException;
 import com.lolsearcher.exception.exception.common.IncorrectGameVersionException;
+import com.lolsearcher.exception.exception.search.champion.InvalidChampionIdException;
 import com.lolsearcher.model.request.search.championstats.RequestChampDetailStatsDto;
 import com.lolsearcher.model.request.search.championstats.RequestChampPositionStatsDto;
 import com.lolsearcher.model.response.front.search.championstats.ChampPositionStatsDto;

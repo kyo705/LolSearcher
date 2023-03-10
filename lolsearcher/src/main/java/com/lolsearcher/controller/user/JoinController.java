@@ -1,8 +1,8 @@
 package com.lolsearcher.controller.user;
 
-import com.lolsearcher.model.request.user.RequestEmailCheckDto;
-import com.lolsearcher.model.request.user.RequestUserJoinDto;
-import com.lolsearcher.model.response.front.user.ResponseJoinDto;
+import com.lolsearcher.model.request.user.join.RequestEmailCheckDto;
+import com.lolsearcher.model.request.user.join.RequestUserJoinDto;
+import com.lolsearcher.model.response.front.user.ResponseSuccessDto;
 import com.lolsearcher.service.user.join.JoinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class JoinController {
 	private final JoinService userService;
 
 	@PostMapping(path = "/join")
-	public ResponseEntity<ResponseJoinDto> processJoin(@RequestBody @Valid RequestUserJoinDto requestDto) {
+	public ResponseEntity<ResponseSuccessDto> processJoin(@RequestBody @Valid RequestUserJoinDto requestDto) {
 
 		validateUserJoinRequest(requestDto);
 
@@ -27,7 +27,7 @@ public class JoinController {
 	}
 
 	@PostMapping(path = "/join/check")
-	public ResponseJoinDto checkPossibleEmail(@RequestBody @Valid RequestEmailCheckDto requestDto) {
+	public ResponseSuccessDto checkPossibleEmail(@RequestBody @Valid RequestEmailCheckDto requestDto) {
 
 		return userService.checkPossibleEmail(requestDto);
 	}

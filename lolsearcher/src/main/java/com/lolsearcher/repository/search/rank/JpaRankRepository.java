@@ -1,6 +1,6 @@
 package com.lolsearcher.repository.search.rank;
 
-import com.lolsearcher.exception.exception.rank.NonUniqueRankTypeException;
+import com.lolsearcher.exception.exception.search.rank.NonUniqueRankTypeException;
 import com.lolsearcher.model.entity.rank.Rank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

@@ -10,4 +10,5 @@ public interface UserRepository {
 
 	LolSearcherUser findUserByEmail(String email);
 
+    void updateSecurityLevel(LolSearcherUser user, int loginSecurityPolicyLevel);
 }

@@ -1,6 +1,7 @@
 package com.lolsearcher.service.user.login;
 
 import com.lolsearcher.annotation.transaction.JpaTransactional;
+import com.lolsearcher.constant.enumeration.LoginSecurityPolicyStatus;
 import com.lolsearcher.model.entity.user.LolSearcherUser;
 import com.lolsearcher.model.response.front.user.LolsearcherUserDetails;
 import com.lolsearcher.repository.user.UserRepository;
@@ -63,6 +64,6 @@ public class OauthUserService extends DefaultOAuth2UserService {
 		String role = "ROLE_GET";
 		String email = (String) oAuth2User.getAttributes().get("email");
 		
-		return new LolSearcherUser(0, username, password, role, email, 0);
+		return new LolSearcherUser(0, username, password, role, email, 0, LoginSecurityPolicyStatus.NONE.getLevel());
 	}
 }
