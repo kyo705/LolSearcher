@@ -9,6 +9,7 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 repositories {
+	mavenLocal() /* local maven repository 사용 */
 	mavenCentral()
 }
 
@@ -19,6 +20,8 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.24'
 	testCompileOnly 'org.projectlombok:lombok:1.18.24'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+	implementation 'com.idgeneration:spring-boot-jpa-idgeneration:1.0'
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -38,7 +41,6 @@ dependencies {
 	testImplementation 'com.h2database:h2'
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'it.ozimov:embedded-redis:0.7.2'
-
 }
 
 test {
