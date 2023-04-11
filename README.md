@@ -4,8 +4,8 @@
 
 ## 애플리케이션 주요 기능
 
-> 1. 클라이언트가 게임 내 유저의 데이터를 조회 시 Cache, DB로 부터 가져옴
-> 2. 차단된 어뷰저가 해당 서비스를 이용하지 못하는 기능 제공
+> 1. 클라이언트가 특정 유저 게임 데이터를 조회 시 Cache, DB로부터 가져옴
+> 2. 어뷰저 차단 및 차단된 유저 접속 방지 기능
 > 3. OPEN API 서비스를 통해 현재 DB에 있는 데이터를 JSON으로 제공
 > 4. OPEN API 서비스를 이용하기 위한 회원가입, 로그인 관련 기능들을 제공
 
@@ -39,6 +39,134 @@
 >   - DBMS :
 >      - 실제 서버 환경 : MariaDB
 >      - 테스트 환경 : h2
+
+## 프로젝트 디렉토리 구조 
+
+<details>
+<summary>디렉토리 보기</summary>
+
+
+````
+    lolsearcher
+        ├─annotation
+        │  └─transaction
+        ├─aop
+        │  └─timetrace
+        ├─api
+        │  ├─lolsearcher
+        │  └─notification
+        ├─config
+        │  ├─cache
+        │  ├─database
+        │  ├─security
+        │  │  └─configuer
+        │  └─session
+        ├─constant
+        │  └─enumeration
+        ├─controller
+        │  ├─opnapi
+        │  ├─search
+        │  │  ├─match
+        │  │  ├─mostchamp
+        │  │  ├─rank
+        │  │  ├─stats
+        │  │  └─summoner
+        │  └─user
+        ├─exception
+        │  ├─exception
+        │  │  ├─common
+        │  │  ├─search
+        │  │  │  ├─champion
+        │  │  │  ├─rank
+        │  │  │  └─summoner
+        │  │  └─user
+        │  │      ├─identification
+        │  │      ├─join
+        │  │      ├─login
+        │  │      └─session
+        │  └─handler
+        │      ├─controller
+        │      │  ├─openapi
+        │      │  ├─search
+        │      │  └─user
+        │      │      ├─join
+        │      │      └─session
+        │      └─filter
+        │          ├─servlet
+        │          └─springsecurity
+        │              ├─authentication
+        │              └─authorization
+        ├─filter
+        │  ├─Authentication
+        │  │  ├─join
+        │  │  └─login
+        │  ├─ban
+        │  └─header
+        ├─model
+        │  ├─entity
+        │  │  ├─champion
+        │  │  ├─match
+        │  │  ├─mostchamp
+        │  │  ├─rank
+        │  │  ├─summoner
+        │  │  └─user
+        │  ├─factory
+        │  ├─request
+        │  │  ├─notification
+        │  │  ├─search
+        │  │  │  ├─championstats
+        │  │  │  ├─ingame
+        │  │  │  ├─match
+        │  │  │  ├─mostchamp
+        │  │  │  ├─rank
+        │  │  │  └─summoner
+        │  │  └─user
+        │  │      ├─identification
+        │  │      ├─join
+        │  │      ├─login
+        │  │      ├─security
+        │  │      └─session
+        │  └─response
+        │      ├─error
+        │      ├─front
+        │      │  ├─search
+        │      │  │  ├─championstats
+        │      │  │  ├─match
+        │      │  │  ├─mostchamp
+        │      │  │  ├─rank
+        │      │  │  └─summoner
+        │      │  └─user
+        │      ├─notification
+        │      └─openapi
+        ├─repository
+        │  ├─openapi
+        │  ├─search
+        │  │  ├─champstats
+        │  │  ├─match
+        │  │  ├─mostchamp
+        │  │  ├─rank
+        │  │  └─summoner
+        │  ├─session
+        │  └─user
+        └─service
+            ├─ban
+            ├─notification
+            ├─openapi
+            ├─search
+            │  ├─match
+            │  ├─mostchamp
+            │  ├─rank
+            │  ├─stats
+            │  └─summoner
+            └─user
+                ├─identification
+                ├─join
+                ├─login
+                ├─security
+                └─session
+````
+
+</details>
 
 프로젝트 톰캣 스레드풀 최소 갯수 설정
 -------------------------
