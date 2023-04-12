@@ -16,7 +16,7 @@ public class ChampionControllerTestSetup {
     public static RequestChampPositionStatsDto getValidChampPositionRequest() {
 
         return RequestChampPositionStatsDto.builder()
-                .position(PositionStatus.TOP.getId())
+                .position(PositionStatus.TOP.getCode())
                 .gameVersion(LolSearcherConstants.CURRENT_GAME_VERSION)
                 .build();
     }
@@ -58,7 +58,7 @@ public class ChampionControllerTestSetup {
         return Stream.of(
                 Arguments.of(
                         RequestChampPositionStatsDto.builder()
-                                .position(PositionStatus.NONE.getId()) //invalid
+                                .position(PositionStatus.NONE.getCode()) //invalid
                                 .gameVersion(LolSearcherConstants.CURRENT_GAME_VERSION)
                                 .build()
                 ),
@@ -76,19 +76,19 @@ public class ChampionControllerTestSetup {
                 ),
                 Arguments.of(
                         RequestChampPositionStatsDto.builder()
-                                .position(PositionStatus.TOP.getId())
+                                .position(PositionStatus.TOP.getCode())
                                 .gameVersion("") //invalid
                                 .build()
                 ),
                 Arguments.of(
                         RequestChampPositionStatsDto.builder()
-                                .position(PositionStatus.TOP.getId())
+                                .position(PositionStatus.TOP.getCode())
                                 .gameVersion(null) //invalid
                                 .build()
                 ),
                 Arguments.of(
                         RequestChampPositionStatsDto.builder()
-                                .position(PositionStatus.TOP.getId())
+                                .position(PositionStatus.TOP.getCode())
                                 .gameVersion("not current version") //invalid
                                 .build()
                 )

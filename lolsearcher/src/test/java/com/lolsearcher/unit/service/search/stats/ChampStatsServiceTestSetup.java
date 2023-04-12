@@ -15,7 +15,7 @@ public class ChampStatsServiceTestSetup {
     protected static RequestChampPositionStatsDto getRequestChampPositionStatsDto() {
 
         return RequestChampPositionStatsDto.builder()
-                .position(PositionStatus.TOP.getId())
+                .position(PositionStatus.TOP.getCode())
                 .gameVersion(LolSearcherConstants.CURRENT_GAME_VERSION)
                 .build();
     }

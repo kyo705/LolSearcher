@@ -1,7 +1,7 @@
 package com.lolsearcher.unit.service.search.rank;
 
-import com.lolsearcher.exception.exception.rank.IncorrectSummonerRankSizeException;
-import com.lolsearcher.exception.exception.rank.NonUniqueRankTypeException;
+import com.lolsearcher.exception.exception.search.rank.IncorrectSummonerRankSizeException;
+import com.lolsearcher.exception.exception.search.rank.NonUniqueRankTypeException;
 import com.lolsearcher.model.request.search.rank.RequestRankDto;
 import com.lolsearcher.model.response.front.search.rank.RankDto;
 import com.lolsearcher.repository.search.rank.RankRepository;

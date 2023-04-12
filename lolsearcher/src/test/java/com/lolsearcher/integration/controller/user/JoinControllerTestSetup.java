@@ -1,6 +1,6 @@
 package com.lolsearcher.integration.controller.user;
 
-import com.lolsearcher.model.request.user.RequestUserJoinDto;
+import com.lolsearcher.model.request.user.join.RequestUserJoinDto;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;

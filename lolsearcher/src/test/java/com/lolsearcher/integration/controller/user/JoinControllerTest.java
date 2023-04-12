@@ -1,8 +1,8 @@
 package com.lolsearcher.integration.controller.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.exception.exception.join.ExistedUserException;
-import com.lolsearcher.model.request.user.RequestUserJoinDto;
+import com.lolsearcher.exception.exception.user.join.ExistedUserException;
+import com.lolsearcher.model.request.user.join.RequestUserJoinDto;
 import com.lolsearcher.model.response.error.ErrorResponseBody;
 import com.lolsearcher.service.user.join.JoinService;
 import org.junit.jupiter.api.BeforeEach;
