@@ -1,7 +1,7 @@
 package com.lolsearcher;
 
-import library.idgenerator.annotation.EnableIdGenerator;
-import library.idgenerator.enumeration.IdGenerationMode;
+import org.idgeneration.annotation.EnableIdGenerator;
+import org.idgeneration.enumeration.IdGenerationMode;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
