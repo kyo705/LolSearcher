@@ -22,13 +22,15 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 
 	implementation 'com.idgeneration:spring-boot-jpa-idgeneration:1.0'
+	implementation 'org.apache.commons:commons-lang3:3.0'
+	implementation 'org.hibernate.validator:hibernate-validator:6.0.10.Final'
+
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-mail:1.2.0.RELEASE'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'com.auth0:java-jwt:4.2.1'
 	implementation 'org.springframework.session:spring-session-data-redis'
@@ -37,10 +39,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'it.ozimov:embedded-redis:0.7.2'
 
+	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'com.h2database:h2'
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'it.ozimov:embedded-redis:0.7.2'
+	testRuntimeOnly  'com.h2database:h2'
 }
 
 test {

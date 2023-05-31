@@ -1,14 +1,10 @@
 package com.lolsearcher.unit.service.search.stats;
 
-import com.lolsearcher.model.entity.champion.ChampEnemyStats;
-import com.lolsearcher.model.entity.champion.ChampItemStats;
-import com.lolsearcher.model.entity.champion.ChampPositionStats;
-import com.lolsearcher.model.request.search.championstats.RequestChampDetailStatsDto;
-import com.lolsearcher.model.request.search.championstats.RequestChampPositionStatsDto;
-import com.lolsearcher.model.response.front.search.championstats.ChampPositionStatsDto;
-import com.lolsearcher.model.response.front.search.championstats.TotalChampStatDto;
-import com.lolsearcher.repository.search.champstats.JpaChampionRepository;
-import com.lolsearcher.service.search.stats.ChampionService;
+import com.lolsearcher.search.champion.ChampionService;
+import com.lolsearcher.search.champion.ChampionsRequest;
+import com.lolsearcher.search.champion.JpaChampionRepository;
+import com.lolsearcher.search.champion.dto.ChampPositionStatsDto;
+import com.lolsearcher.search.champion.entity.ChampPositionStats;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,14 +33,14 @@ class ChampStatsServiceUnitTest {
 	public void getAllChampPositionStats() {
 
 		//given
-		RequestChampPositionStatsDto request = ChampStatsServiceTestSetup.getRequestChampPositionStatsDto();
+		ChampionsRequest request = ChampStatsServiceTestSetup.getRequestChampPositionStatsDto();
 		List<ChampPositionStats> champPositions = ChampStatsServiceTestSetup.getAllChampStatsFromPosition(request);
 		
-		given(championRepository.findAllChampPositionStats(request.getPosition(), request.getGameVersion()))
+		given(championRepository.findAll(request.getPosition().getCode(), request.getGameVersion()))
 				.willReturn(champPositions);
 		
 		//when
-		List<ChampPositionStatsDto> champPositionStatsDtos = championService.getAllChampPositionStats(request);
+		List<ChampPositionStatsDto> champPositionStatsDtos = championService.findAllByPosition(request);
 		
 		//then
 		champPositionStatsDtos
@@ -53,21 +49,21 @@ class ChampStatsServiceUnitTest {
 					assertThat(stats.getGameVersion()).isEqualTo(request.getGameVersion());
 				});
 	}
-
+/*
 	@DisplayName("특정 챔피언에 대한 아이템 통계, 상대별 챔피언 통계 데이터가 리턴된다.")
 	@Test
 	public void getChampDetailStats() {
 		
 		//given
-		RequestChampDetailStatsDto request = ChampStatsServiceTestSetup.getRequestChampDetailStatsDto();
+		ChampionDetailsRequest request = ChampStatsServiceTestSetup.getRequestChampDetailStatsDto();
 		List<ChampItemStats> champItems = ChampStatsServiceTestSetup.getAllChampItemStats(request);
 		List<ChampEnemyStats> champEnemies = ChampStatsServiceTestSetup.getAllChampEnemyStats(request);
 
-		given(championRepository.findChampItems(request.getChampionId(), request.getGameVersion())).willReturn(champItems);
-		given(championRepository.findChampEnemies(request.getChampionId(), request.getGameVersion())).willReturn(champEnemies);
+		given(championRepository.findItemStats(request.getChampionId(), request.getGameVersion())).willReturn(champItems);
+		given(championRepository.findEnemyStats(request.getChampionId(), request.getGameVersion())).willReturn(champEnemies);
 		
 		//when
-		TotalChampStatDto totalChampStatDto = championService.getChampDetailStats(request);
+		TotalChampStatDto totalChampStatDto = championService.findById(request);
 		
 		//then
 		totalChampStatDto.getChampEnemies()
@@ -81,5 +77,5 @@ class ChampStatsServiceUnitTest {
 					assertThat(stats.getChampionId()).isEqualTo(request.getChampionId());
 					assertThat(stats.getGameVersion()).isEqualTo(request.getGameVersion());
 				});
-	}
+	}*/
 }

@@ -14,7 +14,7 @@ public class HttpHeaderFilter implements Filter{
 
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
-		response.setContentType("charset=UTF-8");
+		response.setContentType("application/json; charset=UTF-8");
 
 		HttpServletResponse resp = (HttpServletResponse) response;
 		resp.setHeader(HttpHeaders.CACHE_CONTROL, "max-age=300");

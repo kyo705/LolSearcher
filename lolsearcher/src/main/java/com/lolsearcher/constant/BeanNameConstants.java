@@ -11,7 +11,7 @@ public class BeanNameConstants {
     public static final String TOO_MANY_REQUESTS_ENTITY_NAME = "tooManyRequestsEntity"; /* 429 */
     public static final String INTERNAL_SERVER_ERROR_ENTITY_NAME = "internalServerErrorEntity"; /* 500 */
     public static final String BAD_GATEWAY_ENTITY_NAME = "badGatewayEntity"; /* 502 */
-
+    public static final String TIME_OUT_ENTITY_NAME = "gatewayTimeoutEntity"; /* 504 */
 
     public static final String CHAMP_POSITION_STATS_TEMPLATE_NAME = "champPositionStatsRedisTemplate";
     public static final String CHAMP_ITEM_STATS_TEMPLATE_NAME = "champPositionStatsRedisTemplate";

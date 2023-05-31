@@ -1,31 +1,32 @@
 package com.lolsearcher.unit.service.search.stats;
 
-import com.lolsearcher.constant.LolSearcherConstants;
-import com.lolsearcher.constant.enumeration.PositionStatus;
-import com.lolsearcher.model.entity.champion.ChampEnemyStats;
-import com.lolsearcher.model.entity.champion.ChampItemStats;
-import com.lolsearcher.model.entity.champion.ChampPositionStats;
-import com.lolsearcher.model.request.search.championstats.RequestChampDetailStatsDto;
-import com.lolsearcher.model.request.search.championstats.RequestChampPositionStatsDto;
+import com.lolsearcher.search.champion.ChampionDetailsRequest;
+import com.lolsearcher.search.champion.ChampionsRequest;
+import com.lolsearcher.search.champion.PositionState;
+import com.lolsearcher.search.champion.entity.ChampEnemyStats;
+import com.lolsearcher.search.champion.entity.ChampItemStats;
+import com.lolsearcher.search.champion.entity.ChampPositionStats;
 
 import java.util.List;
 
+import static com.lolsearcher.search.match.MatchConstant.CURRENT_GAME_VERSION;
+
 public class ChampStatsServiceTestSetup {
 
-    protected static RequestChampPositionStatsDto getRequestChampPositionStatsDto() {
+    protected static ChampionsRequest getRequestChampPositionStatsDto() {
 
-        return RequestChampPositionStatsDto.builder()
-                .position(PositionStatus.TOP.getCode())
-                .gameVersion(LolSearcherConstants.CURRENT_GAME_VERSION)
+        return ChampionsRequest.builder()
+                .position(PositionState.TOP)
+                .gameVersion(CURRENT_GAME_VERSION)
                 .build();
     }
 
-    public static List<ChampPositionStats> getAllChampStatsFromPosition(RequestChampPositionStatsDto request) {
+    public static List<ChampPositionStats> getAllChampStatsFromPosition(ChampionsRequest request) {
 
         ChampPositionStats zedStats = ChampPositionStats.builder()
                 .gameVersion(request.getGameVersion())
                 .championId(1)
-                .positionId(request.getPosition())
+                .positionId(request.getPosition().getCode())
                 .wins(50)
                 .losses(50)
                 .build();
@@ -33,7 +34,7 @@ public class ChampStatsServiceTestSetup {
         ChampPositionStats talonStats = ChampPositionStats.builder()
                 .gameVersion(request.getGameVersion())
                 .championId(2)
-                .positionId(request.getPosition())
+                .positionId(request.getPosition().getCode())
                 .wins(50)
                 .losses(50)
                 .build();
@@ -41,7 +42,7 @@ public class ChampStatsServiceTestSetup {
         ChampPositionStats yasuoStats = ChampPositionStats.builder()
                 .gameVersion(request.getGameVersion())
                 .championId(3)
-                .positionId(request.getPosition())
+                .positionId(request.getPosition().getCode())
                 .wins(50)
                 .losses(50)
                 .build();
@@ -49,15 +50,15 @@ public class ChampStatsServiceTestSetup {
         return List.of(zedStats, talonStats, yasuoStats);
     }
 
-    public static RequestChampDetailStatsDto getRequestChampDetailStatsDto() {
+    public static ChampionDetailsRequest getRequestChampDetailStatsDto() {
 
-        return RequestChampDetailStatsDto.builder()
+        return ChampionDetailsRequest.builder()
                 .championId(1)
-                .gameVersion(LolSearcherConstants.CURRENT_GAME_VERSION)
+                .gameVersion(CURRENT_GAME_VERSION)
                 .build();
     }
 
-    public static List<ChampItemStats> getAllChampItemStats(RequestChampDetailStatsDto request) {
+    public static List<ChampItemStats> getAllChampItemStats(ChampionDetailsRequest request) {
 
         ChampItemStats doranRingStats = ChampItemStats.builder()
                 .championId(request.getChampionId())
@@ -78,7 +79,7 @@ public class ChampStatsServiceTestSetup {
         return List.of(doranSwordStats, doranRingStats);
     }
 
-    public static List<ChampEnemyStats> getAllChampEnemyStats(RequestChampDetailStatsDto request) {
+    public static List<ChampEnemyStats> getAllChampEnemyStats(ChampionDetailsRequest request) {
 
         ChampEnemyStats zedStats = ChampEnemyStats.builder()
                 .championId(request.getChampionId())

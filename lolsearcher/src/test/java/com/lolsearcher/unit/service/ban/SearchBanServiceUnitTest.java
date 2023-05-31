@@ -1,7 +1,7 @@
 package com.lolsearcher.unit.service.ban;
 
-import com.lolsearcher.service.ban.IpBanService;
-import com.lolsearcher.service.ban.SearchIpBanService;
+import com.lolsearcher.ban.IpBanService;
+import com.lolsearcher.ban.SearchIpBanService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,7 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
-import static com.lolsearcher.constant.LolSearcherConstants.SEARCH_BAN_COUNT;
+import static com.lolsearcher.ban.BanConstant.SEARCH_BAN_COUNT;
 import static com.lolsearcher.constant.RedisCacheNameConstants.SEARCH_BAN;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;

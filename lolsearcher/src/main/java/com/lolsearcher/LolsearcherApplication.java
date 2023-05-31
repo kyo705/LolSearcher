@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
-@EnableIdGenerator(mode = IdGenerationMode.INDIVIDUAL)
+@EnableIdGenerator(mode = IdGenerationMode.SINGLETON)
 @EnableCaching
 @SpringBootApplication
 public class LolsearcherApplication {

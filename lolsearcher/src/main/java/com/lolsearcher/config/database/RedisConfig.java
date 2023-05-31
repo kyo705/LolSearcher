@@ -1,8 +1,8 @@
 package com.lolsearcher.config.database;
 
-import com.lolsearcher.model.entity.champion.ChampEnemyStats;
-import com.lolsearcher.model.entity.champion.ChampItemStats;
-import com.lolsearcher.model.entity.champion.ChampPositionStats;
+import com.lolsearcher.search.champion.entity.ChampEnemyStats;
+import com.lolsearcher.search.champion.entity.ChampItemStats;
+import com.lolsearcher.search.champion.entity.ChampPositionStats;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

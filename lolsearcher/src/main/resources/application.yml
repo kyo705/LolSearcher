@@ -1,13 +1,18 @@
 server:
   port: 8080
   shutdown: graceful
-  tomcat:
+  tomcat: # 해당 서버는 프라이빗 네트워크 상에 리버스 프록시 서버(Nginx)와 다른 WAS들과만 통신해야함
+    uri-encoding: UTF-8
     accept-count: 100
+    connection-timeout: 30000 # 30sec
     threads:
       max: 200
       min-spare: 54
-  
+
+
 spring:
+  session:
+    store-type: redis
   datasource:
     hikari:
       maximum-pool-size: 25
@@ -17,6 +22,7 @@ spring:
     username: ${datasource.username}
     password: ${datasource.password}
   jpa:
+    defer-datasource-initialization: true
     show-sql: true
     hibernate:
       ddl-auto: update
@@ -36,58 +42,18 @@ spring:
             client-id: ${oauth2.google.id}
             client-secret: ${oauth2.google.secret}
             scope: email, profile
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${mail.username}
-    password: ${mail.password}
-    properties:
-      mail:
-        smtp:
-          starttls:
-            enable: true
-          auth: true
-          ssl:
-            protocols: TLSv1.2
-            
-
-riot_api_key: ${riot_api_key}
 
 lolsearcher:
   webclient:
-    kr-base-url: https://kr.api.riotgames.com
-    asia-base-url: https://asia.api.riotgames.com
+    notification-server-url: http://localhost:8082
+    reactive-server-url: http://localhost:8081
   redis:
     ttl:
-      ingame: 120 # 2min
-      match: 1440 # 1day
       search-ban: 1440 # 1day
-      search-abusing: 3600 # 1hour
       login-ban: 300 # 5min
-      login-abusing: 300 # 5min
-      champions: 0 #eternal
+      championIds: 0 #eternal
       join-certification: 300 #5min
-  kafka:
-    topics:
-      remaining_match_id:
-        name: remaining_match_id
-        replica: 1
-        partitions: 1
-      fail_match_id:
-        name: filtered_fail_match_id
-        replica: 1
-        partitions: 1
-      success_match:
-        name: success_match
-        replica: 1
-        partitions: 1
-    producers:
-      success_match:
-        bootstrap_server: localhost:9092
-        ack: all
-      fail_match_id:
-        bootstrap_server: localhost:9092
-        ack: all
-      remaining_match_id:
-        bootstrap_server: localhost:9092
-        ack: all
+
+id-generation:
+  nodeId: 1
+  class-path: com.lolsearcher

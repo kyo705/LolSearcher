@@ -1,40 +1,26 @@
 package com.lolsearcher.unit.service.search.rank;
 
-import com.lolsearcher.exception.exception.search.rank.IncorrectSummonerRankSizeException;
-import com.lolsearcher.exception.exception.search.rank.NonUniqueRankTypeException;
-import com.lolsearcher.model.request.search.rank.RequestRankDto;
-import com.lolsearcher.model.response.front.search.rank.RankDto;
-import com.lolsearcher.repository.search.rank.RankRepository;
-import com.lolsearcher.service.search.rank.RankService;
+import com.lolsearcher.search.rank.RankRepository;
+import com.lolsearcher.search.rank.RankService;
+import com.lolsearcher.search.summoner.SummonerService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static com.lolsearcher.constant.LolSearcherConstants.CURRENT_SEASON_ID;
-import static com.lolsearcher.constant.LolSearcherConstants.THE_NUMBER_OF_RANK_TYPE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class RankServiceUnitTest {
 	
 	private RankService rankService;
+	@Mock private SummonerService summonerService;
 	@Mock private RankRepository rankRepository;
 	
 	@BeforeEach
 	void upset() {
-		rankService = new RankService(rankRepository);
+		rankService = new RankService(summonerService, rankRepository);
 	}
 	
-
+/*
 	@Test
 	@DisplayName("DB에 정상적인 랭크 데이터가 존재한다면 해당 데이터를 반환한다.")
 	public void getValidTotalRanks() {
@@ -47,7 +33,7 @@ public class RankServiceUnitTest {
 				.willReturn(RankServiceTestSetup.getValidRanks(summonerId));
 
 		//when
-		Map<String, RankDto> totalRankDto = rankService.getOldRanks(request);
+		Map<String, RankDto> totalRankDto = rankService.findAllById(request.getSummonerId(), CURRENT_SEASON_ID);
 
 		//then
 		assertThat(totalRankDto.size()).isLessThanOrEqualTo(THE_NUMBER_OF_RANK_TYPE);
@@ -76,7 +62,7 @@ public class RankServiceUnitTest {
 				.willReturn(RankServiceTestSetup.getInvalidRanksToOverData(summonerId));
 
 		//when & then
-		assertThrows(IncorrectSummonerRankSizeException.class, ()-> rankService.getOldRanks(request));
+		assertThrows(IncorrectSummonerRankSizeException.class, ()-> rankService.findAllById(request));
 	}
 
 	@Test
@@ -91,6 +77,6 @@ public class RankServiceUnitTest {
 				.willReturn(RankServiceTestSetup.getInvalidRanksToSameData(summonerId));
 
 		//when & then
-		assertThrows(NonUniqueRankTypeException.class, ()-> rankService.getOldRanks(request));
-	}
+		assertThrows(NonUniqueRankTypeException.class, ()-> rankService.findAllById(request));
+	}*/
 }

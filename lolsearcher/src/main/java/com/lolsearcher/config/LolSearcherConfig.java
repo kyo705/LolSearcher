@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -58,10 +57,5 @@ public class LolSearcherConfig {
 	@Bean
 	public ExecutorService threadPool(){
 		return Executors.newFixedThreadPool(54);
-	}
-
-	@Bean
-	public BCryptPasswordEncoder encodePwd() {
-		return new BCryptPasswordEncoder();
 	}
 }

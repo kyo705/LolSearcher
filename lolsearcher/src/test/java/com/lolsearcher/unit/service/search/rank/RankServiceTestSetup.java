@@ -1,30 +1,28 @@
 package com.lolsearcher.unit.service.search.rank;
 
-import com.lolsearcher.constant.LolSearcherConstants;
-import com.lolsearcher.model.entity.rank.Rank;
-import com.lolsearcher.model.request.search.rank.RequestRankDto;
+import com.lolsearcher.search.rank.Rank;
 
 import java.util.List;
 
+import static com.lolsearcher.search.rank.RankConstant.CURRENT_SEASON_ID;
+import static com.lolsearcher.search.rank.RankTypeState.RANKED_FLEX_SR;
+import static com.lolsearcher.search.rank.RankTypeState.RANKED_SOLO_5x5;
+
 public class RankServiceTestSetup {
 
-    public static RequestRankDto getRequestDto() {
-
-		return new RequestRankDto("summonerId1");
-    }
 
 	public static List<Rank> getValidRanks(String summonerId) {
 
 		Rank soloRank = Rank.builder()
 				.summonerId(summonerId)
-				.seasonId(LolSearcherConstants.CURRENT_SEASON_ID)
-				.queueType(LolSearcherConstants.SOLO_RANK)
+				.seasonId(CURRENT_SEASON_ID)
+				.queueType(RANKED_SOLO_5x5)
 				.build();
 
 		Rank flexRank = Rank.builder()
 				.summonerId(summonerId)
-				.seasonId(LolSearcherConstants.CURRENT_SEASON_ID)
-				.queueType(LolSearcherConstants.FLEX_RANK)
+				.seasonId(CURRENT_SEASON_ID)
+				.queueType(RANKED_FLEX_SR)
 				.build();
 
 		return List.of(soloRank, flexRank);
@@ -34,14 +32,14 @@ public class RankServiceTestSetup {
 
 		Rank soloRank = Rank.builder()
 				.summonerId(summonerId)
-				.seasonId(LolSearcherConstants.CURRENT_SEASON_ID)
-				.queueType(LolSearcherConstants.SOLO_RANK)
+				.seasonId(CURRENT_SEASON_ID)
+				.queueType(RANKED_SOLO_5x5)
 				.build();
 
 		Rank flexRank = Rank.builder()
 				.summonerId(summonerId)
-				.seasonId(LolSearcherConstants.CURRENT_SEASON_ID)
-				.queueType(LolSearcherConstants.SOLO_RANK)
+				.seasonId(CURRENT_SEASON_ID)
+				.queueType(RANKED_SOLO_5x5)
 				.build();
 
 		return List.of(soloRank, flexRank);
@@ -51,20 +49,20 @@ public class RankServiceTestSetup {
 
 		Rank soloRank = Rank.builder()
 				.summonerId(summonerId)
-				.seasonId(LolSearcherConstants.CURRENT_SEASON_ID)
-				.queueType(LolSearcherConstants.SOLO_RANK)
+				.seasonId(CURRENT_SEASON_ID)
+				.queueType(RANKED_SOLO_5x5)
 				.build();
 
 		Rank flexRank = Rank.builder()
 				.summonerId(summonerId)
-				.seasonId(LolSearcherConstants.CURRENT_SEASON_ID)
-				.queueType(LolSearcherConstants.SOLO_RANK)
+				.seasonId(CURRENT_SEASON_ID)
+				.queueType(RANKED_SOLO_5x5)
 				.build();
 
 		Rank invalidRank = Rank.builder()
 				.summonerId(summonerId)
-				.seasonId(LolSearcherConstants.CURRENT_SEASON_ID)
-				.queueType("InvalidRankType")
+				.seasonId(CURRENT_SEASON_ID)
+				.queueType(null)
 				.build();
 
 		return List.of(soloRank, flexRank, invalidRank);
