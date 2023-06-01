@@ -8,10 +8,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import static com.lolsearcher.constant.UriConstants.LOLSEARCHER_FRONT_SERVER_URI;
 
 @Configuration
 public class CorsConfig {
+
+	public static final String LOLSEARCHER_FRONT_SERVER_URI = "localhost:80"; /* Nginx uri */
 
 	@Bean
 	@Qualifier("openApiCorsFilter")

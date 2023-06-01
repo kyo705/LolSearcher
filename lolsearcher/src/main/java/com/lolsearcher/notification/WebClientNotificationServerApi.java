@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static com.lolsearcher.constant.UriConstants.NOTIFICATION_SERVER_IDENTIFICATION_URI;
+import static com.lolsearcher.notification.NotificationConstant.NOTIFICATION_SERVER_IDENTIFICATION_URI;
 
 @Slf4j
 @RequiredArgsConstructor

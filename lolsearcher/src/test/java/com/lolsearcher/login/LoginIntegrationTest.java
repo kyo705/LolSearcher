@@ -25,9 +25,9 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Map;
 
+import static com.lolsearcher.ban.BanConstant.LOGIN_BAN;
 import static com.lolsearcher.ban.BanConstant.LOGIN_BAN_COUNT;
-import static com.lolsearcher.constant.BeanNameConstants.FORBIDDEN_ENTITY_NAME;
-import static com.lolsearcher.constant.RedisCacheNameConstants.LOGIN_BAN;
+import static com.lolsearcher.errors.ErrorConstant.FORBIDDEN_ENTITY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 

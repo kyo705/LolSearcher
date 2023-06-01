@@ -3,6 +3,7 @@ package com.lolsearcher.search.champion.entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.cache.CacheManager;
 
 import javax.persistence.Entity;
@@ -15,6 +16,7 @@ import static com.lolsearcher.search.match.MatchConstant.*;
 
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Entity
 @Table(indexes = {@Index(columnList = "gameVersion, championId, itemId")})

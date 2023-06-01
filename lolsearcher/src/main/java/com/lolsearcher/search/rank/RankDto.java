@@ -3,15 +3,17 @@ package com.lolsearcher.search.rank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class RankDto {
-	private final String summonerId;
-	private final int seasonId;
-	private final RankTypeState queueType;
+	private String summonerId;
+	private int seasonId;
+	private RankTypeState queueType;
 	private String leagueId;
 	private TierState tier;
 	private RankState rank;

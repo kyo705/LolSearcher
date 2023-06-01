@@ -6,8 +6,8 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import static com.lolsearcher.ban.BanConstant.LOGIN_BAN;
 import static com.lolsearcher.ban.BanConstant.LOGIN_BAN_COUNT;
-import static com.lolsearcher.constant.RedisCacheNameConstants.LOGIN_BAN;
 
 @Slf4j
 @RequiredArgsConstructor

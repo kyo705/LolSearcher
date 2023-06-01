@@ -1,7 +1,6 @@
 package com.lolsearcher.search.match;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.constant.BeanNameConstants;
 import com.lolsearcher.errors.ErrorResponseBody;
 import com.lolsearcher.search.match.dto.MatchDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +28,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import java.util.List;
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.*;
+import static com.lolsearcher.errors.ErrorConstant.*;
 import static com.lolsearcher.search.match.MatchConstant.CHAMPION_ID_LIST;
 import static com.lolsearcher.search.match.MatchConstant.QUEUE_ID_LIST;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -137,14 +136,11 @@ public class MatchControllerTest {
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(response -> {
-                    String responseBody = response.getResponse().getContentAsString();
-                    ErrorResponseBody errorResponseBody = objectMapper.readValue(responseBody, ErrorResponseBody.class);
+                    ErrorResponseBody body = objectMapper.readValue(response.getResponse().getContentAsString(), ErrorResponseBody.class);
+                    ErrorResponseBody expected = errorResponseEntities.get(BAD_REQUEST_ENTITY_NAME).getBody();
 
-                    ErrorResponseBody badRequestResponseBody =
-                            errorResponseEntities.get(BeanNameConstants.BAD_REQUEST_ENTITY_NAME).getBody();
-
-                    assertThat(errorResponseBody.getErrorStatusCode()).isEqualTo(badRequestResponseBody.getErrorStatusCode());
-                    assertThat(errorResponseBody.getErrorMessage()).isEqualTo(badRequestResponseBody.getErrorMessage());
+                    assertThat(body.getErrorStatusCode()).isEqualTo(expected.getErrorStatusCode());
+                    assertThat(body.getErrorMessage()).isEqualTo(expected.getErrorMessage());
                 });
     }
 

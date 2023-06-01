@@ -1,6 +1,7 @@
 package com.lolsearcher.search.champion;
 
 import com.lolsearcher.validation.Champion;
+import com.lolsearcher.validation.GameVersion;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,6 +16,7 @@ public class ChampionDetailsRequest {
     @NotNull
     @Champion
     private Integer championId;
+    @GameVersion
     private String gameVersion;
 
     public ChampionDetailsRequest(){

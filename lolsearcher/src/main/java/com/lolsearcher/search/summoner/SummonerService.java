@@ -1,8 +1,8 @@
 package com.lolsearcher.search.summoner;
 
 import com.lolsearcher.annotation.transaction.JpaTransactional;
-import com.lolsearcher.errors.exception.search.summoner.NotExistedSummonerInDBException;
-import com.lolsearcher.errors.exception.search.summoner.NotExistedSummonerInGameServerException;
+import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInDBException;
+import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInGameServerException;
 import com.lolsearcher.utils.factory.FrontServerResponseDtoFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

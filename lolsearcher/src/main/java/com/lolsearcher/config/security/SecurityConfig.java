@@ -3,14 +3,14 @@ package com.lolsearcher.config.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.ban.LoginBanFilter;
 import com.lolsearcher.ban.SearchBanFilter;
-import com.lolsearcher.config.security.configuer.FirstLevelLoginConfigurer;
 import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.errors.handler.filter.CustomForbiddenEntryPoint;
 import com.lolsearcher.errors.handler.filter.ExceptionHandlingFilter;
-import com.lolsearcher.errors.handler.filter.springsecurity.authorization.CustomForbiddenEntryPoint;
-import com.lolsearcher.errors.handler.filter.springsecurity.authorization.LolsearcherDeniedHandler;
-import com.lolsearcher.filter.header.HttpHeaderFilter;
+import com.lolsearcher.errors.handler.filter.LolsearcherDeniedHandler;
+import com.lolsearcher.filter.HttpHeaderFilter;
 import com.lolsearcher.login.LolSearcherAuthenticationFailureHandler;
 import com.lolsearcher.login.LolSearcherAuthenticationSuccessHandler;
+import com.lolsearcher.login.LolSearcherLoginConfigurer;
 import com.lolsearcher.login.LolSearcherOauthUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
@@ -22,8 +22,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
@@ -31,6 +33,8 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 import java.util.Map;
+
+import static com.lolsearcher.login.LoginConstant.LOGIN_URI;
 
 @RequiredArgsConstructor
 @Configuration
@@ -64,9 +68,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
-		/*http.csrf()
+		http.csrf()
 				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-				.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/user/**"));*/
+				.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/user/**"));
 
 		http.x509();
 
@@ -74,7 +78,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		addServletFilter(http);
 
 		http
-				.csrf().disable()
 		.authorizeRequests()
 				.antMatchers(HttpMethod.GET, "/user").permitAll()
 				.antMatchers(HttpMethod.POST, "/user").permitAll()
@@ -98,11 +101,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private void addCustomAuthenticationFilter(HttpSecurity http) throws Exception {
 
-		//1차 로그인 필터 등록
-		FirstLevelLoginConfigurer<HttpSecurity> firstLevelLoginConfigurer = new FirstLevelLoginConfigurer<>(objectMapper);
+		LolSearcherLoginConfigurer<HttpSecurity> lolSearcherLoginConfigurer = new LolSearcherLoginConfigurer<>(objectMapper);
 
-		http.apply(firstLevelLoginConfigurer)
-				.loginProcessingUrl("/login")
+		http.apply(lolSearcherLoginConfigurer)
+				.loginProcessingUrl(LOGIN_URI)
 				.successHandler(lolSearcherAuthenticationSuccessHandler)
 				.failureHandler(lolSearcherAuthenticationFailureHandler);
 	}

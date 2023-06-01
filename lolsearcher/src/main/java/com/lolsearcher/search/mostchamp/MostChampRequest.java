@@ -34,7 +34,6 @@ public class MostChampRequest {
     private int count;
 
     public MostChampRequest(){
-
         seasonId = CURRENT_SEASON_ID;
         count = MOST_CHAMP_DEFAULT_COUNT;
     }

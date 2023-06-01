@@ -1,17 +1,16 @@
 package com.lolsearcher.search.rank;
 
-import lombok.Builder;
-import lombok.Getter;
+import com.lolsearcher.search.rank.RankState.RankConverter;
+import com.lolsearcher.search.rank.RankTypeState.RankTypeConverter;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.lolsearcher.search.rank.RankConstant.*;
+import static com.lolsearcher.search.rank.RankState.NONE;
 import static com.lolsearcher.search.rank.TierState.*;
 import static com.lolsearcher.search.summoner.SummonerConstant.SUMMONER_ID_MAX_LENGTH;
 import static com.lolsearcher.search.summoner.SummonerConstant.SUMMONER_ID_MIN_LENGTH;
@@ -19,7 +18,10 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
+@ToString
 @Entity
 @Table(name = "ranks", indexes = {@Index(columnList = "summonerId, seasonId, queueType", unique = true)})
 public class Rank {
@@ -28,9 +30,12 @@ public class Rank {
 	private Long id;
 	private String summonerId;
 	private int seasonId;
+	@Convert(converter = RankTypeConverter.class)
 	private RankTypeState queueType;
 	private String leagueId;
+	@Convert(converter = TierConverter.class)
 	private TierState tier; /* GOLD, SLIVER, BRONZE ... */
+	@Convert(converter = RankConverter.class)
 	private RankState rank; /* I, II, III ... */
 	private int leaguePoints;
 	private long wins;
@@ -59,6 +64,10 @@ public class Rank {
 		checkArgument(leaguePoints >= 0 &&
 				(leaguePoints <= 100 || tier == CHALLENGER || tier == GRANDMASTER || tier == MASTER),
 				"leaguePoints must be in boundary point");
+
+		checkArgument(((tier == CHALLENGER || tier == GRANDMASTER || tier == MASTER || tier == UNRANK) && rank == NONE) ||
+				(tier != CHALLENGER && tier != GRANDMASTER && tier != MASTER && tier != UNRANK && rank != NONE),
+				"tier rank must be collaborate properly");
 
 		checkArgument(wins >= 0, "wins must be positive");
 

@@ -9,4 +9,6 @@ public class RankConstant {
     public static final int CURRENT_SEASON_ID = 23;
     public static final int  INITIAL_SEASON_ID = 10;
     public static final String DEFAULT_SEASON_ID = "23";
+    public static final String FIND_RANKS_URI = "/summoner/{summonerId}/ranks";
+    public static final String FIND_RANK_BY_ID_URI = "/summoner/{summonerId}/rank/{rankId}";
 }

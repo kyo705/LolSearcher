@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.INTERNAL_SERVER_ERROR_ENTITY_NAME;
-import static com.lolsearcher.constant.BeanNameConstants.NOT_FOUND_ENTITY_NAME;
+import static com.lolsearcher.errors.ErrorConstant.INTERNAL_SERVER_ERROR_ENTITY_NAME;
+import static com.lolsearcher.errors.ErrorConstant.NOT_FOUND_ENTITY_NAME;
 
 @Order(1)
 @RequiredArgsConstructor

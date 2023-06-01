@@ -10,8 +10,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
 
-import static com.lolsearcher.constant.BeanNameConstants.*;
-import static com.lolsearcher.constant.UriConstants.SUMMONER_RENEW_REQUEST_URI;
+import static com.lolsearcher.errors.ErrorConstant.*;
 
 @Configuration
 public class ErrorResponseEntity {

@@ -27,9 +27,10 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.*;
+import static com.lolsearcher.errors.ErrorConstant.*;
 import static com.lolsearcher.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @AutoConfigureMockMvc
@@ -73,6 +74,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.get(USER_URI)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .param(EMAIL_PARAM_NAME, email)
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(result -> {
@@ -93,6 +95,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.get(USER_URI)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .param(EMAIL_PARAM_NAME, email)
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(result -> {
@@ -112,6 +115,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.get(USER_URI)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .param(EMAIL_PARAM_NAME, email)
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(result -> {
@@ -136,6 +140,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.post(USER_URI)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(result -> {
@@ -160,6 +165,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.post(USER_URI)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(result -> {
@@ -183,6 +189,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.post(USER_URI)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.CONFLICT.value()))
                 .andExpect(result -> {
@@ -211,6 +218,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.patch(USER_ACCESS_URI, id)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.FORBIDDEN.value()))
                 .andExpect(result -> {
@@ -238,6 +246,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.patch(USER_ACCESS_URI, id)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.FORBIDDEN.value()))
                 .andExpect(result -> {
@@ -266,6 +275,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.patch(USER_ACCESS_URI, id)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(result -> {
@@ -311,6 +321,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.patch(USER_ACCESS_URI, id)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(body))
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(result -> {
@@ -338,6 +349,7 @@ public class UserIntegrationTest {
                         MockMvcRequestBuilders.patch(USER_ACCESS_URI, id)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(result -> {
@@ -365,6 +377,7 @@ public class UserIntegrationTest {
         mockMvc.perform(
                         MockMvcRequestBuilders.delete(USER_ACCESS_URI, id)
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
                 .andExpect(result -> {
@@ -388,6 +401,7 @@ public class UserIntegrationTest {
         mockMvc.perform(
                         MockMvcRequestBuilders.delete(USER_ACCESS_URI, id)
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .with(csrf())
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(result -> {

@@ -1,9 +1,10 @@
 package com.lolsearcher.search.rank;
 
 import com.lolsearcher.annotation.transaction.JpaTransactional;
-import com.lolsearcher.errors.exception.search.rank.IncorrectSummonerRankSizeException;
-import com.lolsearcher.errors.exception.search.rank.NonUniqueRankTypeException;
+import com.lolsearcher.errors.exception.rank.IncorrectSummonerRankSizeException;
+import com.lolsearcher.errors.exception.rank.NonUniqueRankTypeException;
 import com.lolsearcher.search.summoner.SummonerService;
+import com.lolsearcher.utils.factory.FrontServerResponseDtoFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,17 +36,15 @@ public class RankService {
 		if(ranks.size() > THE_NUMBER_OF_RANK_TYPE){ /* solo, flex 2가지 랭크 게임 밖에 없음 */
 			throw new IncorrectSummonerRankSizeException(ranks.size());
 		}
-		Map<RankTypeState, RankDto> rankMap = new HashMap<>();
-
+		Map<RankTypeState, RankDto> result = new HashMap<>();
 		for(Rank rank : ranks){
-			if(rankMap.containsKey(rank.getQueueType())){
+			if(result.containsKey(rank.getQueueType())){
 				throw new NonUniqueRankTypeException(rank.getQueueType()); /* 가져온 두 개 이하의 데이터 중 중복타입이 있으면 안됌 */
 			}
-			rank.validate();
 			RankDto rankDto = getRankDto(rank);
-			rankMap.put(rankDto.getQueueType(), rankDto);
+			result.put(rankDto.getQueueType(), rankDto);
 		}
-		return rankMap;
+		return result;
 	}
 
 	@JpaTransactional(readOnly = true)
@@ -57,9 +56,9 @@ public class RankService {
 
 		checkSummonerId(summonerId);
 
-		return rankRepository.findRank(summonerId, seasonId, type)
-				.map(rank-> Map.of(type, getRankDto(rank)))
-				.orElse(Map.of(type, null));
+		return Map.of(type, rankRepository.findRank(summonerId, seasonId, type)
+				.map(FrontServerResponseDtoFactory::getRankDto)
+				.orElseGet( null));
 	}
 
 	private void checkSummonerId(String summonerId) {

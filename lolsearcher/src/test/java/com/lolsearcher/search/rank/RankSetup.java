@@ -1,7 +1,7 @@
 package com.lolsearcher.search.rank;
 
-import com.lolsearcher.errors.exception.search.rank.IncorrectSummonerRankSizeException;
-import com.lolsearcher.errors.exception.search.rank.NonUniqueRankTypeException;
+import com.lolsearcher.errors.exception.rank.IncorrectSummonerRankSizeException;
+import com.lolsearcher.errors.exception.rank.NonUniqueRankTypeException;
 import org.junit.jupiter.params.provider.Arguments;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.QueryTimeoutException;
@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.lolsearcher.search.rank.RankConstant.CURRENT_SEASON_ID;
+import static com.lolsearcher.search.rank.RankConstant.INITIAL_SEASON_ID;
 import static com.lolsearcher.search.rank.RankTypeState.RANKED_FLEX_SR;
 import static com.lolsearcher.search.rank.RankTypeState.RANKED_SOLO_5x5;
 
@@ -34,12 +35,31 @@ public class RankSetup {
     public static Stream<Arguments> correctParamWithFindAll() {
 
         return Stream.of(
-                Arguments.of("summonerId", null),
-                Arguments.of("summonerId", 13),
-                Arguments.of("summonerId", 10),
-                Arguments.of("summonerId", CURRENT_SEASON_ID),
-                Arguments.of("12345678901234567890123456789012345678901234567890123456789012", 13),   /* summonerId 길이 : 62 */
-                Arguments.of("123456789012345678901234567890123456789012345678901234567890123", 13)  /* summonerId 길이 : 63 */
+                Arguments.of(
+                        "summonerId",
+                        13,
+                        RANKED_SOLO_5x5.name()
+                ),
+                Arguments.of(
+                        "summonerId",
+                        10,
+                        RANKED_SOLO_5x5.name()
+                ),
+                Arguments.of(
+                        "summonerId",
+                        CURRENT_SEASON_ID,
+                        RANKED_FLEX_SR.name()
+                ),
+                Arguments.of(
+                        "12345678901234567890123456789012345678901234567890123456789012",  /* summonerId 길이 : 62 */
+                        13,
+                        RANKED_FLEX_SR.name()
+                ),
+                Arguments.of(
+                        "123456789012345678901234567890123456789012345678901234567890123",
+                        13,
+                        RANKED_FLEX_SR.name()
+                )  /* summonerId 길이 : 63 */
         );
     }
 
@@ -74,29 +94,81 @@ public class RankSetup {
         );
     }
 
-    public static Stream<Arguments> correctParamWithFindById() {
+    protected static Stream<Arguments> validRanksParam() {
 
         return Stream.of(
-                Arguments.of("summonerId", RANKED_SOLO_5x5.name(), 13),
-                Arguments.of("summonerId", RANKED_FLEX_SR.name(), 10),
-                Arguments.of("summonerId", RANKED_SOLO_5x5.name(), CURRENT_SEASON_ID),
-                Arguments.of("12345678901234567890123456789012345678901234567890123456789012",RANKED_SOLO_5x5.name(), 13),   /* summonerId 길이 : 62 */
-                Arguments.of("123456789012345678901234567890123456789012345678901234567890123",RANKED_SOLO_5x5.name(), 13)  /* summonerId 길이 : 63 */
+                /* summonerId, seasonId */
+                Arguments.of("summoner1", CURRENT_SEASON_ID),
+                Arguments.of("summoner1", INITIAL_SEASON_ID),
+                Arguments.of("summoner2", CURRENT_SEASON_ID),
+                Arguments.of("summoner2", INITIAL_SEASON_ID)
         );
     }
 
-    public static Stream<Arguments> incorrectParamWithFindById() {
+    protected static Stream<Arguments> invalidRanksParam() {
 
         return Stream.of(
-                Arguments.of("summonerId",RANKED_SOLO_5x5.name(), 0),
-                Arguments.of("summonerId",RANKED_SOLO_5x5.name(), -1),
-                Arguments.of("summonerId",RANKED_SOLO_5x5.name(), 9),
-                Arguments.of("summonerId",RANKED_SOLO_5x5.name(), 8),
-                Arguments.of("summonerId",RANKED_SOLO_5x5.name(), CURRENT_SEASON_ID+1),
-                Arguments.of("summonerId",RANKED_SOLO_5x5.name(), CURRENT_SEASON_ID+2),
-                Arguments.of("1234567890123456789012345678901234567890123456789012345678901234",RANKED_SOLO_5x5.name(), 13),  /* summonerId 길이 : 64 */
-                Arguments.of("12345678901234567890123456789012345678901234567890123456789012345",RANKED_SOLO_5x5.name(), 13), /* summonerId 길이 : 65 */
-                Arguments.of("summonerId","INVALID_TYPE", CURRENT_SEASON_ID)
+                /* summonerId, seasonId */
+                Arguments.of("summoner1", CURRENT_SEASON_ID+1),
+                Arguments.of("summoner1", INITIAL_SEASON_ID-1),
+                Arguments.of("  ", CURRENT_SEASON_ID),
+                Arguments.of("1234567890123456789012345678901234567890123456789012345678901234", INITIAL_SEASON_ID)
         );
     }
+
+    protected static Stream<Arguments> invalidRanksInDB() {
+
+        return Stream.of(
+                /* summonerId, seasonId */
+                Arguments.of("summoner3", CURRENT_SEASON_ID),
+                Arguments.of("summoner4", CURRENT_SEASON_ID)
+        );
+    }
+
+    protected static Stream<Arguments> validRankByIdParam() {
+
+        return Stream.of(
+                /* summonerId, seasonId, rankId */
+                Arguments.of("summoner1", CURRENT_SEASON_ID, RANKED_FLEX_SR.name()),
+                Arguments.of("summoner2", CURRENT_SEASON_ID, RANKED_SOLO_5x5.name())
+        );
+    }
+
+    protected static Stream<Arguments> invalidRankByIdParam() {
+
+        return Stream.of(
+                /* summonerId, seasonId, rankId */
+                Arguments.of(
+                        "  ",
+                        CURRENT_SEASON_ID,
+                        RANKED_FLEX_SR.name()
+                ),
+                Arguments.of(
+                        "1234567890123456789012345678901234567890123456789012345678901234" /* len : 64 */,
+                        CURRENT_SEASON_ID,
+                        RANKED_FLEX_SR.name()
+                ),
+                Arguments.of(
+                        "summoner2",
+                        CURRENT_SEASON_ID+1,
+                        RANKED_SOLO_5x5.name()
+                ),
+                Arguments.of(
+                        "summoner2",
+                        INITIAL_SEASON_ID-1,
+                        RANKED_SOLO_5x5.name()
+                ),
+                Arguments.of(
+                        "summoner2",
+                        -1,
+                        RANKED_SOLO_5x5.name()
+                ),
+                Arguments.of(
+                        "summonerId",
+                        CURRENT_SEASON_ID,
+                        "INVALID_TYPE"
+                )
+        );
+    }
+
 }

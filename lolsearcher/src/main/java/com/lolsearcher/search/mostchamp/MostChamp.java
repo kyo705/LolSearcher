@@ -1,8 +1,6 @@
 package com.lolsearcher.search.mostchamp;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -18,8 +16,10 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
-@Table(indexes = {@Index(columnList = "summonerId, seasonId, queueId")})
+@Setter
+@Table(name = "most_champs", indexes = {@Index(columnList = "summonerId, seasonId, queueId")})
 @Entity
 public class MostChamp {
 
@@ -28,7 +28,7 @@ public class MostChamp {
     private String summonerId;
     private int championId;
     private int seasonId;
-    private int queueId;
+    private Integer queueId;
     private long totalKills;
     private long totalDeaths;
     private long totalAssists;
@@ -58,6 +58,7 @@ public class MostChamp {
         checkArgument(totalGames >= 0, "totalGames must be positive");
         checkArgument(totalWins >= 0, "totalWins must be positive");
         checkArgument(totalLosses >= 0, "totalLosses must be positive");
+        checkArgument(totalGames >= totalLosses + totalWins, "totalGames must be bigger than sum of totalWins and totalLosses");
     }
 
     public void setId(Long id) {

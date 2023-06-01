@@ -1,8 +1,8 @@
 package com.lolsearcher.errors.handler.controller;
 
 import com.lolsearcher.errors.ErrorResponseBody;
-import com.lolsearcher.errors.exception.search.summoner.NotExistedSummonerInDBException;
-import com.lolsearcher.errors.exception.search.summoner.NotExistedSummonerInGameServerException;
+import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInDBException;
+import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInGameServerException;
 import com.lolsearcher.search.summoner.SummonerController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.*;
+import static com.lolsearcher.errors.ErrorConstant.*;
 
 @Order(1)
 @RequiredArgsConstructor

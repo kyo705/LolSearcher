@@ -1,55 +1,16 @@
 package com.lolsearcher.config.database;
 
-import com.lolsearcher.search.champion.entity.ChampEnemyStats;
-import com.lolsearcher.search.champion.entity.ChampItemStats;
-import com.lolsearcher.search.champion.entity.ChampPositionStats;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Configuration
 public class RedisConfig {
 
-    @Qualifier("champPositionStatsRedisTemplate")
     @Bean
-    RedisTemplate<String, ChampPositionStats> champPositionStatsRedisTemplate(RedisConnectionFactory connectionFactory){
+    StringRedisTemplate stringRedisTemplate(RedisConnectionFactory connectionFactory) {
 
-        RedisTemplate<String, ChampPositionStats> redisTemplate = new RedisTemplate<>();
-
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChampPositionStats.class));
-        redisTemplate.setConnectionFactory(connectionFactory);
-
-        return redisTemplate;
-    }
-
-    @Qualifier("champItemStatsRedisTemplate")
-    @Bean
-    RedisTemplate<String, ChampItemStats> champItemStatsRedisTemplate(RedisConnectionFactory connectionFactory){
-
-        RedisTemplate<String, ChampItemStats> redisTemplate = new RedisTemplate<>();
-
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChampItemStats.class));
-        redisTemplate.setConnectionFactory(connectionFactory);
-
-        return redisTemplate;
-    }
-
-    @Qualifier("champEnemyStatsRedisTemplate")
-    @Bean
-    RedisTemplate<String, ChampEnemyStats> champEnemyStatsRedisTemplate(RedisConnectionFactory connectionFactory){
-
-        RedisTemplate<String, ChampEnemyStats> redisTemplate = new RedisTemplate<>();
-
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChampEnemyStats.class));
-        redisTemplate.setConnectionFactory(connectionFactory);
-
-        return redisTemplate;
+        return new StringRedisTemplate(connectionFactory);
     }
 }

@@ -13,8 +13,7 @@ import java.util.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.lolsearcher.search.match.MatchConstant.LAST_MATCH_ID_MAX_LENGTH;
 import static com.lolsearcher.search.summoner.SummonerConstant.*;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.*;
 
 
 @NoArgsConstructor
@@ -37,7 +36,7 @@ public class Summoner {
 	public void validate() {
 
 		checkArgument(
-				isNotEmpty(summonerId) &&
+				isNotBlank(summonerId) &&
 						summonerId.length() >= SUMMONER_ID_MIN_LENGTH &&
 						summonerId.length() <= SUMMONER_ID_MAX_LENGTH,
 
@@ -45,7 +44,7 @@ public class Summoner {
 						SUMMONER_ID_MIN_LENGTH, SUMMONER_ID_MAX_LENGTH)
 		);
 		checkArgument(
-				isNotEmpty(accountId) &&
+				isNotBlank(accountId) &&
 						accountId.length() >= ACCOUNT_ID_MIN_LENGTH &&
 						accountId.length() <= ACCOUNT_ID_MAX_LENGTH,
 
@@ -53,7 +52,7 @@ public class Summoner {
 						ACCOUNT_ID_MIN_LENGTH, ACCOUNT_ID_MAX_LENGTH)
 		);
 		checkArgument(
-				isNotEmpty(puuid) &&
+				isNotBlank(puuid) &&
 						puuid.length() >= PUUID_MIN_LENGTH &&
 						puuid.length() <= PUUID_MAX_LENGTH,
 
@@ -61,7 +60,7 @@ public class Summoner {
 						PUUID_MIN_LENGTH, PUUID_MAX_LENGTH)
 		);
 		checkArgument(
-				isNotEmpty(summonerName) &&
+				isNotBlank(summonerName) &&
 						summonerName.length() >= SUMMONER_NAME_MIN_LENGTH &&
 						summonerName.length() <= SUMMONER_NAME_MAX_LENGTH,
 
@@ -75,6 +74,7 @@ public class Summoner {
 		checkArgument(profileIconId == null || profileIconId >= 0, "profileIconId must be positive");
 		checkArgument(lastRenewTimeStamp == null || lastRenewTimeStamp.isBefore(LocalDateTime.now()),
 				"lastRenewTimestamp must be the past");
+		checkArgument(summonerLevel >= 0, "summoner level must be positive");
 	}
 
 	public void setId(long id) {

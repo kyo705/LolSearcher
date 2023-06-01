@@ -26,7 +26,7 @@ public class ExceptionHandlingFilter implements Filter {
         }catch(IllegalArgumentException e){
 
             log.error(e.getMessage());
-            // 로그인, 회원가입, 서치 권한 없는 경우(403), 회원가입 인증 실패 경우(400)
+
             HttpServletResponse resp = (HttpServletResponse) response;
             resp.setStatus(HttpStatus.BAD_REQUEST.value());
             resp.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -34,7 +34,5 @@ public class ExceptionHandlingFilter implements Filter {
             String body = objectMapper.writeValueAsString(new ErrorResponseBody(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
             resp.getWriter().write(body);
         }
-
-        // databind exception 발생시 400에러 발생
     }
 }

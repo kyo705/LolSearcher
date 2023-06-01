@@ -49,10 +49,14 @@ lolsearcher:
     reactive-server-url: http://localhost:8081
   redis:
     ttl:
-      search-ban: 1440 # 1day
-      login-ban: 300 # 5min
-      championIds: 0 #eternal
-      join-certification: 300 #5min
+      search-ban: 1440   # 1day
+      login-ban: 300     # 5min
+      championId: 0      # eternal
+      queueId: 0         # eternal
+      item: 0            # eternal
+      perk: 0            # eternal
+      gameVersion: 0     # eternal
+
 
 id-generation:
   nodeId: 1

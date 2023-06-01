@@ -1,8 +1,8 @@
 package com.lolsearcher.errors.handler.controller;
 
 import com.lolsearcher.errors.ErrorResponseBody;
-import com.lolsearcher.errors.exception.search.rank.IncorrectSummonerRankSizeException;
-import com.lolsearcher.errors.exception.search.rank.NonUniqueRankTypeException;
+import com.lolsearcher.errors.exception.rank.IncorrectSummonerRankSizeException;
+import com.lolsearcher.errors.exception.rank.NonUniqueRankTypeException;
 import com.lolsearcher.search.rank.RankController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.BAD_GATEWAY_ENTITY_NAME;
-import static com.lolsearcher.constant.BeanNameConstants.NOT_FOUND_ENTITY_NAME;
+import static com.lolsearcher.errors.ErrorConstant.INTERNAL_SERVER_ERROR_ENTITY_NAME;
+import static com.lolsearcher.errors.ErrorConstant.NOT_FOUND_ENTITY_NAME;
 
 @Order(1)
 @Slf4j
@@ -30,7 +30,7 @@ public class RankExceptionHandler {
 
         log.error(e.getMessage());
 
-        return errorResponseEntities.get(BAD_GATEWAY_ENTITY_NAME);
+        return errorResponseEntities.get(INTERNAL_SERVER_ERROR_ENTITY_NAME);
     }
 
     @ExceptionHandler({EmptyResultDataAccessException.class})

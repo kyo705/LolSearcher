@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.CONFLICT_ENTITY_NAME;
+import static com.lolsearcher.errors.ErrorConstant.CONFLICT_ENTITY_NAME;
 
 @Order(1)
 @Slf4j

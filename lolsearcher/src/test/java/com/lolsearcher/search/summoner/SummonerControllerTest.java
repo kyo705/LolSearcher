@@ -1,11 +1,10 @@
 package com.lolsearcher.search.summoner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.constant.BeanNameConstants;
-import com.lolsearcher.constant.LolSearcherConstants;
+import com.lolsearcher.errors.ErrorConstant;
 import com.lolsearcher.errors.ErrorResponseBody;
-import com.lolsearcher.errors.exception.search.summoner.NotExistedSummonerInDBException;
-import com.lolsearcher.errors.exception.search.summoner.NotExistedSummonerInGameServerException;
+import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInDBException;
+import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInGameServerException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,8 +25,9 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.BAD_GATEWAY_ENTITY_NAME;
-import static com.lolsearcher.constant.BeanNameConstants.TIME_OUT_ENTITY_NAME;
+import static com.lolsearcher.errors.ErrorConstant.*;
+import static com.lolsearcher.search.summoner.SummonerConstant.FIND_BY_NAME_URI;
+import static com.lolsearcher.search.summoner.SummonerConstant.SUMMONER_NAME_REGEX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -38,8 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class SummonerControllerTest {
-
-	private static final String SUMMONER_URI = "/summoner/{name}";
 
 	@Autowired private ObjectMapper objectMapper;
 	@Autowired private WebApplicationContext context;
@@ -61,13 +59,13 @@ public class SummonerControllerTest {
 		//given
 		SummonerDto summoner = SummonerDto.builder()
 						.summonerId("summonerId1")
-						.name(name.replaceAll(LolSearcherConstants.REGEX, ""))
+						.name(name.replaceAll(SUMMONER_NAME_REGEX, ""))
 						.build();
 
 		given(summonerService.findByName(any())).willReturn(summoner);
 
 		//when && then
-		mockMvc.perform(get(SUMMONER_URI, name)
+		mockMvc.perform(get(FIND_BY_NAME_URI, name)
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().is(HttpStatus.OK.value()))
 				.andExpect(response -> {
@@ -86,13 +84,13 @@ public class SummonerControllerTest {
 		//given
 		SummonerDto summoner = SummonerDto.builder()
 				.summonerId("summonerId1")
-				.name(name.replaceAll(LolSearcherConstants.REGEX, ""))
+				.name(name.replaceAll(SUMMONER_NAME_REGEX, ""))
 				.build();
 
 		given(summonerService.findByName(any())).willReturn(summoner);
 
 		//when && then
-		mockMvc.perform(get(SUMMONER_URI, name)
+		mockMvc.perform(get(FIND_BY_NAME_URI, name)
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().is(HttpStatus.OK.value()))
 				.andExpect(response -> {
@@ -112,17 +110,16 @@ public class SummonerControllerTest {
 		//given
 
 		//when && then
-		mockMvc.perform(get(SUMMONER_URI, name)
+		mockMvc.perform(get(FIND_BY_NAME_URI, name)
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
 				.andExpect(result -> {
-					ErrorResponseBody errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-							ErrorResponseBody.class);
+					ErrorResponseBody body = objectMapper.readValue(result.getResponse().getContentAsString(), ErrorResponseBody.class);
+					ErrorResponseBody expected = errorResponseEntities.get(ErrorConstant.BAD_REQUEST_ENTITY_NAME).getBody();
 
-					ErrorResponseBody badRequestEntity = errorResponseEntities.get(BeanNameConstants.BAD_REQUEST_ENTITY_NAME).getBody();
-
-					assertThat(errorResponse.getErrorStatusCode()).isEqualTo(badRequestEntity.getErrorStatusCode());
-					assertThat(errorResponse.getErrorMessage()).isEqualTo(badRequestEntity.getErrorMessage());
+					assertThat(expected).isNotNull();
+					assertThat(body.getErrorStatusCode()).isEqualTo(expected.getErrorStatusCode());
+					assertThat(body.getErrorMessage()).isEqualTo(expected.getErrorMessage());
 				});
 	}
 
@@ -135,18 +132,16 @@ public class SummonerControllerTest {
 		given(summonerService.findByName(name)).willThrow(exception);
 
 		//when && then
-		mockMvc.perform(get(SUMMONER_URI, name)
+		mockMvc.perform(get(FIND_BY_NAME_URI, name)
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().is(HttpStatus.GATEWAY_TIMEOUT.value()))
 				.andExpect(result -> {
-					ErrorResponseBody errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-							ErrorResponseBody.class);
+					ErrorResponseBody body = objectMapper.readValue(result.getResponse().getContentAsString(), ErrorResponseBody.class);
+					ErrorResponseBody expected = errorResponseEntities.get(TIME_OUT_ENTITY_NAME).getBody();
 
-					ErrorResponseBody bandRequestEntity = errorResponseEntities
-							.get(TIME_OUT_ENTITY_NAME).getBody();
-
-					assertThat(errorResponse.getErrorStatusCode()).isEqualTo(bandRequestEntity.getErrorStatusCode());
-					assertThat(errorResponse.getErrorMessage()).isEqualTo(bandRequestEntity.getErrorMessage());
+					assertThat(expected).isNotNull();
+					assertThat(body.getErrorStatusCode()).isEqualTo(expected.getErrorStatusCode());
+					assertThat(body.getErrorMessage()).isEqualTo(expected.getErrorMessage());
 				});
 	}
 
@@ -159,18 +154,16 @@ public class SummonerControllerTest {
 		given(summonerService.findByName(name)).willThrow(exception);
 
 		//when && then
-		mockMvc.perform(get(SUMMONER_URI, name)
+		mockMvc.perform(get(FIND_BY_NAME_URI, name)
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().is(HttpStatus.BAD_GATEWAY.value()))
 				.andExpect(result -> {
-					ErrorResponseBody errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-							ErrorResponseBody.class);
+					ErrorResponseBody body = objectMapper.readValue(result.getResponse().getContentAsString(), ErrorResponseBody.class);
+					ErrorResponseBody expected = errorResponseEntities.get(BAD_GATEWAY_ENTITY_NAME).getBody();
 
-					ErrorResponseBody bandRequestEntity = errorResponseEntities
-							.get(BAD_GATEWAY_ENTITY_NAME).getBody();
-
-					assertThat(errorResponse.getErrorStatusCode()).isEqualTo(bandRequestEntity.getErrorStatusCode());
-					assertThat(errorResponse.getErrorMessage()).isEqualTo(bandRequestEntity.getErrorMessage());
+					assertThat(expected).isNotNull();
+					assertThat(body.getErrorStatusCode()).isEqualTo(expected.getErrorStatusCode());
+					assertThat(body.getErrorMessage()).isEqualTo(expected.getErrorMessage());
 				});
 	}
 
@@ -184,18 +177,16 @@ public class SummonerControllerTest {
 				.willThrow(new NotExistedSummonerInGameServerException(name));
 
 		//when && then
-		mockMvc.perform(get(SUMMONER_URI, name)
+		mockMvc.perform(get(FIND_BY_NAME_URI, name)
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().is(HttpStatus.NOT_FOUND.value()))
 				.andExpect(result -> {
-					ErrorResponseBody errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-							ErrorResponseBody.class);
+					ErrorResponseBody body = objectMapper.readValue(result.getResponse().getContentAsString(), ErrorResponseBody.class);
+					ErrorResponseBody expected = errorResponseEntities.get(NOT_FOUND_ENTITY_NAME).getBody();
 
-					ErrorResponseBody bandRequestEntity = errorResponseEntities
-							.get(BeanNameConstants.NOT_FOUND_ENTITY_NAME).getBody();
-
-					assertThat(errorResponse.getErrorStatusCode()).isEqualTo(bandRequestEntity.getErrorStatusCode());
-					assertThat(errorResponse.getErrorMessage()).isEqualTo(bandRequestEntity.getErrorMessage());
+					assertThat(expected).isNotNull();
+					assertThat(body.getErrorStatusCode()).isEqualTo(expected.getErrorStatusCode());
+					assertThat(body.getErrorMessage()).isEqualTo(expected.getErrorMessage());
 				});
 	}
 
@@ -209,18 +200,16 @@ public class SummonerControllerTest {
 				.willThrow(new NotExistedSummonerInDBException(name));
 
 		//when && then
-		mockMvc.perform(get(SUMMONER_URI, name)
+		mockMvc.perform(get(FIND_BY_NAME_URI, name)
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().is(HttpStatus.TEMPORARY_REDIRECT.value()))
 				.andExpect(result -> {
-					ErrorResponseBody errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-							ErrorResponseBody.class);
+					ErrorResponseBody body = objectMapper.readValue(result.getResponse().getContentAsString(), ErrorResponseBody.class);
+					ErrorResponseBody expected = errorResponseEntities.get(TEMPORARY_REDIRECT_ENTITY_NAME).getBody();
 
-					ErrorResponseBody temporaryRedirectResponseBody = errorResponseEntities
-							.get(BeanNameConstants.TEMPORARY_REDIRECT_ENTITY_NAME).getBody();
-
-					assertThat(errorResponse.getErrorStatusCode()).isEqualTo(temporaryRedirectResponseBody.getErrorStatusCode());
-					assertThat(errorResponse.getErrorMessage()).isEqualTo(temporaryRedirectResponseBody.getErrorMessage());
+					assertThat(expected).isNotNull();
+					assertThat(body.getErrorStatusCode()).isEqualTo(expected.getErrorStatusCode());
+					assertThat(body.getErrorMessage()).isEqualTo(expected.getErrorMessage());
 				});
 	}
 }

@@ -13,7 +13,7 @@ public class MostChampDto {
 	private String summonerId;
 	private int championId;
 	private int seasonId;
-	private int queueId;
+	private Integer queueId;
 	private long totalKills;
 	private long totalDeaths;
 	private long totalAssists;

@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import static com.lolsearcher.constant.LolSearcherConstants.REGEX;
-import static com.lolsearcher.search.summoner.SummonerConstant.SUMMONER_NAME_MAX_LENGTH;
-import static com.lolsearcher.search.summoner.SummonerConstant.SUMMONER_NAME_MIN_LENGTH;
+import static com.lolsearcher.search.summoner.SummonerConstant.*;
 
 @Validated
 @RequiredArgsConstructor
@@ -20,7 +18,7 @@ public class SummonerController {
 
 	private final SummonerService summonerService;
 	
-	@GetMapping(path = {"/summoner/{name}"})
+	@GetMapping(FIND_BY_NAME_URI)
 	public SummonerDto findByName(@PathVariable @NotBlank @Size(max = 50) String name) {
 
 		String filteredName = filtering(name);
@@ -30,7 +28,7 @@ public class SummonerController {
 
 	private String filtering(String unfilteredName) {
 
-		String filteredName = unfilteredName.replaceAll(REGEX, "");
+		String filteredName = unfilteredName.replaceAll(SUMMONER_NAME_REGEX, "");
 
 		if(filteredName.isBlank()){
 			throw new IllegalArgumentException(

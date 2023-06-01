@@ -27,9 +27,10 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import java.util.List;
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.BAD_REQUEST_ENTITY_NAME;
-import static com.lolsearcher.constant.BeanNameConstants.TIME_OUT_ENTITY_NAME;
+import static com.lolsearcher.errors.ErrorConstant.BAD_REQUEST_ENTITY_NAME;
+import static com.lolsearcher.errors.ErrorConstant.TIME_OUT_ENTITY_NAME;
 import static com.lolsearcher.search.match.MatchConstant.QUEUE_ID_LIST;
+import static com.lolsearcher.search.mostchamp.MostChampConstant.MOST_CHAMPS_URI;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -44,7 +45,6 @@ public class MostChampControllerTest {
     private static final String QUEUE_ID_KEY = "queueId";
     private static final String SEASON_ID_KEY = "seasonId";
     private static final String COUNT_KEY = "count";
-    private static final String MOST_CHAMP_URI = "/summoner/{summonerId}/most-champ";
 
     @Autowired private WebApplicationContext context;
     @Autowired private ObjectMapper objectMapper;
@@ -72,26 +72,12 @@ public class MostChampControllerTest {
         //given
         cacheManager.getCache(QUEUE_ID_LIST).put(request.getQueueId(), "true");
 
-        List<MostChampDto> result = List.of(
-                MostChampDto.builder()
-                        .summonerId(request.getSummonerId())
-                        .queueId(request.getQueueId())
-                        .seasonId(request.getSeasonId())
-                        .championId(1)
-                        .totalMinionKills(200)
-                        .totalKills(5)
-                        .totalDeaths(5)
-                        .totalAssists(5)
-                        .totalWins(24)
-                        .totalLosses(20)
-                        .totalGames(43)
-                        .build()
-        );
+        List<MostChampDto> result = List.of();
         given(mostChampService.getMostChamps(request)).willReturn(result);
 
         //when & then
         mockMvc.perform(MockMvcRequestBuilders
-                        .get(MOST_CHAMP_URI, request.getSummonerId())
+                        .get(MOST_CHAMPS_URI, request.getSummonerId())
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.OK.value()))
@@ -105,7 +91,7 @@ public class MostChampControllerTest {
 
         //when & then
         mockMvc.perform(MockMvcRequestBuilders
-                        .get(MOST_CHAMP_URI, request.getSummonerId())
+                        .get(MOST_CHAMPS_URI, request.getSummonerId())
                         .param(QUEUE_ID_KEY, Integer.toString(request.getQueueId()))
                         .param(SEASON_ID_KEY, Integer.toString(request.getSeasonId()))
                         .param(COUNT_KEY, Integer.toString(request.getCount()))
@@ -138,7 +124,7 @@ public class MostChampControllerTest {
 
         //when & then
         mockMvc.perform(MockMvcRequestBuilders
-                        .get(MOST_CHAMP_URI, request.getSummonerId())
+                        .get(MOST_CHAMPS_URI, request.getSummonerId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .param(QUEUE_ID_KEY, Integer.toString(request.getQueueId()))
                         .content(requestBody))

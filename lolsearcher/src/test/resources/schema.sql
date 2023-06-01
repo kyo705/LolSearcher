@@ -1,9 +1,11 @@
 DROP TABLE users IF EXISTS;
 DROP TABLE summoner IF EXISTS;
+DROP TABLE ranks IF EXISTS;
 DROP TABLE matches IF EXISTS;
 DROP TABLE match_summary_members IF EXISTS;
 DROP TABLE perks IF EXISTS;
 DROP TABLE match_detail_members IF EXISTS;
+DROP TABLE most_champs IF EXISTS;
 
 create table users (
     id bigint,
@@ -14,6 +16,20 @@ create table users (
     username varchar(255) not null,
     role varchar(255),
     primary key (id)
+);
+
+CREATE TABLE ranks (
+	id BIGINT(20) NOT NULL,
+	league_id VARCHAR(255) NULL DEFAULT NULL ,
+	league_points INT(11) NOT NULL,
+	losses BIGINT(20) NOT NULL,
+	queue_type INT(11) NULL DEFAULT NULL,
+	rank INT(11) NULL DEFAULT NULL,
+	season_id INT(11) NOT NULL,
+	summoner_id VARCHAR(255) NULL DEFAULT NULL ,
+	tier INT(11) NULL DEFAULT NULL,
+	wins BIGINT(20) NOT NULL,
+	PRIMARY KEY (id)
 );
 
 CREATE TABLE summoner (
@@ -66,7 +82,7 @@ CREATE TABLE match_summary_members (
 
 
 CREATE TABLE perks (
-	id SMALLINT(6) NOT NULL,
+	id BIGINT(20) NOT NULL,
 	defense SMALLINT(6) NOT NULL,
 	flex SMALLINT(6) NOT NULL,
 	main_perk1 SMALLINT(6) NOT NULL,
@@ -98,5 +114,22 @@ CREATE TABLE match_detail_members (
 	ward_kills SMALLINT(6) NOT NULL,
 	wards_placed SMALLINT(6) NOT NULL,
 	summary_member_id BIGINT(20) NOT NULL,
+	PRIMARY KEY (id)
+);
+
+
+CREATE TABLE most_champs (
+	id BIGINT(20) NOT NULL,
+	champion_id INT(11) NOT NULL,
+	queue_id INT(11) NOT NULL,
+	season_id INT(11) NOT NULL,
+	summoner_id VARCHAR(63) NULL DEFAULT NULL,
+	total_assists BIGINT(20) NOT NULL,
+	total_deaths BIGINT(20) NOT NULL,
+	total_games BIGINT(20) NOT NULL,
+	total_kills BIGINT(20) NOT NULL,
+	total_losses BIGINT(20) NOT NULL,
+	total_minion_kills BIGINT(20) NOT NULL,
+	total_wins BIGINT(20) NOT NULL,
 	PRIMARY KEY (id)
 );

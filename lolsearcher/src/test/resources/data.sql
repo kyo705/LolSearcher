@@ -13,7 +13,20 @@ VALUES (1, 'summoner1', 'accountId1', 'puuid1', 10, 'name1'),
        (7, 'summoner7', 'accountId7', 'puuid7', 10, 'name7'),
        (8, 'summoner8', 'accountId8', 'puuid8', 10, 'name8'),
        (9, 'summoner9', 'accountId9', 'puuid9', 10, 'name9'),
-       (10, 'summoner10', 'accountId10', 'puuid10', 10, 'name10');
+       (10, 'summoner10', 'accountId10', 'puuid10', 10, 'name10'),
+       (11, 'summoner11', 'accountId11', 'puuid11', 10, '중복된 닉네임'),
+       (12, 'summoner12', 'accountId12', 'puuid12', 10, '중복된 닉네임'),
+       (13, '  ', 'accountId13', 'puuid13', 10, 'name13'),
+       (14, 'summoner14', 'accountId14', 'puuid14', -10, 'name14');
+
+INSERT INTO ranks (id, league_id, league_points, losses, queue_type, rank, season_id, summoner_id, tier, wins)
+VALUES (1, 100, 30, 50, 1, 6, 23, 'summoner1', 1, 50),
+       (2, 250, 30, 50, 2, 1, 23, 'summoner1', 5, 50),
+       (3, 100, 30, 50, 1, 6, 23, 'summoner2', 1, 50),
+       (4, 300, 30, 50, 2, 1, 23, 'summoner2', 7, 50),
+       (5, 300, 101, 50, 2, 1, 23, 'summoner3', 7, 50),   -- 비정상 데이터 (summonerId, seasonId, queueType이 모두 같은 값이 있으면 안됌)
+       (6, 300, 30, 50, 2, 1, 23, 'summoner3', 7, 50),   -- 비정상 데이터 (위와 동일)
+       (7, 300, 30, 50, 2, 1, 23, 'summoner4', 1, 50);   -- 비정상 데이터 (tier가 1,2,3 이면 반드시 rank 는 6이어야함)
 
 
 INSERT INTO matches (id, game_duration, game_end_timestamp, match_id, queue_id, season_id, version)
@@ -58,3 +71,9 @@ VALUES (1, 1, 1000, 2000, 1, 2, 3, 4, 21, 22, 500, 600, 100),
        (8, 8, 1000, 2000, 1, 2, 3, 4, 21, 22, 500, 600, 100),
        (9, 9, 1000, 2000, 1, 2, 3, 4, 21, 22, 500, 600, 100),
        (10, 10, 1000, 2000, 1, 2, 3, 4, 21, 22, 500, 600, 100);
+
+INSERT INTO most_champs (id, champion_id, queue_id, season_id, summoner_id, total_assists, total_deaths,
+total_games, total_kills, total_losses, total_minion_kills, total_wins)
+VALUES (1, 1, 1, 23, 'summonerId1', 1000, 800, 100, 500, 52, 3000, 48),
+       (2, 1, 100, 23, 'summonerId1', -1000, 800, 100, 500, 52, 3000, 48), -- 비정상적 데이터 (negative value exist)
+       (3, 1, 101, 23, 'summonerId2', 1000, 800, 100, 500, 52, 3000, 58);  -- 비정상적 데이터 (total game < wins + losses

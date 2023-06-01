@@ -18,12 +18,12 @@ public class MostChampService {
 	public List<MostChampDto> getMostChamps(MostChampRequest request) {
 
 		String summonerId = request.getSummonerId();
-		int queueId = request.getQueueId();
+		Integer queueId = request.getQueueId();
 		int seasonId = request.getSeasonId();
 		int count = request.getCount();
 
 		return mostChampRepository
-				.findMostChampions(summonerId, seasonId, queueId, count)
+				.findMostChampions(summonerId, queueId, seasonId, count)
 				.stream()
 				.map(FrontServerResponseDtoFactory::getResponseMostChampDto)
 				.collect(Collectors.toList());

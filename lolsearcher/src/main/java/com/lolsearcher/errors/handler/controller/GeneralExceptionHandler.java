@@ -25,7 +25,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.validation.ConstraintViolationException;
 import java.util.Map;
 
-import static com.lolsearcher.constant.BeanNameConstants.*;
+import static com.lolsearcher.errors.ErrorConstant.*;
 
 @Order(5)
 @RequiredArgsConstructor
