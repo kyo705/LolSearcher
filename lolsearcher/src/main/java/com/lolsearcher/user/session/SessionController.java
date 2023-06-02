@@ -5,35 +5,27 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
+
+import static com.lolsearcher.user.session.SessionConstant.USER_SESSION_URI;
 
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping(USER_SESSION_URI)
 @RestController
 public class SessionController {
 
     private final SessionService sessionService;
 
-    @GetMapping("/user/{userId}/sessions")
+    @GetMapping
     public List<String> findAllById(@PathVariable Long userId){
 
         return sessionService.findAllById(userId);
     }
 
-    @DeleteMapping("/user/{id}/session")
-    public ResponseSuccessDto delete(
-            @PathVariable Long userId,
-            @RequestBody SessionDeleteRequest request,
-            HttpSession session
-    ) {
+    @DeleteMapping
+    public ResponseSuccessDto delete(@PathVariable Long userId, @RequestBody SessionDeleteRequest request) {
 
-        String currentSessionId = session.getId();
-        String removedSessionId = sessionService.cutOneSessionFromCurrentUser(userId, currentSessionId, request.getCutSessionId());
-
-        String message = String.format("현재 세션 : {}에서 특정 세션 : {} 를 삭제함", currentSessionId, removedSessionId);
-        log.info(message);
-
-        return new ResponseSuccessDto(message);
+        return sessionService.cutOneSessionFromCurrentUser(userId, request.getCutSessionId());
     }
 }

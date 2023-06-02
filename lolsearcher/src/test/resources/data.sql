@@ -1,6 +1,6 @@
 INSERT INTO users (id, email, password, username, role, login_security)
-VALUES (1, 'user@naver.com', '$2a$10$T.aFIqEh8NA3QahFugycAu/IZWUXoAihFYYsWwulBZRRkxAg6zUy6', 'user', 'USER', 'NONE'),  --password : 123456789
-       (2, 'temporary@naver.com', '$2a$10$T.aFIqEh8NA3QahFugycAu/IZWUXoAihFYYsWwulBZRRkxAg6zUy6', 'temporary', 'TEMPORARY', 'NONE');
+VALUES (1, 'user@naver.com', '$2a$10$T.aFIqEh8NA3QahFugycAu/IZWUXoAihFYYsWwulBZRRkxAg6zUy6', 'user', 'ROLE_USER', 0),  --password : 123456789
+       (2, 'temporary@naver.com', '$2a$10$T.aFIqEh8NA3QahFugycAu/IZWUXoAihFYYsWwulBZRRkxAg6zUy6', 'temporary', 'ROLE_TEMPORARY', 0);
 
 
 INSERT INTO summoner (id, summoner_id, account_id, puuid, summoner_level, summoner_name)

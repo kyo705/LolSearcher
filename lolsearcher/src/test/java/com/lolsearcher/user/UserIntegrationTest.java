@@ -29,6 +29,7 @@ import java.util.Map;
 
 import static com.lolsearcher.errors.ErrorConstant.*;
 import static com.lolsearcher.user.Role.USER;
+import static com.lolsearcher.user.UserConstant.USER_URI;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -38,7 +39,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @SpringBootTest
 public class UserIntegrationTest {
 
-    private static final String USER_URI = "/user";
     private static final String USER_ACCESS_URI = "/user/{id}";
     private static final String EMAIL_PARAM_NAME = "email";
 

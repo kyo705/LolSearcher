@@ -1,7 +1,9 @@
 package com.lolsearcher.user.session;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+@AllArgsConstructor
 @Data
 public class SessionDeleteRequest {
 

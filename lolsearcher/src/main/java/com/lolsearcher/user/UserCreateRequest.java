@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 import static com.lolsearcher.user.UserConstant.EMAIL_REGEX;
@@ -15,6 +16,7 @@ import static com.lolsearcher.user.UserConstant.EMAIL_REGEX;
 @Data
 public class UserCreateRequest {
 
+    @NotEmpty
     @Email(regexp = EMAIL_REGEX)
     private final String email;
     @NotBlank @Size(min = 9)

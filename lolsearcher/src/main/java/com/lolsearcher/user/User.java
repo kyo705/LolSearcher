@@ -1,5 +1,7 @@
 package com.lolsearcher.user;
 
+import com.lolsearcher.user.LoginSecurityState.LoginSecurityConverter;
+import com.lolsearcher.user.Role.RoleConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,9 +24,9 @@ public class User implements Serializable {
 	private String email;
 	private String password;
 	private String username;
-	@Enumerated(EnumType.STRING)
+	@Convert(converter = RoleConverter.class)
 	private Role role;
-	@Enumerated(EnumType.STRING)
+	@Convert(converter = LoginSecurityConverter.class)
 	private LoginSecurityState loginSecurity;
 	private LocalDateTime lastLoginTimeStamp;
 

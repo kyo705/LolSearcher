@@ -7,6 +7,8 @@ import com.lolsearcher.search.mostchamp.MostChampController;
 import com.lolsearcher.search.rank.RankController;
 import com.lolsearcher.search.summoner.SummonerController;
 import com.lolsearcher.user.UserController;
+import com.lolsearcher.user.identification.IdentificationController;
+import com.lolsearcher.user.session.SessionController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
@@ -32,7 +34,8 @@ import static com.lolsearcher.errors.ErrorConstant.*;
 @Slf4j
 @RestControllerAdvice(assignableTypes = {
 		SummonerController.class, RankController.class, MatchController.class,
-		MostChampController.class, ChampionController.class, UserController.class
+		MostChampController.class, ChampionController.class, UserController.class,
+		SessionController.class, IdentificationController.class
 })
 public class GeneralExceptionHandler {
 

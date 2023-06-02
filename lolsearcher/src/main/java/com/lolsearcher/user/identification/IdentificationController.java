@@ -10,9 +10,10 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import static com.lolsearcher.user.identification.IdentificationConstant.IDENTIFICATION_NUMBER_SIZE;
+import static com.lolsearcher.user.identification.IdentificationConstant.IDENTIFICATION_URI;
 
 @RequiredArgsConstructor
-@RequestMapping("/user/{userId}/identification")
+@RequestMapping(IDENTIFICATION_URI)
 @RestController
 public class IdentificationController {
 
@@ -23,7 +24,7 @@ public class IdentificationController {
 
         identificationService.create(userId, request);
 
-        return new ResponseSuccessDto("인증 번호 전송 성공");
+        return new ResponseSuccessDto(true, "인증 번호 전송 성공");
     }
 
     @GetMapping

@@ -8,10 +8,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.Email;
 
 import static com.lolsearcher.user.UserConstant.EMAIL_REGEX;
+import static com.lolsearcher.user.UserConstant.USER_URI;
+import static java.lang.Boolean.TRUE;
 
 @Validated
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping(USER_URI)
 @RestController
 public class UserController {
 
@@ -30,13 +32,10 @@ public class UserController {
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseSuccessDto updateName(
-			@PathVariable Long id,
-			@RequestBody @Valid UserUpdateRequest request
-	) {
+	public ResponseSuccessDto updateName(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest request) {
 		userService.updatePartial(id, request);
 
-		return new ResponseSuccessDto("user data update successfully");
+		return new ResponseSuccessDto(TRUE, "user data update successfully");
 	}
 
 	@DeleteMapping("/{id}")
@@ -44,6 +43,6 @@ public class UserController {
 
 		userService.delete(id);
 
-		return new ResponseSuccessDto(String.format("userId : %s delete successfully", id));
+		return new ResponseSuccessDto(TRUE, String.format("userId : %s delete successfully", id));
 	}
 }
