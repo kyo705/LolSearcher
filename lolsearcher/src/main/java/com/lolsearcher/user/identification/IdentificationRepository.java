@@ -4,9 +4,9 @@ public interface IdentificationRepository {
 
     void save(Long userId, String identificationNum);
 
-    String find(Long id);
+    String find(Long userId);
 
-    void delete(Long id);
+    Boolean delete(Long userId);
 
 
 }

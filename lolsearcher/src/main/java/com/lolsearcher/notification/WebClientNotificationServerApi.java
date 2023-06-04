@@ -31,6 +31,6 @@ public class WebClientNotificationServerApi implements NotificationServerApi {
                     log.error(exception.getMessage());
                     failureHandler.handle(exception);
                 })
-                .subscribe();
+                .block();
     }
 }

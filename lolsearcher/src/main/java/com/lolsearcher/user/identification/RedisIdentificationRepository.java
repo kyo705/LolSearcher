@@ -24,13 +24,15 @@ public class RedisIdentificationRepository implements IdentificationRepository {
     }
 
     @Override
-    public String find(Long id) {
-        return null;
+    public String find(Long userId) {
+
+        return redisTemplate.opsForValue().get(getKey(userId));
     }
 
     @Override
-    public void delete(Long id) {
+    public Boolean delete(Long userId) {
 
+        return redisTemplate.delete(getKey(userId));
     }
 
 }

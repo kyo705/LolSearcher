@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.lolsearcher.login.LoginConstant.LOGIN_URI;
+import static com.lolsearcher.user.identification.IdentificationConstant.IDENTIFICATION_URI;
 
 @RequiredArgsConstructor
 @Configuration
@@ -81,6 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.authorizeRequests()
 				.antMatchers(HttpMethod.GET, "/user").permitAll()
 				.antMatchers(HttpMethod.POST, "/user").permitAll()
+				.antMatchers(IDENTIFICATION_URI).permitAll()
 				.antMatchers("/user/**").access("hasRole('ROLE_USER')")
 				.anyRequest().permitAll()
 				.and()

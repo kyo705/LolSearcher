@@ -68,6 +68,7 @@ lolsearcher:
   password: 1111
   nodeId: 1
   webclient:
+    notification-server-url: http://localhost:15553
     reactive-server-url: http://localhost:15554
   mock-server:
     port: 15554

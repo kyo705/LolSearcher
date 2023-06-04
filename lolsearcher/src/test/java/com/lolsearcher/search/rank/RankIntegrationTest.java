@@ -34,8 +34,7 @@ public class RankIntegrationTest {
 
     protected static final String SEASON_ID_PARAM_KEY = "seasonId";
 
-    @Autowired
-    private WebApplicationContext context;
+    @Autowired private WebApplicationContext context;
     @Autowired private ObjectMapper objectMapper;
     @Autowired private Map<String, ResponseEntity<ErrorResponseBody>> errorResponseEntities;
     private MockMvc mockMvc;
@@ -99,12 +98,11 @@ public class RankIntegrationTest {
 
         //given
         String summonerId = "NOT_EXIST";
-        int seasonId = CURRENT_SEASON_ID;
 
         //when & then
         mockMvc.perform(MockMvcRequestBuilders
                         .get(FIND_RANKS_URI, summonerId)
-                        .param(SEASON_ID_PARAM_KEY, Integer.toString(seasonId))
+                        .param(SEASON_ID_PARAM_KEY, Integer.toString(CURRENT_SEASON_ID))
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.NOT_FOUND.value()))
                 .andExpect(result -> {
@@ -194,13 +192,12 @@ public class RankIntegrationTest {
 
         //given
         String summonerId = "NOT_EXIST";
-        int seasonId = CURRENT_SEASON_ID;
         String rankId = RANKED_SOLO_5x5.name();
 
         //when & then
         mockMvc.perform(MockMvcRequestBuilders
                         .get(FIND_RANK_BY_ID_URI, summonerId, rankId)
-                        .param(SEASON_ID_PARAM_KEY, Integer.toString(seasonId))
+                        .param(SEASON_ID_PARAM_KEY, Integer.toString(CURRENT_SEASON_ID))
                 )
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.NOT_FOUND.value()))
                 .andExpect(result -> {

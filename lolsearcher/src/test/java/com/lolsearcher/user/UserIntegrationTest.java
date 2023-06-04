@@ -42,14 +42,10 @@ public class UserIntegrationTest {
     private static final String USER_ACCESS_URI = "/user/{id}";
     private static final String EMAIL_PARAM_NAME = "email";
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private Map<String, ResponseEntity<ErrorResponseBody>> errorResponseEntities;
-    @Autowired
-    private WebApplicationContext context;
-    @Autowired
-    private UserService userService;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private Map<String, ResponseEntity<ErrorResponseBody>> errorResponseEntities;
+    @Autowired private WebApplicationContext context;
+    @Autowired private UserService userService;
     private MockMvc mockMvc;
 
     @BeforeEach

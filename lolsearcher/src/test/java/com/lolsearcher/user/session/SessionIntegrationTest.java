@@ -42,14 +42,10 @@ public class SessionIntegrationTest {
 
     private static final String username = "user@naver.com";
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private Map<String, ResponseEntity<ErrorResponseBody>> errorResponseEntities;
-    @Autowired
-    private RedisConnectionFactory redisConnectionFactory;
-    @Autowired
-    private WebApplicationContext context;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private Map<String, ResponseEntity<ErrorResponseBody>> errorResponseEntities;
+    @Autowired private RedisConnectionFactory redisConnectionFactory;
+    @Autowired private WebApplicationContext context;
     private MockMvc mockMvc;
     private RedisTemplate<String, Object> redisTemplate;
 

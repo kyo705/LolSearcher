@@ -40,8 +40,7 @@ public class SummonerIntegrationTest {
 
     @Value("${lolsearcher.mock-server.port}")
     private static int reactiveServerPort = 15554;
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
     @Autowired private WebApplicationContext context;
     @Autowired private Map<String, ResponseEntity<ErrorResponseBody>> errorResponseEntities;
     private MockMvc mockMvc;
@@ -61,7 +60,7 @@ public class SummonerIntegrationTest {
 
 
     @BeforeEach
-    public void beforeEach() throws IOException {
+    public void beforeEach() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
                 .build();
