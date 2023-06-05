@@ -1,7 +1,8 @@
 package com.lolsearcher.search.mostchamp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.EmbeddedRedisConfig;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import com.lolsearcher.search.match.MatchConstant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +28,14 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import java.util.List;
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.BAD_REQUEST_ENTITY_NAME;
-import static com.lolsearcher.errors.ErrorConstant.INTERNAL_SERVER_ERROR_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.BAD_REQUEST_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.INTERNAL_SERVER_ERROR_ENTITY_NAME;
 import static com.lolsearcher.search.mostchamp.MostChampConstant.MOST_CHAMPS_URI;
 import static com.lolsearcher.search.mostchamp.MostChampConstant.MOST_CHAMP_DEFAULT_COUNT;
 import static com.lolsearcher.search.rank.RankConstant.CURRENT_SEASON_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Import({EmbeddedRedisConfig.class})
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @SpringBootTest

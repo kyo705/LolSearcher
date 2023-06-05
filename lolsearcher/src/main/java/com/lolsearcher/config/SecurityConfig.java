@@ -1,9 +1,9 @@
-package com.lolsearcher.config.security;
+package com.lolsearcher.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.ban.LoginBanFilter;
 import com.lolsearcher.ban.SearchBanFilter;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import com.lolsearcher.errors.handler.filter.CustomForbiddenEntryPoint;
 import com.lolsearcher.errors.handler.filter.ExceptionHandlingFilter;
 import com.lolsearcher.errors.handler.filter.LolsearcherDeniedHandler;
@@ -30,6 +30,7 @@ import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 import java.util.List;
 import java.util.Map;
@@ -119,6 +120,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		LoginBanFilter loginBanFilter = new LoginBanFilter(cacheManager, responseEntities, objectMapper);
 
 		http.addFilterBefore(new HttpHeaderFilter(), HeaderWriterFilter.class)
+				.addFilterBefore(new ForwardedHeaderFilter(), HeaderWriterFilter.class)
 				.addFilterBefore(new ExceptionHandlingFilter(objectMapper), HttpHeaderFilter.class)
 				.addFilterBefore(searchBanFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(loginBanFilter, UsernamePasswordAuthenticationFilter.class);

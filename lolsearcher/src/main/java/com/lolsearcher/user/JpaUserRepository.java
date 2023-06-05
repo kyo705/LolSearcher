@@ -1,6 +1,6 @@
 package com.lolsearcher.user;
 
-import com.lolsearcher.utils.encoding.PasswordEncoderUtils;
+import com.lolsearcher.utils.PasswordEncoderUtils;
 import lombok.RequiredArgsConstructor;
 import org.idgeneration.annotation.IdGeneration;
 import org.springframework.stereotype.Repository;

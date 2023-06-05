@@ -33,7 +33,6 @@ public class SummonerSetup {
     public static Stream<String> specialCharacterSummonerName() {
 
         return Stream.of(
-                " 푸켓푸켓 ",
                 "#푸켓푸켓~",
                 "푸#켓#푸  !켓"
         );

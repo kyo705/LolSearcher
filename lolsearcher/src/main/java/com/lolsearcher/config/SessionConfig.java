@@ -1,4 +1,4 @@
-package com.lolsearcher.config.session;
+package com.lolsearcher.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;

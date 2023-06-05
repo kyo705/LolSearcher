@@ -1,10 +1,10 @@
 package com.lolsearcher.search.match.entity;
 
 import com.lolsearcher.search.champion.PositionState;
-import com.lolsearcher.search.match.MatchResultConverter;
 import com.lolsearcher.search.match.MatchResultState;
-import com.lolsearcher.search.match.TeamConverter;
+import com.lolsearcher.search.match.MatchResultState.MatchResultConverter;
 import com.lolsearcher.search.match.TeamState;
+import com.lolsearcher.search.match.TeamState.TeamConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

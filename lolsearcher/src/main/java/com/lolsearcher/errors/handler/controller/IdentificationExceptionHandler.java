@@ -1,6 +1,6 @@
 package com.lolsearcher.errors.handler.controller;
 
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import com.lolsearcher.errors.exception.user.InvalidUserRoleException;
 import com.lolsearcher.errors.exception.user.NotExistingUserException;
 import com.lolsearcher.user.identification.IdentificationController;
@@ -15,8 +15,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.BAD_GATEWAY_ENTITY_NAME;
-import static com.lolsearcher.errors.ErrorConstant.INTERNAL_SERVER_ERROR_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.BAD_GATEWAY_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.INTERNAL_SERVER_ERROR_ENTITY_NAME;
 
 @Order(1)
 @Slf4j

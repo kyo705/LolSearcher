@@ -1,6 +1,5 @@
 package com.lolsearcher.errors.handler.controller;
 
-import com.lolsearcher.errors.ErrorResponseBody;
 import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInDBException;
 import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInGameServerException;
 import com.lolsearcher.search.summoner.SummonerController;
@@ -14,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.*;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.*;
 
 @Order(1)
 @RequiredArgsConstructor

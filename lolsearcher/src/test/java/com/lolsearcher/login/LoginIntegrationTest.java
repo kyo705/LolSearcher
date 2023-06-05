@@ -1,7 +1,8 @@
 package com.lolsearcher.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.EmbeddedRedisConfig;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import com.lolsearcher.user.UserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +26,15 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static com.lolsearcher.ban.BanConstant.LOGIN_BAN;
 import static com.lolsearcher.ban.BanConstant.LOGIN_BAN_COUNT;
-import static com.lolsearcher.errors.ErrorConstant.FORBIDDEN_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.FORBIDDEN_ENTITY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
+@Import({EmbeddedRedisConfig.class})
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @SpringBootTest
@@ -105,7 +109,38 @@ public class LoginIntegrationTest {
                 .build();
 
         String ip = "192.168.0.2";
-        cacheManager.getCache(LOGIN_BAN).put(ip, LOGIN_BAN_COUNT);
+        Objects.requireNonNull(cacheManager.getCache(LOGIN_BAN)).put(ip, LOGIN_BAN_COUNT);
+
+        //when & then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post(LOGIN_URI)
+                                .header("X-Forwarded-For", ip)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                )
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.FORBIDDEN.value()))
+                .andExpect(result -> {
+                    ErrorResponseBody expected = errorResponseEntities.get(FORBIDDEN_ENTITY_NAME).getBody();
+                    ErrorResponseBody body = objectMapper.readValue(result.getResponse().getContentAsString(), ErrorResponseBody.class);
+
+                    assertThat(expected).isNotNull();
+                    assertThat(body.getErrorStatusCode()).isEqualTo(expected.getErrorStatusCode());
+                    assertThat(body.getErrorMessage()).isEqualTo(expected.getErrorMessage());
+                });
+    }
+
+    @DisplayName("로그인 요청 횟수 초과시 403 상태코드를 리턴한다. (2)")
+    @Test
+    public void testLoginWithTooManyRequest2() throws Exception {
+
+        //given
+        LoginRequest request = LoginRequest.builder()
+                .email("user@naver.com")
+                .password("123456789")
+                .build();
+
+        String ip = "192.168.0.2";
+        Objects.requireNonNull(cacheManager.getCache(LOGIN_BAN)).put(ip, LOGIN_BAN_COUNT);
 
         //when & then
         mockMvc.perform(
@@ -120,12 +155,12 @@ public class LoginIntegrationTest {
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.FORBIDDEN.value()))
                 .andExpect(result -> {
                     ErrorResponseBody expected = errorResponseEntities.get(FORBIDDEN_ENTITY_NAME).getBody();
-
                     ErrorResponseBody body = objectMapper.readValue(result.getResponse().getContentAsString(), ErrorResponseBody.class);
+
+                    assertThat(expected).isNotNull();
                     assertThat(body.getErrorStatusCode()).isEqualTo(expected.getErrorStatusCode());
                     assertThat(body.getErrorMessage()).isEqualTo(expected.getErrorMessage());
                 });
     }
-
 
 }

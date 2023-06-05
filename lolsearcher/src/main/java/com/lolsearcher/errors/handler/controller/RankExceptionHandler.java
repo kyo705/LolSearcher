@@ -1,6 +1,6 @@
 package com.lolsearcher.errors.handler.controller;
 
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import com.lolsearcher.errors.exception.rank.IncorrectSummonerRankSizeException;
 import com.lolsearcher.errors.exception.rank.NonUniqueRankTypeException;
 import com.lolsearcher.search.rank.RankController;
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.INTERNAL_SERVER_ERROR_ENTITY_NAME;
-import static com.lolsearcher.errors.ErrorConstant.NOT_FOUND_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.INTERNAL_SERVER_ERROR_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.NOT_FOUND_ENTITY_NAME;
 
 @Order(1)
 @Slf4j

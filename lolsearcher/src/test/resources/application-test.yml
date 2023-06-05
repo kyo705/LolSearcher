@@ -47,19 +47,6 @@ spring:
             client-id: 1 #${oauth2.google.id}
             client-secret: 1 #${oauth2.google.secret}
             scope: email, profile
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: 1 #${mail.username}
-    password: 1 #${mail.password}
-    properties:
-      mail:
-        smtp:
-          starttls:
-            enable: true
-          auth: true
-          ssl:
-            protocols: TLSv1.2
 
 lolsearcher:
   jwt:

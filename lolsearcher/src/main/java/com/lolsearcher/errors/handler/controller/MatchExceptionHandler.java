@@ -1,6 +1,6 @@
 package com.lolsearcher.errors.handler.controller;
 
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import com.lolsearcher.search.match.MatchController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.INTERNAL_SERVER_ERROR_ENTITY_NAME;
-import static com.lolsearcher.errors.ErrorConstant.NOT_FOUND_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.INTERNAL_SERVER_ERROR_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.NOT_FOUND_ENTITY_NAME;
 
 @Order(1)
 @RequiredArgsConstructor

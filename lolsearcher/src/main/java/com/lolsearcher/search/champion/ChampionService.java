@@ -4,7 +4,7 @@ import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.search.champion.dto.ChampEnemyStatsDto;
 import com.lolsearcher.search.champion.dto.ChampItemStatsDto;
 import com.lolsearcher.search.champion.dto.ChampPositionStatsDto;
-import com.lolsearcher.utils.factory.FrontServerResponseDtoFactory;
+import com.lolsearcher.utils.ResponseDtoFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class ChampionService {
 
 		return redisChampionRepository.findAll(positionId, version)
 				.stream()
-				.map(FrontServerResponseDtoFactory::getChampPositionStatsDto)
+				.map(ResponseDtoFactory::getChampPositionStatsDto)
 				.collect(Collectors.toList());
 	}
 
@@ -39,7 +39,7 @@ public class ChampionService {
 
 		return redisChampionRepository.findItemStats(championId, version)
 				.stream()
-				.map(FrontServerResponseDtoFactory::getChampItemStatsDto)
+				.map(ResponseDtoFactory::getChampItemStatsDto)
 				.collect(Collectors.toList());
 	}
 
@@ -51,7 +51,7 @@ public class ChampionService {
 
 		return redisChampionRepository.findEnemyStats(championId, version)
 				.stream()
-				.map(FrontServerResponseDtoFactory::getChampEnemyStatsDto)
+				.map(ResponseDtoFactory::getChampEnemyStatsDto)
 				.collect(Collectors.toList());
 	}
 }

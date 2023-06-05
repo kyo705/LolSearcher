@@ -2,7 +2,7 @@ package com.lolsearcher.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.ban.LoginIpBanService;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.INTERNAL_SERVER_ERROR_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.INTERNAL_SERVER_ERROR_ENTITY_NAME;
 
 @Slf4j
 @RequiredArgsConstructor

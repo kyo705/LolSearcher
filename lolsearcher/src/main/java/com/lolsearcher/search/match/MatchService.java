@@ -3,7 +3,7 @@ package com.lolsearcher.search.match;
 import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.search.match.dto.MatchDto;
 import com.lolsearcher.search.summoner.SummonerService;
-import com.lolsearcher.utils.factory.FrontServerResponseDtoFactory;
+import com.lolsearcher.utils.ResponseDtoFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class MatchService {
 						request.getOffset()
 				)
 				.stream()
-				.map(FrontServerResponseDtoFactory::getResponseMatchDto)
+				.map(ResponseDtoFactory::getResponseMatchDto)
 				.collect(Collectors.toList());
 	}
 

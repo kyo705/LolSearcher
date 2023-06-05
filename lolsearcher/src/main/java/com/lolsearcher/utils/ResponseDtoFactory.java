@@ -1,4 +1,4 @@
-package com.lolsearcher.utils.factory;
+package com.lolsearcher.utils;
 
 import com.lolsearcher.login.LolsearcherUserDetails;
 import com.lolsearcher.search.champion.dto.ChampEnemyStatsDto;
@@ -25,7 +25,7 @@ import com.lolsearcher.user.Role;
 import com.lolsearcher.user.User;
 import com.lolsearcher.user.UserDto;
 
-public class FrontServerResponseDtoFactory {
+public class ResponseDtoFactory {
 
     public static SummonerDto getSummonerDto(Summoner summoner) {
 

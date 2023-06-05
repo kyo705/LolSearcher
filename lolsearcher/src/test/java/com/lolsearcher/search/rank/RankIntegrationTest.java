@@ -1,7 +1,7 @@
 package com.lolsearcher.search.rank;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.EmbeddedRedisConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,11 +23,12 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.*;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.*;
 import static com.lolsearcher.search.rank.RankConstant.*;
 import static com.lolsearcher.search.rank.RankTypeState.RANKED_SOLO_5x5;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Import({EmbeddedRedisConfig.class})
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @SpringBootTest

@@ -13,7 +13,7 @@ import java.util.Collection;
 
 import static com.lolsearcher.user.LoginSecurityState.IDENTIFICATION;
 import static com.lolsearcher.user.Role.TEMPORARY;
-import static com.lolsearcher.utils.encoding.PasswordEncoderUtils.match;
+import static com.lolsearcher.utils.PasswordEncoderUtils.match;
 
 @RequiredArgsConstructor
 @Service

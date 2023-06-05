@@ -1,7 +1,8 @@
 package com.lolsearcher.search.champion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.EmbeddedRedisConfig;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +28,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.BAD_REQUEST_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.BAD_REQUEST_ENTITY_NAME;
 import static com.lolsearcher.search.match.MatchConstant.*;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +37,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@Import({EmbeddedRedisConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc

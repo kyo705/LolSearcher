@@ -1,7 +1,7 @@
 package com.lolsearcher.errors.handler.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.FORBIDDEN_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.FORBIDDEN_ENTITY_NAME;
 
 @RequiredArgsConstructor
 @Component

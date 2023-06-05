@@ -1,4 +1,4 @@
-package com.lolsearcher.config.cache;
+package com.lolsearcher.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;

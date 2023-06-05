@@ -16,7 +16,7 @@ import java.io.IOException;
 
 import static com.lolsearcher.notification.NotificationDevice.E_MAIL;
 import static com.lolsearcher.user.LoginSecurityState.ALARM;
-import static com.lolsearcher.utils.factory.FrontServerResponseDtoFactory.getUserDto;
+import static com.lolsearcher.utils.ResponseDtoFactory.getUserDto;
 
 @Slf4j
 @RequiredArgsConstructor

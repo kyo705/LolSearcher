@@ -1,7 +1,7 @@
 package com.lolsearcher.user.identification;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.EmbeddedRedisConfig;
 import com.lolsearcher.user.ResponseSuccessDto;
 import com.lolsearcher.user.Role;
 import com.lolsearcher.user.UserRepository;
@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.lolsearcher.errors.ErrorConstant.*;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.*;
 import static com.lolsearcher.user.identification.IdentificationConstant.IDENTIFICATION_NUMBER_SIZE;
 import static com.lolsearcher.user.identification.IdentificationConstant.IDENTIFICATION_URI;
 import static com.lolsearcher.user.identification.RedisIdentificationRepository.getKey;
@@ -40,6 +41,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
+@Import({EmbeddedRedisConfig.class})
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @SpringBootTest

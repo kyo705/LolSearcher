@@ -3,7 +3,7 @@ package com.lolsearcher.search.summoner;
 import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInDBException;
 import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInGameServerException;
-import com.lolsearcher.utils.factory.FrontServerResponseDtoFactory;
+import com.lolsearcher.utils.ResponseDtoFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.lolsearcher.utils.factory.FrontServerResponseDtoFactory.getSummonerDto;
+import static com.lolsearcher.utils.ResponseDtoFactory.getSummonerDto;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class SummonerService {
 
         return summonerApi
                 .updateSameNameSummoners(summonerIds)
-                .map(FrontServerResponseDtoFactory::getSummonerDto)
+                .map(ResponseDtoFactory::getSummonerDto)
                 .orElseThrow(() -> new NotExistedSummonerInGameServerException(name));
     }
 
@@ -48,7 +48,7 @@ public class SummonerService {
     public SummonerDto findById(String id) {
 
         return summonerRepository.findById(id)
-                .map(FrontServerResponseDtoFactory::getSummonerDto)
+                .map(ResponseDtoFactory::getSummonerDto)
                 .orElseThrow(() -> new EmptyResultDataAccessException(
                         String.format("summonerId : %s 는 존재하지 않는 사용자입니다.", id), 1));
     }

@@ -46,8 +46,7 @@ public class Rank {
 		//argument valid
 		checkArgument(
 				isNotEmpty(summonerId) &&
-						summonerId.length() >= SUMMONER_ID_MIN_LENGTH &&
-						summonerId.length() <= SUMMONER_ID_MAX_LENGTH,
+						summonerId.length() >= SUMMONER_ID_MIN_LENGTH && summonerId.length() <= SUMMONER_ID_MAX_LENGTH,
 				String.format("summonerId must be provided and its length must be between %s and %s",
 						SUMMONER_ID_MIN_LENGTH, SUMMONER_ID_MAX_LENGTH)
 		);

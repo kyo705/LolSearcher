@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import static com.lolsearcher.user.Role.USER;
 import static com.lolsearcher.user.identification.IdentificationConstant.IDENTIFICATION_NUMBER_SIZE;
-import static com.lolsearcher.utils.factory.FrontServerResponseDtoFactory.getUserDto;
+import static com.lolsearcher.utils.ResponseDtoFactory.getUserDto;
 
 @RequiredArgsConstructor
 @Service

@@ -1,4 +1,4 @@
-package com.lolsearcher.config.database;
+package com.lolsearcher.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

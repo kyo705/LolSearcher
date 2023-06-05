@@ -1,7 +1,8 @@
 package com.lolsearcher.search.champion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.EmbeddedRedisConfig;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import com.lolsearcher.search.champion.entity.ChampEnemyStats;
 import com.lolsearcher.search.champion.entity.ChampItemStats;
 import com.lolsearcher.search.champion.entity.ChampPositionStats;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,10 +32,11 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import java.util.List;
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.BAD_REQUEST_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.BAD_REQUEST_ENTITY_NAME;
 import static com.lolsearcher.search.champion.ChampionSetup.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Import({EmbeddedRedisConfig.class})
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @SpringBootTest

@@ -4,7 +4,7 @@ import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.errors.exception.rank.IncorrectSummonerRankSizeException;
 import com.lolsearcher.errors.exception.rank.NonUniqueRankTypeException;
 import com.lolsearcher.search.summoner.SummonerService;
-import com.lolsearcher.utils.factory.FrontServerResponseDtoFactory;
+import com.lolsearcher.utils.ResponseDtoFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.lolsearcher.search.rank.RankConstant.THE_NUMBER_OF_RANK_TYPE;
-import static com.lolsearcher.utils.factory.FrontServerResponseDtoFactory.getRankDto;
+import static com.lolsearcher.utils.ResponseDtoFactory.getRankDto;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -57,7 +57,7 @@ public class RankService {
 		checkSummonerId(summonerId);
 
 		return Map.of(type, rankRepository.findRank(summonerId, seasonId, type)
-				.map(FrontServerResponseDtoFactory::getRankDto)
+				.map(ResponseDtoFactory::getRankDto)
 				.orElseGet( null));
 	}
 

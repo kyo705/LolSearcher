@@ -1,6 +1,5 @@
 package com.lolsearcher.errors.handler.controller;
 
-import com.lolsearcher.errors.ErrorResponseBody;
 import com.lolsearcher.search.champion.ChampionController;
 import com.lolsearcher.search.match.MatchController;
 import com.lolsearcher.search.mostchamp.MostChampController;
@@ -27,7 +26,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.validation.ConstraintViolationException;
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.*;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.*;
 
 @Order(5)
 @RequiredArgsConstructor

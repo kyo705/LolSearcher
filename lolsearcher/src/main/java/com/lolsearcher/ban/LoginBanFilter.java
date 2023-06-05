@@ -1,7 +1,7 @@
 package com.lolsearcher.ban;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.ErrorResponseEntityConfig.ErrorResponseBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static com.lolsearcher.ban.BanConstant.LOGIN_BAN;
 import static com.lolsearcher.ban.BanConstant.LOGIN_BAN_COUNT;
-import static com.lolsearcher.errors.ErrorConstant.FORBIDDEN_ENTITY_NAME;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.FORBIDDEN_ENTITY_NAME;
 import static com.lolsearcher.login.LoginConstant.LOGIN_URI;
 
 @RequiredArgsConstructor

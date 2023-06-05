@@ -1,4 +1,4 @@
-package com.lolsearcher.config.security;
+package com.lolsearcher.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

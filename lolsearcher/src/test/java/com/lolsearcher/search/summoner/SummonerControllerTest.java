@@ -1,8 +1,7 @@
 package com.lolsearcher.search.summoner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lolsearcher.errors.ErrorConstant;
-import com.lolsearcher.errors.ErrorResponseBody;
+import com.lolsearcher.config.EmbeddedRedisConfig;
 import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInDBException;
 import com.lolsearcher.errors.exception.summoner.NotExistedSummonerInGameServerException;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Map;
 
-import static com.lolsearcher.errors.ErrorConstant.*;
+import static com.lolsearcher.config.ErrorResponseEntityConfig.*;
 import static com.lolsearcher.search.summoner.SummonerConstant.FIND_BY_NAME_URI;
 import static com.lolsearcher.search.summoner.SummonerConstant.SUMMONER_NAME_REGEX;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +34,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Import({EmbeddedRedisConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -115,7 +116,7 @@ public class SummonerControllerTest {
 				.andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
 				.andExpect(result -> {
 					ErrorResponseBody body = objectMapper.readValue(result.getResponse().getContentAsString(), ErrorResponseBody.class);
-					ErrorResponseBody expected = errorResponseEntities.get(ErrorConstant.BAD_REQUEST_ENTITY_NAME).getBody();
+					ErrorResponseBody expected = errorResponseEntities.get(BAD_REQUEST_ENTITY_NAME).getBody();
 
 					assertThat(expected).isNotNull();
 					assertThat(body.getErrorStatusCode()).isEqualTo(expected.getErrorStatusCode());

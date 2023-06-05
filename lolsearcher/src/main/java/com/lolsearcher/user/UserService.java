@@ -2,7 +2,7 @@ package com.lolsearcher.user;
 
 import com.lolsearcher.annotation.transaction.JpaTransactional;
 import com.lolsearcher.login.LolsearcherUserDetails;
-import com.lolsearcher.utils.factory.FrontServerResponseDtoFactory;
+import com.lolsearcher.utils.ResponseDtoFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
@@ -13,8 +13,8 @@ import java.util.Objects;
 
 import static com.lolsearcher.user.LoginSecurityState.NONE;
 import static com.lolsearcher.user.Role.TEMPORARY;
-import static com.lolsearcher.utils.encoding.PasswordEncoderUtils.encodingPassword;
-import static com.lolsearcher.utils.factory.FrontServerResponseDtoFactory.getUserDto;
+import static com.lolsearcher.utils.PasswordEncoderUtils.encodingPassword;
+import static com.lolsearcher.utils.ResponseDtoFactory.getUserDto;
 
 @RequiredArgsConstructor
 @Service
@@ -51,7 +51,7 @@ public class UserService {
     public UserDto findById(Long id) {
 
         return userRepository.findById(id)
-                .map(FrontServerResponseDtoFactory::getUserDto)
+                .map(ResponseDtoFactory::getUserDto)
                 .orElse(null);
     }
 

@@ -1,7 +1,7 @@
 package com.lolsearcher.search.mostchamp;
 
 import com.lolsearcher.annotation.transaction.JpaTransactional;
-import com.lolsearcher.utils.factory.FrontServerResponseDtoFactory;
+import com.lolsearcher.utils.ResponseDtoFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ public class MostChampService {
 		return mostChampRepository
 				.findMostChampions(summonerId, queueId, seasonId, count)
 				.stream()
-				.map(FrontServerResponseDtoFactory::getResponseMostChampDto)
+				.map(ResponseDtoFactory::getResponseMostChampDto)
 				.collect(Collectors.toList());
 	}
 }
