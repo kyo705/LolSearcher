@@ -70,6 +70,8 @@ public class ResponseDtoFactory {
             SummaryMemberDto summaryMemberDto = new SummaryMemberDto();
             matchDto.getSummaryMember().add(summaryMemberDto);
 
+            summaryMemberDto.setTeam(summaryMember.getTeam());
+            summaryMemberDto.setResult(summaryMember.getResult());
             summaryMemberDto.setSummonerId(summaryMember.getSummonerId());
             summaryMemberDto.setBanChampionId(summaryMember.getBanChampionId());
             summaryMemberDto.setPickChampionId(summaryMember.getPickChampionId());

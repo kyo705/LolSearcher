@@ -1,5 +1,7 @@
 package com.lolsearcher.search.match.dto;
 
+import com.lolsearcher.search.match.MatchResultState;
+import com.lolsearcher.search.match.TeamState;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +12,8 @@ public class SummaryMemberDto {
 	private String summonerId;
 	private int banChampionId;
 	private int pickChampionId;
+	private TeamState team;
+	private MatchResultState result;
 	private short positionId;
 	private short championLevel; /* level : 1 ~ 18 */
 	private short minionKills; /* lineMinionKills + NeutralMinionKills */
