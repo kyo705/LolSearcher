@@ -37,11 +37,14 @@ import java.util.Map;
 
 import static com.lolsearcher.login.LoginConstant.LOGIN_URI;
 import static com.lolsearcher.user.identification.IdentificationConstant.IDENTIFICATION_URI;
+import static com.lolsearcher.user.session.SessionConstant.USER_SESSION_URI;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+	public static final int MAX_USER_SESSION_CNT = 5;
 
 	private final CacheManager cacheManager;
 	private final ObjectMapper objectMapper;
@@ -84,11 +87,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "/user").permitAll()
 				.antMatchers(HttpMethod.POST, "/user").permitAll()
 				.antMatchers(IDENTIFICATION_URI).permitAll()
+				.antMatchers(HttpMethod.DELETE, USER_SESSION_URI).access("hasRole('ROLE_ADMIN')")
 				.antMatchers("/user/**").access("hasRole('ROLE_USER')")
 				.anyRequest().permitAll()
 				.and()
 			.sessionManagement()
-				.maximumSessions(5)
+				.maximumSessions(MAX_USER_SESSION_CNT)
 				.and()
 				.and()
 			.exceptionHandling()
