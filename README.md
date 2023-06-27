@@ -39,6 +39,10 @@
 >      - 실제 서버 환경 : MariaDB
 >      - 테스트 환경 : h2
 
+## 프로젝트 과정에서 겪은 고민들과 해결 과정
+
+[👉 Click here~](https://github.com/kyo705/LolSearcher/wiki/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B0%9C%EB%B0%9C%EC%8B%9C-%EA%B3%A0%EB%AF%BC-%EA%B3%BC%EC%A0%95%EA%B3%BC-%ED%95%B4%EA%B2%B0-%EB%B0%A9%EB%B2%95#issue-posting)
+
 
 프로젝트 톰캣 스레드풀 최소 갯수 설정
 -------------------------
@@ -53,8 +57,4 @@
 [by https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing]**
 
 로컬 CPU 6 core 12 thread, 하드디스크 1개이므로 커넥션풀 사이즈 25로 설정
-
-
-## [프로젝트 과정에서 겪은 고민들과 해결 과정](https://github.com/kyo705/LolSearcher/wiki/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B0%9C%EB%B0%9C%EC%8B%9C-%EA%B3%A0%EB%AF%BC-%EA%B3%BC%EC%A0%95%EA%B3%BC-%ED%95%B4%EA%B2%B0-%EB%B0%A9%EB%B2%95#issue-posting)
-
 
