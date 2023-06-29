@@ -6,16 +6,20 @@ import com.lolsearcher.errors.exception.user.NotExistingUserException;
 import com.lolsearcher.login.LolsearcherUserDetails;
 import com.lolsearcher.notification.NotificationDevice;
 import com.lolsearcher.notification.NotificationService;
+import com.lolsearcher.notification.RequestIdentificationNotificationDto;
 import com.lolsearcher.user.*;
 import com.lolsearcher.utils.RandomCodeUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 
+import static com.lolsearcher.notification.NotificationConstant.IDENTIFICATION_SUBJECT;
 import static com.lolsearcher.user.Role.USER;
 import static com.lolsearcher.user.identification.IdentificationConstant.IDENTIFICATION_NUMBER_SIZE;
 import static com.lolsearcher.utils.ResponseDtoFactory.getUserDto;
@@ -28,18 +32,18 @@ public class IdentificationService {
     private final IdentificationRepository identificationRepository;
     private final UserRepository userRepository;
 
+    @Value("${lolsearcher.notification.auth}")
+    private Long MASTER_USER_ID;
+
     @JpaTransactional
     public void create(Long userId, IdentificationRequest request) {
 
         NotificationDevice device = request.getDevice();
-        String deviceValue = request.getDeviceValue();
-
         String identificationCode = RandomCodeUtils.create(IDENTIFICATION_NUMBER_SIZE);
+        RequestIdentificationNotificationDto contents = new RequestIdentificationNotificationDto(identificationCode);
 
-        notificationService.sendIdentificationMessage(device, deviceValue, identificationCode);
-
+        notificationService.sendNotificationMessage(device, MASTER_USER_ID, List.of(userId), IDENTIFICATION_SUBJECT, contents);
         identificationRepository.save(userId, identificationCode);
-
     }
 
     @JpaTransactional

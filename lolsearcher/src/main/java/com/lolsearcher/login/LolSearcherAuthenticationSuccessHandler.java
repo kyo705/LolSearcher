@@ -2,8 +2,10 @@ package com.lolsearcher.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsearcher.notification.NotificationService;
+import com.lolsearcher.notification.RequestLoginNotificationDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -13,7 +15,9 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
+import static com.lolsearcher.notification.NotificationConstant.LOGIN_ALARM_SUBJECT;
 import static com.lolsearcher.notification.NotificationDevice.E_MAIL;
 import static com.lolsearcher.user.LoginSecurityState.ALARM;
 import static com.lolsearcher.utils.ResponseDtoFactory.getUserDto;
@@ -25,6 +29,9 @@ public class LolSearcherAuthenticationSuccessHandler implements AuthenticationSu
 
     private final ObjectMapper objectMapper;
     private final NotificationService notificationService;
+
+    @Value("${lolsearcher.notification.auth}")
+    private Long MASTER_USER_ID;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -42,10 +49,11 @@ public class LolSearcherAuthenticationSuccessHandler implements AuthenticationSu
     private void checkUserLoginSecurity(LolsearcherUserDetails details, String sessionId, String ipAddress) {
 
         int securityLevel = details.getLoginSecurity().getLevel();
-        String email = details.getUsername();
 
         if(securityLevel >= ALARM.getLevel()) {
-            notificationService.sendLoginMessage(E_MAIL, email, sessionId, ipAddress);
+            RequestLoginNotificationDto contents = new RequestLoginNotificationDto(sessionId, ipAddress);
+
+            notificationService.sendNotificationMessage(E_MAIL, MASTER_USER_ID, List.of(details.getId()), LOGIN_ALARM_SUBJECT, contents);
         }
     }
 

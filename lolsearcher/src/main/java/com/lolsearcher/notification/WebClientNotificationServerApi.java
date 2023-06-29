@@ -3,6 +3,7 @@ package com.lolsearcher.notification;
 import com.lolsearcher.user.ResponseSuccessDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -18,19 +19,25 @@ public class WebClientNotificationServerApi implements NotificationServerApi {
     private final WebClient notificationWebClient;
     private final NotificationFailureHandler failureHandler;
 
+    @Value("${lolsearcher.notification.token}")
+    private String NOTIFICATION_TOKEN;
+
     @Override
     public void sendNotificationMessage(RequestNotificationDto requestNotificationDto) {
 
         notificationWebClient.post()
                 .uri(NOTIFICATION_SERVER_IDENTIFICATION_URI)
-                .headers(headers -> headers.setContentType(MediaType.APPLICATION_JSON))
+                .headers(headers -> {
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.setBearerAuth(NOTIFICATION_TOKEN);
+                })
                 .body(BodyInserters.fromValue(requestNotificationDto))
                 .retrieve()
                 .bodyToMono(ResponseSuccessDto.class)
                 .doOnError(exception -> {
                     log.error(exception.getMessage());
-                    failureHandler.handle(exception);
+                    failureHandler.handle(exception, requestNotificationDto);
                 })
-                .block();
+                .subscribe();
     }
 }

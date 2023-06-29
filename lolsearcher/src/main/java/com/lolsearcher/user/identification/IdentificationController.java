@@ -24,7 +24,6 @@ public class IdentificationController {
     @PostMapping(IDENTIFICATION_URI)
     public ResponseSuccessDto create(@PathVariable Long userId, @RequestBody @Valid IdentificationRequest request) {
 
-        request.getDevice().validate(request.getDeviceValue());
         identificationService.create(userId, request);
 
         return new ResponseSuccessDto(true, "인증 번호 전송 성공");
